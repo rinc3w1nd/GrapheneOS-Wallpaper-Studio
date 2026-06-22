@@ -48,3 +48,25 @@ commit** → push. Front-loaded with shared plumbing introduced alongside Style 
 Dispatcher branch in `generateWallpaperSvg`, device presets, `width`/`height`, the
 fingerprint position (each style's focal element), and the export pipeline. Each style ships
 with Brave + WebKit tests and a visual check.
+
+## Future styles (backlog)
+
+Status: not started. Three more styles to add later, each via the existing style contract
+(`docs/superpowers/specs/2026-06-23-style-contract.md`): a single self-registering
+`src/styles/<id>.js` + `tests/styles/<id>.spec.js`, no edits to shared files, deterministic
+via `mulberry32`/`valueNoise2D`, OLED-dark, integrating the shared sensor model
+(`sensorMaskDef`/`sensorMaskAttr`/`sensorRing`) and `cornerBrand`, plus a per-style color
+preset dropdown (`presets`/`colorIds`).
+
+- **Bokeh** — "Bokeh": layered translucent defocused light discs of varying radius and
+  opacity scattered with a depth falloff, soft additive glow, warm/cool palette. The sensor
+  is the one crisp, in-focus ring amid the blur. Params: disc count, size range, blur/softness,
+  opacity, depth falloff + 2 colors. Deterministic via `mulberry32`.
+- **Aurora** — "Aurora": flowing aurora-borealis curtains as vertical, value-noise-warped
+  gradient bands (green/teal/violet) with soft additive glow; the sensor a calm gap the
+  curtains drape around. Reuses `valueNoise2D`. Params: band count, warp amount/scale, glow,
+  opacity + 2-3 colors.
+- **Fractal** — "Fractal": recursive geometric structure centered on the sensor — e.g.
+  escape-time field (Julia/Mandelbrot) drawn as thin iso-contours, or recursive subdivision
+  (Sierpinski / subdivided triangles). Thin accent-tinted strokes over dark. Params:
+  iteration depth, scale/zoom, warp + colors. Deterministic; bound the element count.
