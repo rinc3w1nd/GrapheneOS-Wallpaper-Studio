@@ -447,16 +447,20 @@ input[type="color"] {
 .chip-toggle { position: relative; display: block; }
 .chip-toggle input { position: absolute; opacity: 0; pointer-events: none; }
 .chip-toggle span {
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
   min-height: 42px;
+  padding: 0 8px;
   border: 1px solid var(--hair);
   border-radius: 999px;
   background: var(--surface);
   color: var(--muted);
-  font-size: 0.72rem;
-  letter-spacing: 0.06em;
+  font-size: 0.7rem;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
+  white-space: nowrap;
   transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
 }
 .chip-toggle input:checked + span,

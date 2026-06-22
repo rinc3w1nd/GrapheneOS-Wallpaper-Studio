@@ -511,9 +511,11 @@ const DEFAULT_PARAMS = {
   rasterQuality: 0.9,
 };
 
+// Note: the device/palette <select>s are NOT in this list — they are keyed by
+// deviceId/paletteId and set explicitly in setInputsFromParams. Including them
+// here would make the generic loop overwrite the selection with String(p.device)
+// = "undefined", blanking the dropdown.
 const INPUT_IDS = [
-  "device",
-  "palette",
   "showBrand",
   "showWordmark",
   "grain",
@@ -1016,11 +1018,22 @@ function generateWallpaperSvg(p) {
 <rect x="0" y="${p.height - Math.round(p.height * 0.145)}" width="${p.width}" height="${Math.round(p.height * 0.145)}" fill="url(#bottomFade)"/>`);
 
   if (p.showBrand) {
-    const brand = iso(2.55, 2.7, 0.1, p);
-    parts.push('<g id="brand" opacity="0.46">');
-    parts.push(brandMark(brand[0] + 25, brand[1] + 20, Math.min(p.width, p.height) / 3900, 0.88, p));
+    // Fixed bottom-right watermark — 10% in from the right, 10% up from the
+    // bottom — so it never collides with the centered fingerprint aperture.
+    const unit = Math.min(p.width, p.height);
+    const anchorX = p.width * 0.90;
+    const anchorY = p.height * 0.90;
+    parts.push('<g id="brand" opacity="0.5">');
     if (p.showWordmark) {
-      parts.push(`<text x="${(brand[0] + 82).toFixed(1)}" y="${(brand[1] + 30).toFixed(1)}" font-family="Inter, Roboto, Helvetica, Arial, sans-serif" font-size="${Math.max(18, Math.min(p.width, p.height) * 0.018).toFixed(1)}" letter-spacing="${Math.max(5, Math.min(p.width, p.height) * 0.006).toFixed(1)}" fill="${p.accent2}" fill-opacity="0.74">GRAPHENEOS</text>`);
+      const fontSize = Math.max(18, unit * 0.018);
+      const letterSpacing = Math.max(5, unit * 0.006);
+      // Right-anchor the wordmark; place the mark just to its left.
+      const wordWidth = 10 * (fontSize * 0.64) + 9 * letterSpacing;
+      const markCx = anchorX - wordWidth - unit * 0.045;
+      parts.push(brandMark(markCx, anchorY - fontSize * 0.33, unit / 3900, 0.9, p));
+      parts.push(`<text x="${anchorX.toFixed(1)}" y="${anchorY.toFixed(1)}" text-anchor="end" font-family="Inter, Roboto, Helvetica, Arial, sans-serif" font-size="${fontSize.toFixed(1)}" letter-spacing="${letterSpacing.toFixed(1)}" fill="${p.accent2}" fill-opacity="0.78">GRAPHENEOS</text>`);
+    } else {
+      parts.push(brandMark(anchorX - unit * 0.02, anchorY - unit * 0.02, unit / 3900, 0.9, p));
     }
     parts.push("</g>");
   }
