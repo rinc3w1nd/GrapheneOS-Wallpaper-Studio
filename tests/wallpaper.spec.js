@@ -108,6 +108,32 @@ test.describe("generation structure", () => {
   });
 });
 
+test.describe("controls UI", () => {
+  test("segmented tabs swap panels", async ({ page }) => {
+    await expect(page.locator('[data-panel="setup"]')).toBeVisible();
+    await expect(page.locator('[data-panel="form"]')).toBeHidden();
+
+    await page.locator('.tab[data-tab="form"]').click();
+
+    await expect(page.locator('[data-panel="form"]')).toBeVisible();
+    await expect(page.locator('[data-panel="setup"]')).toBeHidden();
+    await expect(page.locator('.tab[data-tab="form"]')).toHaveAttribute("aria-selected", "true");
+    await expect(page.locator('.tab[data-tab="setup"]')).toHaveAttribute("aria-selected", "false");
+  });
+
+  test("a slider drives a re-render", async ({ page }) => {
+    const before = await previewSvgHtml(page);
+    await page.locator('.tab[data-tab="form"]').click();
+    await page.locator("#structureDensity").evaluate((el) => {
+      el.value = el.min;
+      el.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+    await expect.poll(async () => (await previewSvgHtml(page)) !== before).toBe(true);
+    // The value chip reflects the new value.
+    await expect(page.locator('.value-chip[data-for="structureDensity"]')).toHaveText("0.2");
+  });
+});
+
 test("default raster export is small and lossy on every engine", async ({ page }, testInfo) => {
   const downloadPromise = page.waitForEvent("download");
   await page.click("#download-png");

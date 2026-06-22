@@ -1166,54 +1166,33 @@ function setRangeValue(input, value) {
   input.dispatchEvent(new Event("input", { bubbles: true }));
 }
 
-function syncMobileSteppers() {
-  document.querySelectorAll(".mobile-stepper").forEach((stepper) => {
-    const inputId = stepper.dataset.for;
-    const input = document.getElementById(inputId);
-    const value = stepper.querySelector(".stepper-value");
-    if (input && value) value.textContent = formatRangeValue(input);
+function syncValueChips() {
+  document.querySelectorAll(".value-chip").forEach((chip) => {
+    const input = document.getElementById(chip.dataset.for);
+    if (input) chip.textContent = formatRangeValue(input);
   });
 }
 
+// Each range row gets a tappable value chip showing the current value; tapping
+// it opens the precise dialog. The slider stays visible and drag-driven
+// (touch-action:none in CSS keeps slider drags from scrolling the panel).
 function enhanceRangeControls() {
   document.querySelectorAll('input[type="range"]').forEach((input) => {
-    if (input.dataset.stepperEnhanced === "true") return;
-    input.dataset.stepperEnhanced = "true";
+    if (input.dataset.chipEnhanced === "true" || !input.id) return;
+    input.dataset.chipEnhanced = "true";
 
-    const stepper = document.createElement("div");
-    stepper.className = "mobile-stepper";
-    stepper.dataset.for = input.id;
-    stepper.innerHTML = `
-      <button type="button" class="stepper-btn" data-dir="-1" aria-label="Decrease">−</button>
-      <button type="button" class="stepper-value" data-open-picker="true" aria-label="Open precise control">${formatRangeValue(input)}</button>
-      <button type="button" class="stepper-btn" data-dir="1" aria-label="Increase">+</button>
-    `;
+    const chip = document.createElement("button");
+    chip.type = "button";
+    chip.className = "value-chip";
+    chip.dataset.for = input.id;
+    chip.setAttribute("aria-label", "Open precise control");
+    chip.textContent = formatRangeValue(input);
+    chip.addEventListener("click", () => openValuePicker(input));
 
-    input.insertAdjacentElement("afterend", stepper);
+    input.insertAdjacentElement("afterend", chip);
   });
 
-  document.querySelectorAll(".mobile-stepper .stepper-btn").forEach((button) => {
-    if (button.dataset.bound === "true") return;
-    button.dataset.bound = "true";
-    button.addEventListener("click", () => {
-      const stepper = button.closest(".mobile-stepper");
-      const input = document.getElementById(stepper.dataset.for);
-      const dir = Number(button.dataset.dir || 1);
-      setRangeValue(input, Number(input.value) + mobileNudgeAmount(input, dir));
-    });
-  });
-
-  document.querySelectorAll(".mobile-stepper [data-open-picker]").forEach((button) => {
-    if (button.dataset.bound === "true") return;
-    button.dataset.bound = "true";
-    button.addEventListener("click", () => {
-      const stepper = button.closest(".mobile-stepper");
-      const input = document.getElementById(stepper.dataset.for);
-      openValuePicker(input);
-    });
-  });
-
-  syncMobileSteppers();
+  syncValueChips();
 }
 
 
@@ -1241,17 +1220,26 @@ let params = { ...DEFAULT_PARAMS };
 let currentSvg = "";
 
 
-function closeOtherAccordions(openDetails) {
-  document.querySelectorAll("#controls details.control-card").forEach((details) => {
-    if (details !== openDetails) details.open = false;
-  });
-}
+function setupTabs() {
+  const tabbar = document.querySelector(".tabbar");
+  if (!tabbar) return;
+  const tabs = Array.from(tabbar.querySelectorAll(".tab"));
+  const panels = Array.from(document.querySelectorAll(".panel"));
 
-function setupAccordions() {
-  document.querySelectorAll("#controls details.control-card").forEach((details) => {
-    details.addEventListener("toggle", () => {
-      if (details.open) closeOtherAccordions(details);
+  function activate(name, index) {
+    tabbar.style.setProperty("--active", String(index));
+    tabs.forEach((tab) => {
+      const on = tab.dataset.tab === name;
+      tab.classList.toggle("is-active", on);
+      tab.setAttribute("aria-selected", on ? "true" : "false");
     });
+    panels.forEach((panel) => {
+      panel.hidden = panel.dataset.panel !== name;
+    });
+  }
+
+  tabs.forEach((tab, index) => {
+    tab.addEventListener("click", () => activate(tab.dataset.tab, index));
   });
 }
 
@@ -1267,13 +1255,13 @@ function ensureValuePicker() {
     <form method="dialog" class="picker-card">
       <div class="picker-head">
         <strong id="picker-title">Adjust</strong>
-        <button type="submit" value="close" class="secondary-action">Done</button>
+        <button type="submit" value="close" class="ghost-btn small">Done</button>
       </div>
       <input id="picker-range" type="range">
       <div class="picker-row">
-        <button type="button" id="picker-minus" class="stepper-btn">−</button>
+        <button type="button" id="picker-minus" class="picker-btn">−</button>
         <input id="picker-number" type="number">
-        <button type="button" id="picker-plus" class="stepper-btn">+</button>
+        <button type="button" id="picker-plus" class="picker-btn">+</button>
       </div>
     </form>
   `;
@@ -1352,13 +1340,7 @@ function syncFingerprintVisibility() {
 
 
 function syncControlReadouts() {
-  document.querySelectorAll('input[type="range"]').forEach((input) => {
-    const label = input.closest("label");
-    if (label) {
-      label.dataset.value = input.value;
-    }
-  });
-  syncMobileSteppers();
+  syncValueChips();
 }
 
 function initDeviceSelect() {
@@ -1481,7 +1463,7 @@ function initApp() {
   initDeviceSelect();
   initPaletteSelect();
   enhanceRangeControls();
-  setupAccordions();
+  setupTabs();
   setupToggleLabels();
   setInputsFromParams(params);
   syncFingerprintVisibility();

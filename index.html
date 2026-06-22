@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
   <title>GrapheneOS Wallpaper Studio</title>
   <link rel="stylesheet" href="./src/style.css">
 </head>
@@ -11,16 +12,17 @@
     <section class="preview-stage" aria-label="Wallpaper preview">
       <div class="topbar">
         <div class="identity">
-          <h1>GrapheneOS Wallpaper Studio</h1>
+          <p class="eyebrow">GrapheneOS</p>
+          <h1>Wallpaper Studio</h1>
           <p id="device-line">
             <span id="device-name"></span>
-            <span aria-hidden="true">•</span>
+            <span class="dot" aria-hidden="true">/</span>
             <span id="device-size"></span>
           </p>
         </div>
         <div class="top-actions">
-          <button id="download-svg" type="button">SVG</button>
-          <button id="download-png" type="button">Raster</button>
+          <button id="download-svg" type="button" class="ghost-btn">SVG</button>
+          <button id="download-png" type="button" class="accent-btn">Export</button>
         </div>
       </div>
 
@@ -29,231 +31,228 @@
       </div>
     </section>
 
-    <section id="control-panel" class="controls-stage" aria-label="Wallpaper controls">
+    <section class="controls-stage" aria-label="Wallpaper controls">
       <form id="controls" autocomplete="off">
-        <section class="control-card primary-card">
-          <div class="card-title">
-            <h2>Setup</h2>
-            <button id="reset-controls" type="button" class="secondary-action">Reset</button>
-          </div>
+        <div class="tabbar" role="tablist" aria-label="Control sections" style="--tabs: 4; --active: 0;">
+          <button type="button" class="tab is-active" role="tab" aria-selected="true" data-tab="setup">Setup</button>
+          <button type="button" class="tab" role="tab" aria-selected="false" data-tab="form">Form</button>
+          <button type="button" class="tab" role="tab" aria-selected="false" data-tab="color">Color</button>
+          <button type="button" class="tab" role="tab" aria-selected="false" data-tab="export">Export</button>
+          <span class="tab-indicator" aria-hidden="true"></span>
+        </div>
 
-          <div class="control-grid two">
-            <label class="field field-full">
-              <span>Device</span>
-              <select id="device"></select>
-            </label>
+        <div class="panels">
+          <!-- SETUP -->
+          <section class="panel" role="tabpanel" data-panel="setup" aria-label="Setup">
+            <div class="panel-head">
+              <h2>Setup</h2>
+              <button id="reset-controls" type="button" class="ghost-btn small">Reset all</button>
+            </div>
 
-            <label class="field field-full">
-              <span>Palette</span>
-              <select id="palette"></select>
-            </label>
-          </div>
+            <div class="field-grid two">
+              <label class="field">
+                <span class="field-label">Device</span>
+                <select id="device"></select>
+              </label>
+              <label class="field">
+                <span class="field-label">Palette</span>
+                <select id="palette"></select>
+              </label>
+            </div>
 
-          <div class="toggle-group" aria-label="Display toggles">
-            <label class="chip-toggle">
-              <input id="showBrand" type="checkbox">
-              <span>Mark</span>
-            </label>
-            <label class="chip-toggle">
-              <input id="showWordmark" type="checkbox">
-              <span>Wordmark</span>
-            </label>
-            <label class="chip-toggle">
-              <input id="grain" type="checkbox">
-              <span>Grain</span>
-            </label>
-            <label class="chip-toggle">
-              <input id="fingerprintEnabled" type="checkbox">
-              <span>Fingerprint</span>
-            </label>
-            <label class="chip-toggle">
-              <input id="useOfficialLogo" type="checkbox">
-              <span>Official Logo</span>
-            </label>
-          </div>
-        </section>
+            <div class="group-label">Display</div>
+            <div class="toggle-group" aria-label="Display toggles">
+              <label class="chip-toggle">
+                <input id="showBrand" type="checkbox">
+                <span>Mark</span>
+              </label>
+              <label class="chip-toggle">
+                <input id="showWordmark" type="checkbox">
+                <span>Wordmark</span>
+              </label>
+              <label class="chip-toggle">
+                <input id="grain" type="checkbox">
+                <span>Grain</span>
+              </label>
+              <label class="chip-toggle">
+                <input id="fingerprintEnabled" type="checkbox">
+                <span>Fingerprint</span>
+              </label>
+              <label class="chip-toggle">
+                <input id="useOfficialLogo" type="checkbox">
+                <span>Official Logo</span>
+              </label>
+            </div>
 
-        <details class="control-card" open>
-          <summary>
-            <span>Fingerprint</span>
-            <small>position, size, visibility</small>
-          </summary>
+            <div class="group-label sensor-group">Sensor aperture</div>
+            <div class="control-list sensor-group">
+              <label class="field range">
+                <span class="field-label">Position X</span>
+                <input id="fingerprintXPct" type="range" min="35" max="65" step="0.1">
+              </label>
+              <label class="field range">
+                <span class="field-label">Position Y</span>
+                <input id="fingerprintYPct" type="range" min="64" max="86" step="0.1">
+              </label>
+              <label class="field range">
+                <span class="field-label">Size</span>
+                <input id="fingerprintRadiusPct" type="range" min="8" max="24" step="0.1">
+              </label>
+              <label class="field range">
+                <span class="field-label">Ring opacity</span>
+                <input id="fingerprintRingOpacity" type="range" min="0" max="1" step="0.01">
+              </label>
+            </div>
+          </section>
 
-          <div class="control-list">
-            <label class="field range-field">
-              <span>FP X</span>
-              <input id="fingerprintXPct" type="range" min="35" max="65" step="0.1">
-            </label>
-            <label class="field range-field">
-              <span>FP Y</span>
-              <input id="fingerprintYPct" type="range" min="64" max="86" step="0.1">
-            </label>
-            <label class="field range-field">
-              <span>FP size</span>
-              <input id="fingerprintRadiusPct" type="range" min="8" max="24" step="0.1">
-            </label>
-            <label class="field range-field">
-              <span>FP display</span>
-              <input id="fingerprintRingOpacity" type="range" min="0" max="1" step="0.01">
-            </label>
-          </div>
-        </details>
+          <!-- FORM -->
+          <section class="panel" role="tabpanel" data-panel="form" aria-label="Form" hidden>
+            <div class="panel-head">
+              <h2>Form</h2>
+            </div>
 
-        <details class="control-card">
-          <summary>
-            <span>Geometry</span>
-            <small>structure, axes, density</small>
-          </summary>
+            <div class="control-list">
+              <label class="field">
+                <span class="field-label">Seed</span>
+                <input id="seed" type="number" min="1" max="4294967295" step="1">
+              </label>
+              <label class="field range">
+                <span class="field-label">Density</span>
+                <input id="structureDensity" type="range" min="0.2" max="1" step="0.01">
+              </label>
+              <label class="field range">
+                <span class="field-label">Scale X</span>
+                <input id="unitX" type="range" min="50" max="190" step="1">
+              </label>
+              <label class="field range">
+                <span class="field-label">Scale Y</span>
+                <input id="unitY" type="range" min="30" max="115" step="1">
+              </label>
+              <label class="field range">
+                <span class="field-label">Depth</span>
+                <input id="unitZ" type="range" min="60" max="210" step="1">
+              </label>
+              <label class="field range">
+                <span class="field-label">Axis X</span>
+                <input id="geometryOffsetX" type="range" min="-4" max="4" step="0.05">
+              </label>
+              <label class="field range">
+                <span class="field-label">Axis Y</span>
+                <input id="geometryOffsetY" type="range" min="-4" max="4" step="0.05">
+              </label>
+              <label class="field range">
+                <span class="field-label">Axis Z</span>
+                <input id="geometryOffsetZ" type="range" min="-3" max="3" step="0.05">
+              </label>
+              <label class="field range">
+                <span class="field-label">Origin X</span>
+                <input id="originXPct" type="range" min="25" max="75" step="0.1">
+              </label>
+              <label class="field range">
+                <span class="field-label">Origin Y</span>
+                <input id="originYPct" type="range" min="42" max="82" step="0.1">
+              </label>
+              <label class="field range">
+                <span class="field-label">Scaffold</span>
+                <input id="topScaffoldOpacity" type="range" min="0" max="0.16" step="0.005">
+              </label>
+              <label class="field range">
+                <span class="field-label">Lines</span>
+                <input id="latticeOpacity" type="range" min="0.05" max="0.7" step="0.01">
+              </label>
+              <label class="field range">
+                <span class="field-label">Nodes</span>
+                <input id="nodeOpacity" type="range" min="0" max="0.8" step="0.01">
+              </label>
+            </div>
+          </section>
 
-          <div class="control-list">
+          <!-- COLOR -->
+          <section class="panel" role="tabpanel" data-panel="color" aria-label="Color" hidden>
+            <div class="panel-head">
+              <h2>Color</h2>
+            </div>
+
+            <div class="group-label">Accents</div>
+            <div class="field-grid three">
+              <label class="field color">
+                <span class="field-label">Accent A</span>
+                <input id="accent" type="color">
+              </label>
+              <label class="field color">
+                <span class="field-label">Accent B</span>
+                <input id="accent2" type="color">
+              </label>
+              <label class="field color">
+                <span class="field-label">Line</span>
+                <input id="lineColor" type="color">
+              </label>
+            </div>
+
+            <div class="group-label">Background</div>
+            <div class="field-grid three">
+              <label class="field color">
+                <span class="field-label">Top</span>
+                <input id="backgroundTop" type="color">
+              </label>
+              <label class="field color">
+                <span class="field-label">Middle</span>
+                <input id="backgroundMid" type="color">
+              </label>
+              <label class="field color">
+                <span class="field-label">Bottom</span>
+                <input id="backgroundBottom" type="color">
+              </label>
+            </div>
+
+            <div class="control-list">
+              <label class="field range">
+                <span class="field-label">Accent strength</span>
+                <input id="accentOpacity" type="range" min="0.04" max="0.45" step="0.01">
+              </label>
+            </div>
+          </section>
+
+          <!-- EXPORT -->
+          <section class="panel" role="tabpanel" data-panel="export" aria-label="Export" hidden>
+            <div class="panel-head">
+              <h2>Export</h2>
+            </div>
+
+            <div class="field-grid two">
+              <label class="field">
+                <span class="field-label">Width</span>
+                <input id="width" type="number" min="320" max="4096" step="1">
+              </label>
+              <label class="field">
+                <span class="field-label">Height</span>
+                <input id="height" type="number" min="320" max="4096" step="1">
+              </label>
+            </div>
+
             <label class="field">
-              <span>Seed</span>
-              <input id="seed" type="number" min="1" max="4294967295" step="1">
-            </label>
-            <label class="field range-field">
-              <span>Density</span>
-              <input id="structureDensity" type="range" min="0.2" max="1" step="0.01">
-            </label>
-            <label class="field range-field">
-              <span>Scale X</span>
-              <input id="unitX" type="range" min="50" max="190" step="1">
-            </label>
-            <label class="field range-field">
-              <span>Scale Y</span>
-              <input id="unitY" type="range" min="30" max="115" step="1">
-            </label>
-            <label class="field range-field">
-              <span>Depth</span>
-              <input id="unitZ" type="range" min="60" max="210" step="1">
-            </label>
-            <label class="field range-field">
-              <span>Axis X</span>
-              <input id="geometryOffsetX" type="range" min="-4" max="4" step="0.05">
-            </label>
-            <label class="field range-field">
-              <span>Axis Y</span>
-              <input id="geometryOffsetY" type="range" min="-4" max="4" step="0.05">
-            </label>
-            <label class="field range-field">
-              <span>Axis Z</span>
-              <input id="geometryOffsetZ" type="range" min="-3" max="3" step="0.05">
-            </label>
-          </div>
-        </details>
-
-        <details class="control-card">
-          <summary>
-            <span>Composition</span>
-            <small>origin, scaffold, lines</small>
-          </summary>
-
-          <div class="control-list">
-            <label class="field range-field">
-              <span>Origin X</span>
-              <input id="originXPct" type="range" min="25" max="75" step="0.1">
-            </label>
-            <label class="field range-field">
-              <span>Origin Y</span>
-              <input id="originYPct" type="range" min="42" max="82" step="0.1">
-            </label>
-            <label class="field range-field">
-              <span>Scaffold</span>
-              <input id="topScaffoldOpacity" type="range" min="0" max="0.16" step="0.005">
-            </label>
-            <label class="field range-field">
-              <span>Lines</span>
-              <input id="latticeOpacity" type="range" min="0.05" max="0.7" step="0.01">
-            </label>
-            <label class="field range-field">
-              <span>Nodes</span>
-              <input id="nodeOpacity" type="range" min="0" max="0.8" step="0.01">
-            </label>
-          </div>
-        </details>
-
-        <details class="control-card">
-          <summary>
-            <span>Colors</span>
-            <small>accent and background</small>
-          </summary>
-
-          <div class="control-grid three color-grid">
-            <label class="field color-field">
-              <span>Accent A</span>
-              <input id="accent" type="color">
-            </label>
-            <label class="field color-field">
-              <span>Accent B</span>
-              <input id="accent2" type="color">
-            </label>
-            <label class="field color-field">
-              <span>Line</span>
-              <input id="lineColor" type="color">
-            </label>
-          </div>
-
-          <div class="control-grid three color-grid">
-            <label class="field color-field">
-              <span>Top</span>
-              <input id="backgroundTop" type="color">
-            </label>
-            <label class="field color-field">
-              <span>Middle</span>
-              <input id="backgroundMid" type="color">
-            </label>
-            <label class="field color-field">
-              <span>Bottom</span>
-              <input id="backgroundBottom" type="color">
-            </label>
-          </div>
-
-          <div class="control-list">
-            <label class="field range-field">
-              <span>Accent strength</span>
-              <input id="accentOpacity" type="range" min="0.04" max="0.45" step="0.01">
-            </label>
-          </div>
-        </details>
-
-        <details class="control-card">
-          <summary>
-            <span>Output</span>
-            <small>size and export scale</small>
-          </summary>
-
-          <div class="control-grid two">
-            <label class="field">
-              <span>Width</span>
-              <input id="width" type="number" min="320" max="4096" step="1">
-            </label>
-            <label class="field">
-              <span>Height</span>
-              <input id="height" type="number" min="320" max="4096" step="1">
-            </label>
-          </div>
-
-          <div class="control-grid two">
-            <label class="field">
-              <span>Raster format</span>
+              <span class="field-label">Raster format</span>
               <select id="exportFormat">
                 <option value="image/webp">WebP</option>
                 <option value="image/jpeg">JPEG</option>
                 <option value="image/png">PNG</option>
               </select>
             </label>
-            <label class="field range-field">
-              <span>Raster quality</span>
-              <input id="rasterQuality" type="range" min="0.5" max="0.95" step="0.05">
-            </label>
-          </div>
 
-          <div class="control-list">
-            <label class="field range-field">
-              <span>Raster scale</span>
-              <input id="pngScale" type="range" min="0.35" max="1" step="0.05">
-            </label>
-          </div>
-        </details>
+            <div class="control-list">
+              <label class="field range">
+                <span class="field-label">Quality</span>
+                <input id="rasterQuality" type="range" min="0.5" max="0.95" step="0.05">
+              </label>
+              <label class="field range">
+                <span class="field-label">Scale</span>
+                <input id="pngScale" type="range" min="0.35" max="1" step="0.05">
+              </label>
+            </div>
+
+            <p class="hint">Export uses the buttons in the header. WebP/JPEG stay small; PNG is lossless but large with grain.</p>
+          </section>
+        </div>
       </form>
     </section>
   </main>

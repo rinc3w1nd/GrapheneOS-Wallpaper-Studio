@@ -124,8 +124,17 @@ invariants: derive-extension-from-actual-bytes, and the lossy fallback.
 SVG export is a plain text-blob download. Note: `render()` deliberately does not persist
 state to the URL — reload resets controls to `DEFAULT_PARAMS`.
 
-### Mobile control enhancement
+### Controls UI (mobile-first, segmented tabs)
 
-Range sliders are augmented at runtime by `enhanceRangeControls()` with +/- stepper buttons
-and a tap-to-open `<dialog>` value picker (`openValuePicker`), because raw sliders are
-imprecise on touch. Control cards are mutually-exclusive accordions (`setupAccordions`).
+The control panel is a precision-instrument layout: a sticky **segmented tab bar**
+(`setupTabs()`) swaps one `.panel` at a time (`Setup` / `Form` / `Color` / `Export`); the
+sliding pill is driven by a `--active` index custom property on `.tabbar`. The whole control
+set lives in `<form id="controls">`, and `app.js` keys all state off `INPUT_IDS` /
+`readParamsFromInputs` / `setInputsFromParams` — so panels can be reorganized freely **as long
+as every input `id` is preserved**. Each range row is a visible slider plus a tappable
+**value chip** (`enhanceRangeControls()`); the chip opens a `<dialog>` value picker
+(`openValuePicker`) for precise entry. The chip-toggle markup (`label.chip-toggle > input +
+span`) is load-bearing for the Playwright suite. Styling lives in one consolidated
+`src/style.css` (design tokens in `:root`, system `ui-monospace` stack — no web fonts, to keep
+the zero-network-request guarantee). Design rationale:
+[docs/superpowers/specs/2026-06-23-mobile-ui-redesign-design.md](docs/superpowers/specs/2026-06-23-mobile-ui-redesign-design.md).
