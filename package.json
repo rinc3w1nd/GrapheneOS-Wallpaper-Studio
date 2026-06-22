@@ -1,0 +1,14 @@
+{
+  "name": "grapheneos-wallpaper-studio-tests",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Dev-only e2e tooling. The app itself (index.html, src/) ships with zero runtime dependencies — this manifest exists solely for the Playwright test suite.",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.48.0"
+  }
+}
