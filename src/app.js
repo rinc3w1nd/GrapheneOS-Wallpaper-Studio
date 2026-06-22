@@ -503,8 +503,8 @@ const DEFAULT_PARAMS = {
   fingerprintEnabled: true,
   useOfficialLogo: true,
   fingerprintXPct: 50,
-  fingerprintYPct: 74.5,
-  fingerprintRadiusPct: 15.5,
+  fingerprintYPct: 72.5,
+  fingerprintRadiusPct: 10,
   fingerprintRingOpacity: 0.88,
   pngScale: 1.0,
   exportFormat: "image/webp",
@@ -1022,7 +1022,7 @@ function generateWallpaperSvg(p) {
     // bottom — so it never collides with the centered fingerprint aperture.
     const unit = Math.min(p.width, p.height);
     const anchorX = p.width * 0.90;
-    const anchorY = p.height * 0.90;
+    const anchorY = p.height * 0.875;
     parts.push('<g id="brand" opacity="0.5">');
     if (p.showWordmark) {
       const fontSize = Math.max(18, unit * 0.018);
