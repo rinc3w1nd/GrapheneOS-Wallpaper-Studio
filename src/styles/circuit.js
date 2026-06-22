@@ -174,7 +174,17 @@ registerStyle({
     circuitTraceColor: "#4fb8c9",
     circuitTraceColor2: "#b6f2ff",
     circuitPadColor: "#77b69e",
+    circuitPreset: "cyan",
   },
+  colorIds: ["circuitTraceColor", "circuitTraceColor2", "circuitPadColor", "circuitBgTop", "circuitBgBottom"],
+  presets: [
+    { id: "cyan", name: "Cyan", set: { circuitTraceColor: "#4fb8c9", circuitTraceColor2: "#b6f2ff", circuitPadColor: "#77b69e", circuitBgTop: "#04070a", circuitBgBottom: "#010305" } },
+    { id: "graphene", name: "Graphene", set: { circuitTraceColor: "#6fb39a", circuitTraceColor2: "#cdeede", circuitPadColor: "#9ad4c2", circuitBgTop: "#02040a", circuitBgBottom: "#010403" } },
+    { id: "amber", name: "Amber", set: { circuitTraceColor: "#c9a24f", circuitTraceColor2: "#ffe2a3", circuitPadColor: "#b69e77", circuitBgTop: "#090705", circuitBgBottom: "#040302" } },
+    { id: "magenta", name: "Magenta", set: { circuitTraceColor: "#b94f9a", circuitTraceColor2: "#ffb6f2", circuitPadColor: "#9e77b6", circuitBgTop: "#07040a", circuitBgBottom: "#030105" } },
+    { id: "emerald", name: "Emerald", set: { circuitTraceColor: "#3fc98c", circuitTraceColor2: "#b6ffd0", circuitPadColor: "#77b69e", circuitBgTop: "#02070a", circuitBgBottom: "#010403" } },
+    { id: "crimson", name: "Crimson", set: { circuitTraceColor: "#c4625a", circuitTraceColor2: "#ffc2b6", circuitPadColor: "#b6837a", circuitBgTop: "#0a0403", circuitBgBottom: "#050201" } },
+  ],
   inputIds: [
     "circuitGridPitch",
     "circuitTraceDensity",
@@ -197,6 +207,7 @@ registerStyle({
       '<label class="field range"><span class="field-label">Pad opacity</span><input id="circuitPadOpacity" type="range" min="0" max="1" step="0.01"></label>',
     color:
       '<div class="group-label">Circuit colors</div>' +
+      '<label class="field"><span class="field-label">Preset</span><select id="circuitPreset"></select></label>' +
       '<label class="field color"><span class="field-label">Trace</span><input id="circuitTraceColor" type="color"></label>' +
       '<label class="field color"><span class="field-label">Trace highlight</span><input id="circuitTraceColor2" type="color"></label>' +
       '<label class="field color"><span class="field-label">Pad</span><input id="circuitPadColor" type="color"></label>' +

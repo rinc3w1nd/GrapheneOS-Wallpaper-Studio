@@ -145,8 +145,18 @@ registerStyle({
     flowBgTop: "#03050a",
     flowBgBottom: "#02040a",
     flowWarm: "#d18a5a",
-    flowCool: "#5aa6d1"
+    flowCool: "#5aa6d1",
+    flowPreset: "dusk"
   },
+  colorIds: ["flowWarm", "flowCool", "flowBgTop", "flowBgBottom"],
+  presets: [
+    { id: "dusk", name: "Dusk", set: { flowWarm: "#d18a5a", flowCool: "#5aa6d1", flowBgTop: "#03050a", flowBgBottom: "#02040a" } },
+    { id: "graphene", name: "Graphene", set: { flowWarm: "#7fd7b2", flowCool: "#3f7d8c", flowBgTop: "#02040a", flowBgBottom: "#04070d" } },
+    { id: "aurora", name: "Aurora", set: { flowWarm: "#c9bbff", flowCool: "#5a6f9a", flowBgTop: "#05070d", flowBgBottom: "#0b1019" } },
+    { id: "amber", name: "Amber", set: { flowWarm: "#d7b84c", flowCool: "#7c6a4a", flowBgTop: "#090705", flowBgBottom: "#130f08" } },
+    { id: "crimson", name: "Crimson", set: { flowWarm: "#c46a64", flowCool: "#6b4a4a", flowBgTop: "#080504", flowBgBottom: "#130b09" } },
+    { id: "ice", name: "Ice", set: { flowWarm: "#d8e7f4", flowCool: "#4c566a", flowBgTop: "#060809", flowBgBottom: "#0c1014" } }
+  ],
   inputIds: [
     "flowStreams",
     "flowLength",
@@ -175,6 +185,7 @@ registerStyle({
     `,
     color: `
       <div class="group-label">Flow colors</div>
+      <label class="field"><span class="field-label">Preset</span><select id="flowPreset"></select></label>
       <label class="field color"><span class="field-label">Warm tint</span><input id="flowWarm" type="color"></label>
       <label class="field color"><span class="field-label">Cool tint</span><input id="flowCool" type="color"></label>
       <label class="field color"><span class="field-label">Background top</span><input id="flowBgTop" type="color"></label>
