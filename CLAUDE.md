@@ -43,9 +43,22 @@ which uploads the repo root as-is to GitHub Pages (no build step in the workflow
 
 ## Architecture
 
-All application logic lives in [src/app.js](src/app.js) as plain `"use strict"` script (no
-modules). It runs top-to-bottom: pure helpers first, then `initApp()` is called at the
-bottom, then event listeners are wired.
+The app is split across **ordered classic `<script>` files** (no ES modules — that keeps
+`file://` working and the test globals visible; module syntax isn't needed for Pages/PWA).
+They share one global scope, loaded in this order by [index.html](index.html):
+
+1. [src/core.js](src/core.js) — data + pure primitives: `DEVICE_PRESETS`, `PALETTE_PRESETS`,
+   `CHIC_PRESETS`, `DEFAULT_PARAMS`, `INPUT_IDS`, color math, `mulberry32`, `valueNoise2D`,
+   geometry helpers (`iso`/`poly`/`line`/`circle`/`hexagon`/`vertices`/`flatHexPoints`/…),
+   `scaleColor`/`complementaryPair`, and the inlined `OFFICIAL_LOGO_PATH`.
+2. [src/styles/lattice.js](src/styles/lattice.js) — `generateLatticeSvg` + its helpers
+   (`svgHeader`, `cube`, `scaffoldLineIso`, `brandMark`/`grapheneMark`/`officialGrapheneLogo`,
+   the fingerprint aperture).
+3. [src/styles/chic.js](src/styles/chic.js) — `generateChicSvg`.
+4. [src/app.js](src/app.js) — the `generateWallpaperSvg` dispatcher, raster export, and all UI
+   wiring. Loaded last; its top-level code (`initApp()`, listeners) runs once everything else
+   is defined. New styles are added as `src/styles/<id>.js` (depends only on core) plus a
+   dispatcher branch and their slice of params/controls/css/tests.
 
 The data flow is a one-directional render pipeline:
 

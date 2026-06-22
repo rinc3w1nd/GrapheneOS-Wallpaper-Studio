@@ -1,3 +1,4 @@
-node --check src/app.js rc=0
+node --check src/core.js src/styles/lattice.js src/styles/chic.js src/app.js rc=0
 
 palette presets: 41
+chic presets: 8
