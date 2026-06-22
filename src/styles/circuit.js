@@ -105,7 +105,8 @@ function generateCircuitSvg(p) {
   }
 
   parts.push('<g id="circuit-traces" fill="none" stroke-linecap="round" stroke-linejoin="round">');
-  const traceCount = Math.min(320, Math.floor((cols + rows) * density * 2.4));
+  // Dense PCB: trace count scales hard with the density slider (default high).
+  const traceCount = Math.min(1500, Math.floor((cols + rows) * density * 8));
   const padPts = [];
   for (let i = 0; i < traceCount; i += 1) {
     const cells = busTrace(Math.floor(rand() * cols), Math.floor(rand() * rows));
@@ -164,7 +165,7 @@ registerStyle({
   generate: generateCircuitSvg,
   defaults: {
     circuitGridPitch: 44,
-    circuitTraceDensity: 0.55,
+    circuitTraceDensity: 0.85,
     circuitViaFrequency: 0.35,
     circuitTraceOpacity: 0.5,
     circuitPadOpacity: 0.7,
