@@ -49,19 +49,28 @@
               <button id="reset-controls" type="button" class="ghost-btn small">Reset all</button>
             </div>
 
-            <div class="field-grid two">
-              <label class="field">
-                <span class="field-label">Device</span>
-                <select id="device"></select>
-              </label>
-              <label class="field">
-                <span class="field-label">Palette</span>
-                <select id="palette"></select>
-              </label>
+            <div class="group-label">Style</div>
+            <div class="style-toggle" role="tablist" aria-label="Wallpaper style">
+              <button type="button" class="style-opt is-active" data-style="lattice">Lattice</button>
+              <button type="button" class="style-opt" data-style="chic">Chic</button>
             </div>
 
-            <div class="group-label">Display</div>
-            <div class="toggle-group" aria-label="Display toggles">
+            <label class="field">
+              <span class="field-label">Device</span>
+              <select id="device"></select>
+            </label>
+
+            <label class="field lattice-only">
+              <span class="field-label">Palette</span>
+              <select id="palette"></select>
+            </label>
+            <label class="field chic-only">
+              <span class="field-label">Preset</span>
+              <select id="chicPreset"></select>
+            </label>
+
+            <div class="group-label lattice-only">Display</div>
+            <div class="toggle-group lattice-only" aria-label="Display toggles">
               <label class="chip-toggle">
                 <input id="showBrand" type="checkbox">
                 <span>Mark</span>
@@ -81,6 +90,22 @@
               <label class="chip-toggle">
                 <input id="useOfficialLogo" type="checkbox">
                 <span>Official<br />Logo</span>
+              </label>
+            </div>
+
+            <div class="group-label chic-only">Display</div>
+            <div class="toggle-group chic-only" aria-label="Chic toggles">
+              <label class="chip-toggle">
+                <input id="chicCenterFill" type="checkbox">
+                <span>Center<br />fill</span>
+              </label>
+              <label class="chip-toggle">
+                <input id="chicWeave" type="checkbox">
+                <span>Weave</span>
+              </label>
+              <label class="chip-toggle">
+                <input id="chicDeep" type="checkbox">
+                <span>Deep</span>
               </label>
             </div>
 
@@ -111,7 +136,37 @@
               <h2>Form</h2>
             </div>
 
-            <div class="control-list">
+            <div class="control-list chic-only">
+              <label class="field range">
+                <span class="field-label">Tile size</span>
+                <input id="chicTileScale" type="range" min="0.5" max="2" step="0.05">
+              </label>
+              <label class="field range">
+                <span class="field-label">Spacing</span>
+                <input id="chicSpacing" type="range" min="1.1" max="2.4" step="0.05">
+              </label>
+              <label class="field range">
+                <span class="field-label">Weave angle</span>
+                <input id="chicWeaveDeg" type="range" min="0" max="10" step="0.5">
+              </label>
+              <label class="field">
+                <span class="field-label">Fill</span>
+                <select id="chicFill">
+                  <option value="flat">Flat</option>
+                  <option value="gradient">Gradient</option>
+                  <option value="duotone">Duotone</option>
+                </select>
+              </label>
+              <label class="field">
+                <span class="field-label">Effect</span>
+                <select id="chicEffect">
+                  <option value="none">None</option>
+                  <option value="glow">Glow</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="control-list lattice-only">
               <label class="field">
                 <span class="field-label">Seed</span>
                 <input id="seed" type="number" min="1" max="4294967295" step="1">
@@ -173,6 +228,29 @@
               <h2>Color</h2>
             </div>
 
+            <div class="chic-only style-group">
+              <div class="group-label">Theme</div>
+              <label class="field">
+                <span class="field-label">Theme</span>
+                <select id="chicTheme">
+                  <option value="dark">Dark (OLED)</option>
+                  <option value="light">Light</option>
+                </select>
+              </label>
+              <div class="group-label">Colors</div>
+              <div class="field-grid two">
+                <label class="field color">
+                  <span class="field-label">Tile</span>
+                  <input id="chicTileColor" type="color">
+                </label>
+                <label class="field color">
+                  <span class="field-label">Accent</span>
+                  <input id="chicAccentColor" type="color">
+                </label>
+              </div>
+            </div>
+
+            <div class="lattice-only style-group">
             <div class="group-label">Accents</div>
             <div class="field-grid three">
               <label class="field color">
@@ -211,6 +289,7 @@
                 <input id="accentOpacity" type="range" min="0.04" max="0.45" step="0.01">
               </label>
             </div>
+            </div><!-- /lattice-only -->
           </section>
 
           <!-- EXPORT -->

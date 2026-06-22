@@ -61,7 +61,21 @@ The data flow is a one-directional render pipeline:
 4. **`render()`** reads inputs, generates the SVG, injects it into `#preview`, and updates
    the device readout. Bound to control events via a 40ms `debounce`.
 
-### Isometric geometry
+### Wallpaper styles (dispatcher)
+
+`generateWallpaperSvg(p)` is a thin dispatcher on `p.style`: `"chic"` → `generateChicSvg(p)`,
+else `generateLatticeSvg(p)` (the original isometric generator). The **Style** toggle
+(`.style-opt` buttons, `setupStyleToggle`) sets `params.style` + a `style-lattice`/`style-chic`
+class on `<body>`; CSS shows `.lattice-only` / `.chic-only` control groups accordingly
+(`display:none !important` for the inactive style). Both generators share device presets,
+`width`/`height`, the inlined logo, the fingerprint position controls, and the export
+pipeline. Chic = a tessellated grid of the GOS mark (drawn via one `<use href="#chicLogoPath">`
+per tile so the path string isn't repeated) plus an accent tile at the fingerprint center;
+it's a lean SVG port of [GOS-Chic](https://github.com/rinc3w1nd/GOS-Chic) — see
+[docs/superpowers/specs/2026-06-23-chic-style-design.md](docs/superpowers/specs/2026-06-23-chic-style-design.md).
+Chic presets (`CHIC_PRESETS`) are separate from the 41 lattice palettes.
+
+### Isometric geometry (Lattice style)
 
 The visual structure is built from an isometric projection. `iso(x, y, z, p)` maps lattice
 coordinates to screen pixels using `unitX`/`unitY`/`unitZ` scale params and an origin

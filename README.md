@@ -20,6 +20,7 @@ src/
 
 ## Features
 
+- Two wallpaper styles: **Lattice** (isometric geometric structure) and **Chic** (a tessellated grid of the GrapheneOS mark, a client-side SVG port of [GOS-Chic](https://github.com/rinc3w1nd/GOS-Chic))
 - Client-side structural geometric SVG generation
 - Browser-side raster export (WebP / JPEG / PNG) using canvas
 - Deterministic seed
@@ -121,6 +122,18 @@ taints the canvas on raster export. The mark is tinted to the active accent colo
 time, so it stays visible on the dark background. Turn the toggle off for the
 procedurally-drawn approximation (`grapheneMark()`). To swap the logo, replace the path data
 in `OFFICIAL_LOGO_PATH` (and its `OFFICIAL_LOGO_VIEWBOX`).
+
+## Wallpaper styles
+
+The **Style** toggle (top of the Setup panel) switches between two generators:
+
+- **Lattice** — the isometric geometric structure with the fingerprint aperture.
+- **Chic** — a tessellated grid of the GrapheneOS mark on an OLED background with a single
+  accent tile at the fingerprint position. This is a dependency-free, client-side SVG port of
+  the signature look from [GOS-Chic](https://github.com/rinc3w1nd/GOS-Chic) (a Python tool).
+  Controls: preset (seasonal + metallic), theme (dark/light), tile + accent colors, fill
+  (flat/gradient/duotone), glow, weave, spacing, tile size, deep contrast, and center-fill.
+  The fingerprint position controls place + size the accent tile.
 
 ## Fingerprint aperture
 

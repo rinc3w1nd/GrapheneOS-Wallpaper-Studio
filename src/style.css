@@ -438,6 +438,37 @@ input[type="color"] {
   cursor: pointer;
 }
 
+/* style switch (lattice vs chic) */
+.style-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 5px;
+  border: 1px solid var(--hair);
+  border-radius: 999px;
+  background: var(--surface);
+}
+.style-opt {
+  min-height: 40px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.74rem;
+  letter-spacing: 0.1em;
+}
+.style-opt.is-active {
+  color: #06140f;
+  background: linear-gradient(180deg, var(--accent-2), var(--accent));
+  box-shadow: 0 6px 18px rgba(119, 182, 158, 0.24);
+}
+
+.style-group { display: grid; gap: var(--gap); }
+
+/* show only the active style's control groups */
+body.style-lattice .chic-only { display: none !important; }
+body.style-chic .lattice-only { display: none !important; }
+
 /* toggle chips */
 .toggle-group {
   display: grid;

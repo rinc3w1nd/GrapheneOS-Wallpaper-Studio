@@ -106,6 +106,20 @@ test.describe("generation structure", () => {
     expect(svg).not.toContain("fingerprint-aperture");
     expect(svg).not.toContain("apertureMask");
   });
+
+  test("chic style produces a tessellated grid + accent tile", async ({ page }) => {
+    const svg = await genSvg(page, { style: "chic" });
+    expect(svg).toContain('id="chic-grid"');
+    expect(svg).toContain('id="chic-accent"');
+    const tileCount = svg.split('class="chic-tile"').length - 1;
+    expect(tileCount).toBeGreaterThan(1);
+  });
+
+  test("lattice style is unchanged by the dispatcher", async ({ page }) => {
+    const svg = await genSvg(page, { style: "lattice" });
+    expect(svg).toContain('id="geometry"');
+    expect(svg).not.toContain("chic-grid");
+  });
 });
 
 test.describe("controls UI", () => {
@@ -119,6 +133,17 @@ test.describe("controls UI", () => {
     await expect(page.locator('[data-panel="setup"]')).toBeHidden();
     await expect(page.locator('.tab[data-tab="form"]')).toHaveAttribute("aria-selected", "true");
     await expect(page.locator('.tab[data-tab="setup"]')).toHaveAttribute("aria-selected", "false");
+  });
+
+  test("style toggle swaps generator and control groups", async ({ page }) => {
+    await expect(page.locator("body")).toHaveClass(/style-lattice/);
+    await expect(page.locator("#chicPreset")).toBeHidden();
+
+    await page.locator('[data-style="chic"]').click();
+
+    await expect(page.locator("body")).toHaveClass(/style-chic/);
+    await expect(page.locator("#chicPreset")).toBeVisible();
+    await expect.poll(async () => (await previewSvgHtml(page)).includes("chic-grid")).toBe(true);
   });
 
   test("a slider drives a re-render", async ({ page }) => {

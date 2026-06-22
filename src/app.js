@@ -509,7 +509,42 @@ const DEFAULT_PARAMS = {
   pngScale: 1.0,
   exportFormat: "image/webp",
   rasterQuality: 0.9,
+
+  // Chic style (tessellated GOS-mark grid). style switches generators.
+  style: "lattice",
+  chicTheme: "dark",
+  chicPreset: "summer",
+  chicTileColor: "#c8642d",
+  chicAccentColor: "#28a0b4",
+  chicFill: "gradient",
+  chicEffect: "none",
+  chicDeep: false,
+  chicWeave: true,
+  chicWeaveDeg: 3,
+  chicSpacing: 1.6,
+  chicTileScale: 1.0,
+  chicCenterFill: true,
 };
+
+const CHIC_PRESETS = [
+  { id: "summer", name: "Summer", theme: "dark", tile: "#c8642d", accent: "#28a0b4" },
+  { id: "autumn", name: "Autumn", theme: "dark", tile: "#3c645a", accent: "#a0501e" },
+  { id: "spring", name: "Spring", theme: "dark", tile: "#7d8cb4", accent: "#b48c64" },
+  { id: "winter", name: "Winter", theme: "dark", tile: "#a03c4b", accent: "#8ca0c8" },
+  { id: "gold", name: "Gold", theme: "dark", tile: "#2a2a2a", accent: "#a08c3c" },
+  { id: "steel", name: "Steel", theme: "dark", tile: "#2a2a2a", accent: "#9aa3ad" },
+  { id: "red", name: "Red", theme: "dark", tile: "#2a2a2a", accent: "#8c2828" },
+  { id: "porcelain", name: "Porcelain", theme: "light", tile: "#8a8a8a", accent: "#3a6f64" },
+];
+
+function findChicPreset(id) {
+  return CHIC_PRESETS.find((c) => c.id === id) || CHIC_PRESETS[0];
+}
+
+function paramsForChicPreset(presetId, current) {
+  const c = findChicPreset(presetId);
+  return { ...current, chicPreset: presetId, chicTheme: c.theme, chicTileColor: c.tile, chicAccentColor: c.accent };
+}
 
 // Note: the device/palette <select>s are NOT in this list — they are keyed by
 // deviceId/paletteId and set explicitly in setInputsFromParams. Including them
@@ -549,7 +584,20 @@ const INPUT_IDS = [
   "height",
   "exportFormat",
   "rasterQuality",
-  "pngScale"
+  "pngScale",
+  // Chic style controls (style + chicPreset are handled separately, like
+  // device/palette).
+  "chicTheme",
+  "chicFill",
+  "chicEffect",
+  "chicTileColor",
+  "chicAccentColor",
+  "chicTileScale",
+  "chicSpacing",
+  "chicWeaveDeg",
+  "chicWeave",
+  "chicDeep",
+  "chicCenterFill"
 ];
 
 function findDevice(id) {
@@ -889,6 +937,103 @@ function fingerprintAperture(p, latticeSegments) {
 }
 
 function generateWallpaperSvg(p) {
+  return p.style === "chic" ? generateChicSvg(p) : generateLatticeSvg(p);
+}
+
+function scaleColor(hex, f) {
+  const [r, g, b] = hexToRgb(hex);
+  return rgbToHex(r * f, g * f, b * f);
+}
+
+function complementaryPair(hex) {
+  const [r, g, b] = hexToRgb(hex);
+  return [rgbToHex(r * 1.2, g * 0.9, b * 0.7), rgbToHex(r * 0.7, g * 0.9, b * 1.2)];
+}
+
+function flatHexPoints(cx, cy, r) {
+  const pts = [];
+  for (let i = 0; i < 6; i += 1) {
+    const a = (Math.PI / 180) * (i * 60);
+    pts.push(`${(cx + r * Math.cos(a)).toFixed(1)},${(cy + r * Math.sin(a)).toFixed(1)}`);
+  }
+  return pts.join(" ");
+}
+
+// Chic style: a tessellated grid of the GrapheneOS mark with one accent tile
+// at the fingerprint position. SVG port of the GOS-Chic "signature look".
+function generateChicSvg(p) {
+  const W = p.width;
+  const H = p.height;
+  const unit = Math.min(W, H);
+  const C = 2644.0798 / 2; // logo viewBox center
+
+  const dark = p.chicTheme !== "light";
+  const bg = dark ? "#000000" : "#f0f0f0";
+  const tileBase = p.chicTileColor || (dark ? "#191919" : "#969696");
+  const gradTop = scaleColor(tileBase, p.chicDeep ? 1.4 : 1.1);
+  const gradBottom = scaleColor(tileBase, p.chicDeep ? 0.4 : 0.6);
+  const flat = scaleColor(tileBase, 0.8);
+  const [warm, cool] = complementaryPair(tileBase);
+
+  const tileSize = unit * 0.15 * (p.chicTileScale || 1);
+  const step = tileSize * (p.chicSpacing || 1.6);
+  const accentCx = W * ((p.fingerprintXPct ?? 50) / 100);
+  const accentCy = H * ((p.fingerprintYPct ?? 72.5) / 100);
+  const weaveDeg = p.chicWeave ? (p.chicWeaveDeg || 3) : 0;
+  const tessellate = p.chicTessellate !== false;
+  const glow = p.chicEffect === "glow";
+
+  function tileFill(row) {
+    if (p.chicFill === "gradient") return "url(#chicGrad)";
+    if (p.chicFill === "duotone") return row % 2 === 0 ? warm : cool;
+    return flat;
+  }
+
+  function tile(cx, cy, size, fill, rot, withClass) {
+    const s = (size / (C * 2)).toFixed(6);
+    const t = `translate(${cx.toFixed(1)} ${cy.toFixed(1)})${rot ? ` rotate(${rot})` : ""} scale(${s}) translate(${-C} ${-C})`;
+    return `<use href="#chicLogoPath"${withClass ? ' class="chic-tile"' : ""} fill="${fill}" transform="${t}"/>`;
+  }
+
+  const parts = [`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">`];
+  parts.push("<defs>");
+  parts.push(`<path id="chicLogoPath" d="${OFFICIAL_LOGO_PATH}" fill-rule="nonzero"/>`);
+  parts.push(`<linearGradient id="chicGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${gradTop}"/><stop offset="100%" stop-color="${gradBottom}"/></linearGradient>`);
+  if (glow) {
+    parts.push(`<filter id="chicGlow" x="-25%" y="-25%" width="150%" height="150%"><feGaussianBlur stdDeviation="${(tileSize * 0.05).toFixed(1)}" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`);
+  }
+  parts.push("</defs>");
+  parts.push(`<rect width="100%" height="100%" fill="${bg}"/>`);
+
+  parts.push(`<g id="chic-grid"${glow ? ' filter="url(#chicGlow)"' : ""}>`);
+  const cols = Math.ceil(W / step) + 2;
+  const rows = Math.ceil(H / step) + 2;
+  for (let j = -rows; j <= rows; j += 1) {
+    for (let i = -cols; i <= cols; i += 1) {
+      if (i === 0 && j === 0) continue; // accent replaces the center cell
+      let x = accentCx + i * step;
+      const y = accentCy + j * step;
+      if (tessellate && (j & 1)) x += step / 2;
+      if (x < -tileSize || x > W + tileSize || y < -tileSize || y > H + tileSize) continue;
+      const rot = weaveDeg ? (((i + j) & 1) ? -weaveDeg : weaveDeg) : 0;
+      parts.push(tile(x, y, tileSize, tileFill(Math.abs(j)), rot, true));
+    }
+  }
+  parts.push("</g>");
+
+  parts.push('<g id="chic-accent">');
+  const accentSize = unit * ((p.fingerprintRadiusPct ?? 10) / 100) * 3.3;
+  if (p.chicCenterFill) {
+    parts.push(`<polygon points="${flatHexPoints(accentCx, accentCy, accentSize * 0.155)}" fill="#1f1f1f"/>`);
+  }
+  parts.push(tile(accentCx, accentCy, accentSize, p.chicAccentColor, 0, false));
+  parts.push("</g>");
+
+  parts.push("</svg>");
+  return parts.join("\n");
+}
+
+function generateLatticeSvg(p) {
   const rnd = mulberry32(p.seed);
   const parts = [svgHeader(p)];
   const latticeSegments = [];
@@ -1222,6 +1367,7 @@ const preview = document.querySelector("#preview");
 const previewShell = document.querySelector("#preview-shell");
 const deviceSelect = document.querySelector("#device");
 const paletteSelect = document.querySelector("#palette");
+const chicPresetSelect = document.querySelector("#chicPreset");
 const deviceName = document.querySelector("#device-name");
 const deviceSize = document.querySelector("#device-size");
 
@@ -1348,7 +1494,8 @@ function setupToggleLabels() {
 
 function syncFingerprintVisibility() {
   const enabled = document.querySelector("#fingerprintEnabled")?.checked;
-  document.body.classList.toggle("fingerprint-off", !enabled);
+  const lattice = (params.style || "lattice") !== "chic";
+  document.body.classList.toggle("fingerprint-off", lattice && !enabled);
 }
 
 
@@ -1374,9 +1521,50 @@ function initPaletteSelect() {
   });
 }
 
+function initChicPresetSelect() {
+  CHIC_PRESETS.forEach((c) => {
+    const option = document.createElement("option");
+    option.value = c.id;
+    option.textContent = c.name;
+    chicPresetSelect.appendChild(option);
+  });
+}
+
+function applyStyleClass(style) {
+  const chic = style === "chic";
+  document.body.classList.toggle("style-chic", chic);
+  document.body.classList.toggle("style-lattice", !chic);
+  document.querySelectorAll(".style-opt").forEach((btn) => {
+    btn.classList.toggle("is-active", btn.dataset.style === style);
+  });
+}
+
+function setupStyleToggle() {
+  document.querySelectorAll(".style-opt").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      params = readParamsFromInputs();
+      params.style = btn.dataset.style;
+      applyStyleClass(params.style);
+      render();
+    });
+  });
+}
+
+function setChicPresetCustom() {
+  if (!CHIC_PRESETS.some((c) => c.id === "custom")) {
+    const option = document.createElement("option");
+    option.value = "custom";
+    option.textContent = "Custom";
+    chicPresetSelect.appendChild(option);
+  }
+  chicPresetSelect.value = "custom";
+}
+
 function setInputsFromParams(p) {
   deviceSelect.value = p.deviceId;
   paletteSelect.value = p.paletteId || "custom";
+  chicPresetSelect.value = p.chicPreset || "custom";
+  applyStyleClass(p.style || "lattice");
   INPUT_IDS.forEach((id) => {
     const el = inputs[id];
     const value = p[id];
@@ -1432,7 +1620,19 @@ function readParamsFromInputs() {
 
     showBrand: inputs.showBrand.checked,
     showWordmark: inputs.showWordmark.checked,
-    grain: inputs.grain.checked
+    grain: inputs.grain.checked,
+
+    chicTheme: inputs.chicTheme.value,
+    chicFill: inputs.chicFill.value,
+    chicEffect: inputs.chicEffect.value,
+    chicTileColor: inputs.chicTileColor.value,
+    chicAccentColor: inputs.chicAccentColor.value,
+    chicTileScale: Number(inputs.chicTileScale.value),
+    chicSpacing: Number(inputs.chicSpacing.value),
+    chicWeaveDeg: Number(inputs.chicWeaveDeg.value),
+    chicWeave: inputs.chicWeave.checked,
+    chicDeep: inputs.chicDeep.checked,
+    chicCenterFill: inputs.chicCenterFill.checked
   };
 }
 
@@ -1475,8 +1675,10 @@ function render() {
 function initApp() {
   initDeviceSelect();
   initPaletteSelect();
+  initChicPresetSelect();
   enhanceRangeControls();
   setupTabs();
+  setupStyleToggle();
   setupToggleLabels();
   setInputsFromParams(params);
   syncFingerprintVisibility();
@@ -1491,6 +1693,9 @@ controls.addEventListener("input", (event) => {
   if (event.target && event.target.id === "device") return;
   if (event.target && ["accent", "accent2", "lineColor", "backgroundTop", "backgroundMid", "backgroundBottom"].includes(event.target.id)) {
     setPaletteCustom();
+  }
+  if (event.target && ["chicTileColor", "chicAccentColor"].includes(event.target.id)) {
+    setChicPresetCustom();
   }
   syncControlReadouts();
   syncFingerprintVisibility();
@@ -1513,6 +1718,13 @@ deviceSelect.addEventListener("change", () => {
 paletteSelect.addEventListener("change", () => {
   if (paletteSelect.value === "custom") return;
   params = paramsForPalette(paletteSelect.value, readParamsFromInputs());
+  setInputsFromParams(params);
+  render();
+});
+
+chicPresetSelect.addEventListener("change", () => {
+  if (chicPresetSelect.value === "custom") return;
+  params = paramsForChicPreset(chicPresetSelect.value, readParamsFromInputs());
   setInputsFromParams(params);
   render();
 });
