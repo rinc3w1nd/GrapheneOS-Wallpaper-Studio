@@ -3,6 +3,8 @@
 "use strict";
 
 function generateWallpaperSvg(p) {
+  const reg = STYLES[p.style];
+  if (reg && typeof reg.generate === "function") return reg.generate(p);
   return p.style === "chic" ? generateChicSvg(p) : generateLatticeSvg(p);
 }
 
@@ -188,11 +190,54 @@ const chicPresetSelect = document.querySelector("#chicPreset");
 const deviceName = document.querySelector("#device-name");
 const deviceSize = document.querySelector("#device-size");
 
-const inputs = Object.fromEntries(
-  INPUT_IDS.map((id) => [id, document.querySelector(`#${id}`)])
-);
+// Populated in initApp() after style controls are injected (so registered
+// styles' inputs exist before the map is built).
+let inputs = {};
 
-let params = { ...DEFAULT_PARAMS };
+function buildInputsMap() {
+  inputs = {};
+  allInputIds().forEach((id) => {
+    inputs[id] = document.querySelector(`#${id}`);
+  });
+}
+
+// Inject each registered style's control HTML into the right panel, wrapped in
+// a [data-styles="<id>"] group so style switching shows/hides it.
+function injectStyleControls() {
+  const containers = {
+    setup: document.querySelector("#style-setup-controls"),
+    form: document.querySelector("#style-form-controls"),
+    color: document.querySelector("#style-color-controls"),
+  };
+  Object.values(STYLES).forEach((s) => {
+    const html = s.controlsHtml || {};
+    ["setup", "form", "color"].forEach((panel) => {
+      if (!html[panel] || !containers[panel]) return;
+      const wrap = document.createElement("div");
+      wrap.dataset.styles = s.id;
+      wrap.className = "style-group";
+      wrap.innerHTML = html[panel];
+      containers[panel].appendChild(wrap);
+    });
+  });
+}
+
+// Build the Style selector buttons from built-ins + registered styles.
+function buildStyleToggle() {
+  const toggle = document.querySelector(".style-toggle");
+  if (!toggle) return;
+  toggle.innerHTML = "";
+  allStyleOptions().forEach((opt) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "style-opt";
+    btn.dataset.style = opt.id;
+    btn.textContent = opt.label;
+    toggle.appendChild(btn);
+  });
+}
+
+let params = {};
 let currentSvg = "";
 
 
@@ -311,7 +356,7 @@ function setupToggleLabels() {
 
 function syncFingerprintVisibility() {
   const enabled = document.querySelector("#fingerprintEnabled")?.checked;
-  const lattice = (params.style || "lattice") !== "chic";
+  const lattice = (params.style || "lattice") === "lattice";
   document.body.classList.toggle("fingerprint-off", lattice && !enabled);
 }
 
@@ -347,12 +392,17 @@ function initChicPresetSelect() {
   });
 }
 
-function applyStyleClass(style) {
-  const chic = style === "chic";
-  document.body.classList.toggle("style-chic", chic);
-  document.body.classList.toggle("style-lattice", !chic);
+function applyStyle(style) {
+  [...document.body.classList].forEach((c) => {
+    if (c.startsWith("style-")) document.body.classList.remove(c);
+  });
+  document.body.classList.add(`style-${style}`);
   document.querySelectorAll(".style-opt").forEach((btn) => {
     btn.classList.toggle("is-active", btn.dataset.style === style);
+  });
+  // Show only the active style's control groups.
+  document.querySelectorAll("[data-styles]").forEach((el) => {
+    el.hidden = !el.dataset.styles.split(/\s+/).includes(style);
   });
 }
 
@@ -361,7 +411,7 @@ function setupStyleToggle() {
     btn.addEventListener("click", () => {
       params = readParamsFromInputs();
       params.style = btn.dataset.style;
-      applyStyleClass(params.style);
+      applyStyle(params.style);
       render();
     });
   });
@@ -381,76 +431,30 @@ function setInputsFromParams(p) {
   deviceSelect.value = p.deviceId;
   paletteSelect.value = p.paletteId || "custom";
   chicPresetSelect.value = p.chicPreset || "custom";
-  applyStyleClass(p.style || "lattice");
-  INPUT_IDS.forEach((id) => {
+  applyStyle(p.style || "lattice");
+  allInputIds().forEach((id) => {
     const el = inputs[id];
-    const value = p[id];
+    if (!el) return;
     if (el.type === "checkbox") {
-      el.checked = Boolean(value);
-    } else {
-      el.value = String(value);
+      el.checked = Boolean(p[id]);
+    } else if (p[id] !== undefined) {
+      el.value = String(p[id]);
     }
   });
 }
 
+// Generic read: coerce each registered input by its element type. Non-input
+// state (style, deviceId, paletteId, chicPreset) is carried via the spread.
 function readParamsFromInputs() {
-  return {
-    ...params,
-    width: Number(inputs.width.value),
-    height: Number(inputs.height.value),
-    seed: Number(inputs.seed.value),
-
-    unitX: Number(inputs.unitX.value),
-    unitY: Number(inputs.unitY.value),
-    unitZ: Number(inputs.unitZ.value),
-
-    originXPct: Number(inputs.originXPct.value),
-    originYPct: Number(inputs.originYPct.value),
-
-    structureDensity: Number(inputs.structureDensity.value),
-    latticeOpacity: Number(inputs.latticeOpacity.value),
-    nodeOpacity: Number(inputs.nodeOpacity.value),
-    accentOpacity: Number(inputs.accentOpacity.value),
-    topScaffoldOpacity: Number(inputs.topScaffoldOpacity.value),
-
-    fingerprintEnabled: inputs.fingerprintEnabled.checked,
-    useOfficialLogo: inputs.useOfficialLogo.checked,
-    fingerprintXPct: Number(inputs.fingerprintXPct.value),
-    fingerprintYPct: Number(inputs.fingerprintYPct.value),
-    fingerprintRadiusPct: Number(inputs.fingerprintRadiusPct.value),
-    fingerprintRingOpacity: Number(inputs.fingerprintRingOpacity.value),
-
-    geometryOffsetX: Number(inputs.geometryOffsetX.value),
-    geometryOffsetY: Number(inputs.geometryOffsetY.value),
-    geometryOffsetZ: Number(inputs.geometryOffsetZ.value),
-
-    pngScale: Number(inputs.pngScale.value),
-    exportFormat: inputs.exportFormat.value,
-    rasterQuality: Number(inputs.rasterQuality.value),
-
-    accent: inputs.accent.value,
-    accent2: inputs.accent2.value,
-    lineColor: inputs.lineColor.value,
-    backgroundTop: inputs.backgroundTop.value,
-    backgroundMid: inputs.backgroundMid.value,
-    backgroundBottom: inputs.backgroundBottom.value,
-
-    showBrand: inputs.showBrand.checked,
-    showWordmark: inputs.showWordmark.checked,
-    grain: inputs.grain.checked,
-
-    chicTheme: inputs.chicTheme.value,
-    chicFill: inputs.chicFill.value,
-    chicEffect: inputs.chicEffect.value,
-    chicTileColor: inputs.chicTileColor.value,
-    chicAccentColor: inputs.chicAccentColor.value,
-    chicTileScale: Number(inputs.chicTileScale.value),
-    chicSpacing: Number(inputs.chicSpacing.value),
-    chicWeaveDeg: Number(inputs.chicWeaveDeg.value),
-    chicWeave: inputs.chicWeave.checked,
-    chicDeep: inputs.chicDeep.checked,
-    chicCenterFill: inputs.chicCenterFill.checked
-  };
+  const out = { ...params };
+  allInputIds().forEach((id) => {
+    const el = inputs[id];
+    if (!el) return;
+    if (el.type === "checkbox") out[id] = el.checked;
+    else if (el.type === "range" || el.type === "number") out[id] = Number(el.value);
+    else out[id] = el.value;
+  });
+  return out;
 }
 
 function setPaletteCustom() {
@@ -493,10 +497,14 @@ function initApp() {
   initDeviceSelect();
   initPaletteSelect();
   initChicPresetSelect();
+  injectStyleControls();   // add registered styles' control DOM first
+  buildStyleToggle();      // generate Style selector buttons
+  buildInputsMap();        // now every input (built-in + style) exists
   enhanceRangeControls();
   setupTabs();
   setupStyleToggle();
   setupToggleLabels();
+  params = { ...effectiveDefaults() };
   setInputsFromParams(params);
   syncFingerprintVisibility();
   render();
@@ -571,7 +579,7 @@ document.querySelector("#download-png").addEventListener("click", async () => {
 });
 
 document.querySelector("#reset-controls").addEventListener("click", () => {
-  params = { ...DEFAULT_PARAMS };
+  params = { ...effectiveDefaults() };
   setInputsFromParams(params);
   syncFingerprintVisibility();
   setupToggleLabels();

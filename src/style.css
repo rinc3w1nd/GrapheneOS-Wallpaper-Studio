@@ -438,24 +438,25 @@ input[type="color"] {
   cursor: pointer;
 }
 
-/* style switch (lattice vs chic) */
+/* style switch (lattice / chic / + registered styles) */
 .style-toggle {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-wrap: wrap;
   gap: 6px;
   padding: 5px;
   border: 1px solid var(--hair);
-  border-radius: 999px;
+  border-radius: 18px;
   background: var(--surface);
 }
 .style-opt {
+  flex: 1 1 28%;
   min-height: 40px;
   border: 0;
   border-radius: 999px;
   background: transparent;
   color: var(--muted);
   font-size: 0.74rem;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
 }
 .style-opt.is-active {
   color: #06140f;
@@ -465,9 +466,10 @@ input[type="color"] {
 
 .style-group { display: grid; gap: var(--gap); }
 
-/* show only the active style's control groups */
-body.style-lattice .chic-only { display: none !important; }
-body.style-chic .lattice-only { display: none !important; }
+/* visibility for style-specific control groups is JS-driven (applyStyle sets
+   the [hidden] attribute on [data-styles] elements). Force it to win over the
+   grid/flex display of .field/.style-group/.toggle-group. */
+[hidden] { display: none !important; }
 
 /* toggle chips */
 .toggle-group {

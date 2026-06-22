@@ -782,3 +782,38 @@ function valueNoise2D(seed) {
     return a + (b - a) * fx + (c - a) * fy + (a - b - c + d) * fx * fy;
   };
 }
+
+// ---- Style registry -------------------------------------------------------
+// New wallpaper styles self-register from src/styles/<id>.js via:
+//   registerStyle({ id, label, generate, defaults, inputIds, controlsHtml })
+// - generate(p) -> SVG string
+// - defaults: params merged into DEFAULT_PARAMS
+// - inputIds: control element ids this style owns (for the inputs map + read)
+// - controlsHtml: { setup?, form?, color? } HTML strings injected into the
+//   matching control panel, wrapped in a [data-styles="<id>"] group.
+// Built-in lattice/chic are NOT registered (they keep hand-written controls).
+const STYLES = {};
+function registerStyle(def) { STYLES[def.id] = def; }
+
+const BUILTIN_STYLE_OPTIONS = [
+  { id: "lattice", label: "Lattice" },
+  { id: "chic", label: "Chic" },
+];
+
+function allStyleOptions() {
+  return BUILTIN_STYLE_OPTIONS.concat(
+    Object.values(STYLES).map((s) => ({ id: s.id, label: s.label }))
+  );
+}
+
+function effectiveDefaults() {
+  const out = { ...DEFAULT_PARAMS };
+  Object.values(STYLES).forEach((s) => Object.assign(out, s.defaults || {}));
+  return out;
+}
+
+function allInputIds() {
+  const ids = INPUT_IDS.slice();
+  Object.values(STYLES).forEach((s) => (s.inputIds || []).forEach((id) => ids.push(id)));
+  return ids;
+}
