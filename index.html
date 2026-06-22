@@ -81,10 +81,6 @@
                 <span>Grain</span>
               </label>
               <label class="chip-toggle">
-                <input id="fingerprintEnabled" type="checkbox">
-                <span>Fingerprint</span>
-              </label>
-              <label class="chip-toggle">
                 <input id="useOfficialLogo" type="checkbox">
                 <span>Official<br />Logo</span>
               </label>
@@ -106,7 +102,17 @@
               </label>
             </div>
 
-            <div class="group-label sensor-group">Sensor aperture</div>
+            <div class="group-label">Sensor</div>
+            <div class="toggle-group" aria-label="Sensor toggles">
+              <label class="chip-toggle">
+                <input id="fingerprintEnabled" type="checkbox">
+                <span>Fingerprint</span>
+              </label>
+              <label class="chip-toggle sensor-group">
+                <input id="sensorLogo" type="checkbox">
+                <span>Sensor<br />logo</span>
+              </label>
+            </div>
             <div class="control-list sensor-group">
               <label class="field range">
                 <span class="field-label">Position X</span>
@@ -341,6 +347,10 @@
   <script src="./src/core.js"></script>
   <script src="./src/styles/lattice.js"></script>
   <script src="./src/styles/chic.js"></script>
+  <script src="./src/styles/topographic.js"></script>
+  <script src="./src/styles/constellation.js"></script>
+  <script src="./src/styles/flow.js"></script>
+  <script src="./src/styles/circuit.js"></script>
   <script src="./src/app.js"></script>
 </body>
 </html>

@@ -507,7 +507,8 @@ input[type="color"] {
 /* sensor group dims when fingerprint is off */
 body.fingerprint-off .sensor-group { opacity: 0.38; }
 body.fingerprint-off .sensor-group input[type="range"],
-body.fingerprint-off .sensor-group .value-chip { pointer-events: none; }
+body.fingerprint-off .sensor-group .value-chip,
+body.fingerprint-off .chip-toggle.sensor-group { pointer-events: none; }
 
 .hint {
   margin: 2px 0 0;

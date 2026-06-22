@@ -501,9 +501,10 @@ const DEFAULT_PARAMS = {
   grain: true,
   fingerprintEnabled: true,
   useOfficialLogo: true,
+  sensorLogo: false,
   fingerprintXPct: 50,
   fingerprintYPct: 72.5,
-  fingerprintRadiusPct: 10,
+  fingerprintRadiusPct: 10, // 10 without the sensor logo; toggle sets 16 when logo on
   fingerprintRingOpacity: 0.88,
   pngScale: 1.0,
   exportFormat: "image/webp",
@@ -555,6 +556,7 @@ const INPUT_IDS = [
   "grain",
   "fingerprintEnabled",
   "useOfficialLogo",
+  "sensorLogo",
   "fingerprintXPct",
   "fingerprintYPct",
   "fingerprintRadiusPct",
@@ -816,4 +818,105 @@ function allInputIds() {
   const ids = INPUT_IDS.slice();
   Object.values(STYLES).forEach((s) => (s.inputIds || []).forEach((id) => ids.push(id)));
   return ids;
+}
+
+// ---- Shared sensor aperture --------------------------------------------------
+// Every style treats the fingerprint sensor as a focal void. When enabled, wrap
+// the style's content group in sensorMaskAttr(p) and add sensorMaskDef(p) to the
+// SVG (clears a soft disc), then draw sensorRing(p, color) on top to frame it.
+function sensorGeom(p) {
+  const unit = Math.min(p.width, p.height);
+  return {
+    unit,
+    cx: p.width * ((p.fingerprintXPct ?? 50) / 100),
+    cy: p.height * ((p.fingerprintYPct ?? 72.5) / 100),
+    r: unit * ((p.fingerprintRadiusPct ?? 10) / 100),
+    on: p.fingerprintEnabled !== false,
+  };
+}
+
+function sensorMaskDef(p, id) {
+  const g = sensorGeom(p);
+  if (!g.on) return "";
+  id = id || "sensorMask";
+  return (
+    `<radialGradient id="${id}Fade" gradientUnits="userSpaceOnUse" cx="${g.cx.toFixed(1)}" cy="${g.cy.toFixed(1)}" r="${g.r.toFixed(1)}">` +
+    `<stop offset="0%" stop-color="black"/><stop offset="72%" stop-color="black"/><stop offset="100%" stop-color="white"/></radialGradient>` +
+    `<mask id="${id}" maskUnits="userSpaceOnUse" x="0" y="0" width="${p.width}" height="${p.height}">` +
+    `<rect x="0" y="0" width="${p.width}" height="${p.height}" fill="white"/>` +
+    `<circle cx="${g.cx.toFixed(1)}" cy="${g.cy.toFixed(1)}" r="${g.r.toFixed(1)}" fill="url(#${id}Fade)"/></mask>`
+  );
+}
+
+function sensorMaskAttr(p, id) {
+  return sensorGeom(p).on ? ` mask="url(#${id || "sensorMask"})"` : "";
+}
+
+// The sensor frame (drawn only when the Fingerprint toggle is on):
+//  - Sensor logo on  -> the official GrapheneOS logo SVG around the sensor.
+//  - Sensor logo off -> a hex or circle ring per the style's `shape`.
+// `color` is a light accent; `shape` is "hex" or "circle" (default circle).
+function sensorRing(p, color, accent2, shape) {
+  const g = sensorGeom(p);
+  if (!g.on) return "";
+  if (p.sensorLogo) return sensorMark(p, color);
+  const op = clamp01(p.fingerprintRingOpacity ?? 0.88);
+  const sw = Math.max(2, g.unit * 0.0022);
+  const glow = accent2 || color;
+  if (shape === "hex") {
+    return (
+      `<g id="sensor-ring" fill="none">` +
+      hexagon(g.cx, g.cy, g.r, p, { stroke: color, strokeOpacity: op, sw }) +
+      hexagon(g.cx, g.cy, g.r * 1.12, p, { stroke: glow, strokeOpacity: op * 0.3, sw: sw * 0.6 }) +
+      `</g>`
+    );
+  }
+  return (
+    `<g id="sensor-ring" fill="none">` +
+    `<circle cx="${g.cx.toFixed(1)}" cy="${g.cy.toFixed(1)}" r="${g.r.toFixed(1)}" stroke="${color}" stroke-opacity="${op.toFixed(3)}" stroke-width="${sw.toFixed(2)}"/>` +
+    `<circle cx="${g.cx.toFixed(1)}" cy="${g.cy.toFixed(1)}" r="${(g.r * 1.13).toFixed(1)}" stroke="${glow}" stroke-opacity="${(op * 0.28).toFixed(3)}" stroke-width="${(sw * 0.6).toFixed(2)}"/>` +
+    `</g>`
+  );
+}
+
+// The official GrapheneOS logo SVG, scaled so its central hexagon frames the
+// sensor (sensor sits in the logo's open center; the arms radiate outward).
+// Shown when the "Sensor logo" toggle is on. SENSOR_LOGO_SCALE = 3.3 matches the
+// Chic accent-tile sizing (unit * radiusPct/100 * 3.3), which is correctly sized.
+const SENSOR_LOGO_SCALE = 3.3;
+function sensorMark(p, color) {
+  const g = sensorGeom(p);
+  if (!g.on || !p.sensorLogo) return "";
+  const op = clamp01(p.fingerprintRingOpacity ?? 0.88);
+  const size = g.r * SENSOR_LOGO_SCALE;
+  const C = 2644.0798 / 2; // logo viewBox center
+  const scale = size / (C * 2);
+  return (
+    `<g id="sensor-mark" opacity="${op.toFixed(3)}" transform="translate(${g.cx.toFixed(1)} ${g.cy.toFixed(1)}) scale(${scale.toFixed(5)}) translate(${(-C).toFixed(1)} ${(-C).toFixed(1)})">` +
+    `<path d="${OFFICIAL_LOGO_PATH}" fill="${color}" fill-rule="nonzero"/></g>`
+  );
+}
+
+// Shared GrapheneOS corner watermark (inlined mark + wordmark), bottom-right
+// (10% in from the right, 12.5% up from the bottom). Styles call this to
+// integrate branding consistently. `color` tints both the mark and wordmark.
+function cornerBrand(p, color, opacity) {
+  const unit = Math.min(p.width, p.height);
+  const anchorX = p.width * 0.90;
+  const anchorY = p.height * 0.875;
+  const fontSize = Math.max(18, unit * 0.018);
+  const letterSpacing = Math.max(5, unit * 0.006);
+  const wordWidth = 10 * (fontSize * 0.64) + 9 * letterSpacing;
+  const C = 2644.0798 / 2; // logo viewBox center
+  const markSize = Math.max(44, unit * 0.052);
+  const markCx = anchorX - wordWidth - markSize * 0.75;
+  const markCy = anchorY - fontSize * 0.34;
+  const scale = markSize / (C * 2);
+  const op = opacity ?? 0.55;
+  return (
+    `<g id="corner-brand" opacity="${op}">` +
+    `<g transform="translate(${markCx.toFixed(1)} ${markCy.toFixed(1)}) scale(${scale.toFixed(5)}) translate(${(-C).toFixed(1)} ${(-C).toFixed(1)})"><path d="${OFFICIAL_LOGO_PATH}" fill="${color}" fill-rule="nonzero"/></g>` +
+    `<text x="${anchorX.toFixed(1)}" y="${anchorY.toFixed(1)}" text-anchor="end" font-family="Inter, Roboto, Helvetica, Arial, sans-serif" font-size="${fontSize.toFixed(1)}" letter-spacing="${letterSpacing.toFixed(1)}" fill="${color}" fill-opacity="0.85">GRAPHENEOS</text>` +
+    `</g>`
+  );
 }

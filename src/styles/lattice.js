@@ -187,9 +187,14 @@ function fingerprintAperture(p, latticeSegments) {
     });
   });
 
-  // Ring it out: precise hex frame at the boundary + a faint outer hairline.
-  out.push(hexagon(cx, cy, voidR, p, { stroke: sensorGlow, strokeOpacity: ring * 0.9, sw: Math.max(2.0, unit * 0.0022) }));
-  out.push(hexagon(cx, cy, voidR * 1.06, p, { stroke: mix(p.lineColor, p.accent2, 0.4), strokeOpacity: ring * 0.34, sw: Math.max(1.1, unit * 0.0013) }));
+  // Sensor logo on → official GrapheneOS logo around the sensor; off → lattice's
+  // native hex frame (precise hex + faint outer hairline).
+  if (p.sensorLogo) {
+    out.push(sensorMark(p, p.accent2));
+  } else {
+    out.push(hexagon(cx, cy, voidR, p, { stroke: sensorGlow, strokeOpacity: ring * 0.9, sw: Math.max(2.0, unit * 0.0022) }));
+    out.push(hexagon(cx, cy, voidR * 1.06, p, { stroke: mix(p.lineColor, p.accent2, 0.4), strokeOpacity: ring * 0.34, sw: Math.max(1.1, unit * 0.0013) }));
+  }
 
   out.push("</g>");
   return out.join("\n");

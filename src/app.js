@@ -356,8 +356,7 @@ function setupToggleLabels() {
 
 function syncFingerprintVisibility() {
   const enabled = document.querySelector("#fingerprintEnabled")?.checked;
-  const lattice = (params.style || "lattice") === "lattice";
-  document.body.classList.toggle("fingerprint-off", lattice && !enabled);
+  document.body.classList.toggle("fingerprint-off", !enabled);
 }
 
 
@@ -427,10 +426,59 @@ function setChicPresetCustom() {
   chicPresetSelect.value = "custom";
 }
 
+// Generic per-style color presets: any registered style with a `presets` array
+// and a <select id="<id>Preset"> gets a populated dropdown that applies a color
+// set; editing one of its `colorIds` switches the dropdown to Custom.
+function stylesWithPresets() {
+  return Object.values(STYLES).filter((s) => Array.isArray(s.presets) && s.presets.length);
+}
+
+function initStylePresets() {
+  stylesWithPresets().forEach((s) => {
+    const sel = document.getElementById(`${s.id}Preset`);
+    if (!sel) return;
+    s.presets.forEach((pr) => {
+      const o = document.createElement("option");
+      o.value = pr.id;
+      o.textContent = pr.name;
+      sel.appendChild(o);
+    });
+    sel.addEventListener("change", () => {
+      if (sel.value === "custom") return;
+      const pr = s.presets.find((x) => x.id === sel.value);
+      if (!pr) return;
+      params = { ...readParamsFromInputs(), ...pr.set };
+      params[`${s.id}Preset`] = sel.value;
+      setInputsFromParams(params);
+      render();
+    });
+  });
+}
+
+function setStylePresetCustom(styleId) {
+  const sel = document.getElementById(`${styleId}Preset`);
+  if (!sel) return;
+  if (!Array.from(sel.options).some((o) => o.value === "custom")) {
+    const o = document.createElement("option");
+    o.value = "custom";
+    o.textContent = "Custom";
+    sel.appendChild(o);
+  }
+  sel.value = "custom";
+}
+
+function styleOwningColorId(id) {
+  return Object.values(STYLES).find((s) => (s.colorIds || []).includes(id));
+}
+
 function setInputsFromParams(p) {
   deviceSelect.value = p.deviceId;
   paletteSelect.value = p.paletteId || "custom";
   chicPresetSelect.value = p.chicPreset || "custom";
+  stylesWithPresets().forEach((s) => {
+    const sel = document.getElementById(`${s.id}Preset`);
+    if (sel) sel.value = p[`${s.id}Preset`] || "custom";
+  });
   applyStyle(p.style || "lattice");
   allInputIds().forEach((id) => {
     const el = inputs[id];
@@ -499,6 +547,7 @@ function initApp() {
   initChicPresetSelect();
   injectStyleControls();   // add registered styles' control DOM first
   buildStyleToggle();      // generate Style selector buttons
+  initStylePresets();      // populate per-style color-preset dropdowns
   buildInputsMap();        // now every input (built-in + style) exists
   enhanceRangeControls();
   setupTabs();
@@ -521,6 +570,11 @@ controls.addEventListener("input", (event) => {
   }
   if (event.target && ["chicTileColor", "chicAccentColor"].includes(event.target.id)) {
     setChicPresetCustom();
+  }
+  // Editing any style's color switches its preset dropdown to Custom.
+  if (event.target) {
+    const owner = styleOwningColorId(event.target.id);
+    if (owner) setStylePresetCustom(owner.id);
   }
   syncControlReadouts();
   syncFingerprintVisibility();
