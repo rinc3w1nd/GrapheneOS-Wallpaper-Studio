@@ -114,7 +114,22 @@ WebP→JPEG export fallback. Override the Brave binary location with
 
 ## Official GrapheneOS logo note
 
-The included mark is an approximation in GrapheneOS-style molecular geometry, not an official embedded asset. To use the official logo, inline an allowed official SVG path into `grapheneMark()` or add a same-origin asset. Inline is best if you want PNG export to work reliably without canvas tainting.
+The **Official Logo** toggle uses the real GrapheneOS mark, inlined directly in `src/app.js`
+(`OFFICIAL_LOGO_PATH`, sourced from `assets/grapheneos.svg`). It is inlined rather than
+fetched so it works when you open `index.html` directly (`file://` blocks `fetch`) and never
+taints the canvas on raster export. The mark is tinted to the active accent color at render
+time, so it stays visible on the dark background. Turn the toggle off for the
+procedurally-drawn approximation (`grapheneMark()`). To swap the logo, replace the path data
+in `OFFICIAL_LOGO_PATH` (and its `OFFICIAL_LOGO_VIEWBOX`).
+
+## Fingerprint aperture
+
+The fingerprint region is rendered as a deliberate **architectural aperture**: the structural
+geometry is masked out of a hexagonal void, the surrounding lattice lines are capped with
+accent nodes where they meet the rim, and a hex ring frames it. The interior is intentionally
+left empty — Android draws the real under-display sensor UI there at runtime. Position, size,
+and ring opacity are adjustable in the Fingerprint panel; toggle it off entirely if your
+device has no under-display sensor.
 
 ## Security / dependency note
 

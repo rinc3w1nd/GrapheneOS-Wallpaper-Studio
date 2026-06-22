@@ -736,62 +736,27 @@ function scaffoldLineIso(x1, y1, x2, y2, z, p, opacity, dash) {
 }
 
 
-let officialLogoSvgMarkup = null;
-let officialLogoChecked = false;
-
-async function loadOfficialLogo() {
-  if (officialLogoChecked) return officialLogoSvgMarkup;
-  officialLogoChecked = true;
-
-  try {
-    const response = await fetch("./assets/grapheneos.svg", { cache: "no-store" });
-    if (!response.ok) return null;
-
-    const text = await response.text();
-    if (!/<svg[\s>]/i.test(text)) return null;
-
-    officialLogoSvgMarkup = sanitizeInlineSvg(text);
-    return officialLogoSvgMarkup;
-  } catch {
-    return null;
-  }
-}
-
-function sanitizeInlineSvg(svgText) {
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(svgText, "image/svg+xml");
-  const svg = doc.documentElement;
-
-  if (!svg || svg.nodeName.toLowerCase() !== "svg") return null;
-
-  svg.querySelectorAll("script, foreignObject").forEach((node) => node.remove());
-  svg.removeAttribute("id");
-  svg.removeAttribute("class");
-  svg.removeAttribute("style");
-  svg.removeAttribute("width");
-  svg.removeAttribute("height");
-  svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
-
-  const serialized = new XMLSerializer().serializeToString(svg);
-  return serialized.replace(/<\?xml.*?\?>/g, "").trim();
-}
+// Official GrapheneOS mark, inlined so it works under file:// (no fetch) and
+// never taints the canvas on raster export. Source of truth: assets/grapheneos.svg.
+// The path's own fill is intentionally dropped — officialGrapheneLogo() tints it
+// with the accent so it reads on a dark background instead of black-on-black.
+const OFFICIAL_LOGO_VIEWBOX = "0 0 2644.0798 2644";
+const OFFICIAL_LOGO_PATH = "m771.67168 798 381.00032-217c-7.0001-21-12.0001-43-12.0001-67 0-92 67.0001-168 155.0001-184v-330h64v330c88 16 155 92 155 184 0 24-5 46-13 67l382 217c14-16 31-30 50-42 80-46 180-26 237 42l286-165 32 56-286 165c31 84-2 180-82 226-18 10-36 17-55 21v442c19 4 37 11 55 21 80 46 113 142 82 226l286 165-32 56-286-165c-57 68-157 88-237 42-19-12-36-26-50-42-127 72-254 145-382 217 8 21 13 43 13 67 0 92-67 168-155 184v330h-64v-330c-88-16-155.0001-92-155.0001-184 0-24 5-46 12.0001-67l-381.00032-217c-14 16-31 30-50 42-80 46-180 26-237-42l-285.99999 165-32-56 285.99999-165c-31-84 2-180 82-226 18-10 36-17 55-21v-442c-19-4-37-11-55-21-80-46-113-142-82-226l-285.99999-165 32-56 285.99999 165c57-68 157-88 237-42 19 12 36 26 50 42zm1080.00032 992c-18-50-15-108 14-157 30-52 81-84 136-92v-438c-55-8-106-40-136-92-29-49-32-107-14-157l-382-218c-35 40-85 65-142 65s-107-25-142-65l-382.00032 218c18 50 15 108-14 157-30 52-81 84-136 92v438c55 8 106 40 136 92 29 49 32 107 14 157l382.00032 218c35-40 85-65 142-65s107 25 142 65z";
 
 function officialGrapheneLogo(cx, cy, scale, opacity, p) {
-  if (!officialLogoSvgMarkup) return "";
-
   const size = Math.max(90, 156 * scale);
   const x = cx - size / 2;
   const y = cy - size / 2;
 
   return `<g id="official-grapheneos-logo" opacity="${opacity}" transform="translate(${x.toFixed(1)} ${y.toFixed(1)})">
-    <svg x="0" y="0" width="${size.toFixed(1)}" height="${size.toFixed(1)}" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
-      ${officialLogoSvgMarkup}
+    <svg x="0" y="0" width="${size.toFixed(1)}" height="${size.toFixed(1)}" viewBox="${OFFICIAL_LOGO_VIEWBOX}" preserveAspectRatio="xMidYMid meet" fill="${p.accent2}">
+      <path d="${OFFICIAL_LOGO_PATH}" fill-rule="nonzero"/>
     </svg>
   </g>`;
 }
 
 function brandMark(cx, cy, scale, opacity, p) {
-  if (p.useOfficialLogo && officialLogoSvgMarkup) {
+  if (p.useOfficialLogo) {
     return officialGrapheneLogo(cx, cy, scale, opacity, p);
   }
   return grapheneMark(cx, cy, scale, opacity, p);
@@ -847,64 +812,76 @@ function svgHeader(p) {
 ${p.grain ? '<rect width="100%" height="100%" filter="url(#grain)" opacity="0.9"/>' : ""}`;
 }
 
-function fingerprintAperture(p) {
-  if (!p.fingerprintEnabled) return "";
-
+// Shared geometry for the fingerprint void: center + radius in screen pixels.
+function apertureGeometry(p) {
   const cx = p.width * ((p.fingerprintXPct ?? 50) / 100);
   const cy = p.height * ((p.fingerprintYPct ?? 74.5) / 100);
   const unit = Math.min(p.width, p.height);
-  const r = unit * ((p.fingerprintRadiusPct ?? 15.5) / 100);
-  const ring = Math.max(0, Math.min(1, p.fingerprintRingOpacity ?? 0.88));
+  const voidR = unit * ((p.fingerprintRadiusPct ?? 15.5) / 100);
+  return { cx, cy, unit, voidR };
+}
+
+// Mask that clears the geometry inside the void with a soft rim fade. Black
+// hides, white shows; the radial ramp gives the fade. Empty when disabled.
+function apertureMaskDef(p) {
+  if (!p.fingerprintEnabled) return "";
+  const { cx, cy, voidR } = apertureGeometry(p);
+  return `<radialGradient id="apertureFade" gradientUnits="userSpaceOnUse" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${voidR.toFixed(1)}">
+  <stop offset="0%" stop-color="black"/>
+  <stop offset="82%" stop-color="black"/>
+  <stop offset="100%" stop-color="white"/>
+</radialGradient>
+<mask id="apertureMask" maskUnits="userSpaceOnUse" x="0" y="0" width="${p.width}" height="${p.height}">
+  <rect x="0" y="0" width="${p.width}" height="${p.height}" fill="white"/>
+  <circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${voidR.toFixed(1)}" fill="url(#apertureFade)"/>
+</mask>`;
+}
+
+// Intersection point(s) of segment a→b with the circle (center c, radius r),
+// limited to the segment. Used to cap lattice lines at the aperture rim.
+function lineCircleIntersections(a, b, c, r) {
+  const dx = b[0] - a[0];
+  const dy = b[1] - a[1];
+  const fx = a[0] - c[0];
+  const fy = a[1] - c[1];
+  const A = dx * dx + dy * dy;
+  if (A === 0) return [];
+  const B = 2 * (fx * dx + fy * dy);
+  const C = fx * fx + fy * fy - r * r;
+  let disc = B * B - 4 * A * C;
+  if (disc < 0) return [];
+  disc = Math.sqrt(disc);
   const out = [];
+  [(-B - disc) / (2 * A), (-B + disc) / (2 * A)].forEach((t) => {
+    if (t >= 0 && t <= 1) out.push([a[0] + t * dx, a[1] + t * dy]);
+  });
+  return out;
+}
 
-  const darkCore = mix(p.backgroundBottom, "#000000", 0.70);
-  const darkMid = mix(p.backgroundMid, "#000000", 0.48);
-  const mutedLine = mix(p.lineColor, p.backgroundMid, 0.12);
+// The aperture itself: a ringed-out void. Interior stays empty (Android draws
+// the real sensor UI there). Drawn over the masked geometry, so the ring and
+// rim nodes sit crisply while the lattice fades into the void behind them.
+function fingerprintAperture(p, latticeSegments) {
+  if (!p.fingerprintEnabled) return "";
+
+  const { cx, cy, unit, voidR } = apertureGeometry(p);
+  const ring = Math.max(0, Math.min(1, p.fingerprintRingOpacity ?? 0.88));
   const sensorGlow = mix(p.accent2, "#ffffff", 0.30);
+  const out = ['<g id="fingerprint-aperture">'];
 
-  out.push('<g id="fingerprint-structural-aperture">');
-  out.push(`<ellipse cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" rx="${(r * 2.1).toFixed(1)}" ry="${(r * 1.75).toFixed(1)}" fill="${darkMid}" fill-opacity="${(0.40 * ring).toFixed(3)}"/>`);
-  out.push(`<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${(r * 1.48).toFixed(1)}" fill="${darkMid}" fill-opacity="${(0.66 * ring).toFixed(3)}"/>`);
-  out.push(`<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${(r * 1.08).toFixed(1)}" fill="${darkCore}" fill-opacity="${(0.96 * ring).toFixed(3)}"/>`);
-  out.push(`<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${(r * 0.70).toFixed(1)}" fill="#000000" fill-opacity="${(0.48 * ring).toFixed(3)}"/>`);
-
-  out.push(hexagon(cx, cy, r * 1.02, p, { stroke: sensorGlow, strokeOpacity: ring * 0.90, sw: Math.max(2.2, unit * 0.0024), dash: `${Math.max(10, r * 0.09).toFixed(1)} ${Math.max(8, r * 0.075).toFixed(1)}` }));
-  out.push(hexagon(cx, cy, r * 1.42, p, { stroke: p.accent2, strokeOpacity: ring * 0.60, sw: Math.max(1.7, unit * 0.0019) }));
-  out.push(hexagon(cx, cy, r * 1.92, p, { stroke: mutedLine, strokeOpacity: ring * 0.38, sw: Math.max(1.2, unit * 0.0014), dash: `${Math.max(8, r * 0.06).toFixed(1)} ${Math.max(14, r * 0.11).toFixed(1)}` }));
-
-  const rails = [
-    [-1.05, 0.72],
-    [-0.62, 0.92],
-    [-0.22, 1.00],
-    [0.22, 1.00],
-    [0.62, 0.92],
-    [1.05, 0.72]
-  ];
-
-  rails.forEach(([offset, weight], i) => {
-    const y = cy + r * offset;
-    const dy = r * 0.34;
-    const inner = r * 1.16;
-    const outer = r * 3.05;
-    const op = ring * (0.30 + 0.32 * weight);
-    const sw = Math.max(1.5, unit * 0.0016) * weight;
-
-    out.push(line([cx - outer, y - dy], [cx - inner, y], { color: i % 2 ? p.accent : p.accent2, opacity: op, sw }));
-    out.push(line([cx + inner, y], [cx + outer, y - dy], { color: i % 2 ? p.accent : p.accent2, opacity: op, sw }));
-    out.push(line([cx - outer * 0.94, y + dy], [cx - inner * 1.02, y], { color: p.lineColor, opacity: op * 0.72, sw: Math.max(1.0, sw * 0.62), dash: "7 10" }));
-    out.push(line([cx + inner * 1.02, y], [cx + outer * 0.94, y + dy], { color: p.lineColor, opacity: op * 0.72, sw: Math.max(1.0, sw * 0.62), dash: "7 10" }));
+  // Capped rim nodes where the lattice crosses the boundary — the "structure
+  // deliberately terminated at the sensor" read.
+  const nodeR = Math.max(2.6, unit * 0.0042);
+  latticeSegments.forEach(([a, b]) => {
+    lineCircleIntersections(a, b, [cx, cy], voidR).forEach((pt) => {
+      out.push(circle(pt[0], pt[1], nodeR, p.accent2, ring * 0.85));
+    });
   });
 
-  for (let i = 0; i < 18; i += 1) {
-    const angle = (Math.PI * 2 * i) / 18 + Math.PI / 18;
-    const rr = r * (i % 3 === 0 ? 1.32 : i % 3 === 1 ? 1.72 : 2.10);
-    const x = cx + Math.cos(angle) * rr;
-    const y = cy + Math.sin(angle) * rr;
-    out.push(circle(x, y, Math.max(3.2, unit * 0.0038), i % 4 === 0 ? sensorGlow : p.accent2, ring * 0.60));
-  }
+  // Ring it out: precise hex frame at the boundary + a faint outer hairline.
+  out.push(hexagon(cx, cy, voidR, p, { stroke: sensorGlow, strokeOpacity: ring * 0.9, sw: Math.max(2.0, unit * 0.0022) }));
+  out.push(hexagon(cx, cy, voidR * 1.06, p, { stroke: mix(p.lineColor, p.accent2, 0.4), strokeOpacity: ring * 0.34, sw: Math.max(1.1, unit * 0.0013) }));
 
-  out.push(`<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${(r * 0.28).toFixed(1)}" fill="none" stroke="${sensorGlow}" stroke-opacity="${(ring * 0.40).toFixed(3)}" stroke-width="${Math.max(1.3, unit * 0.0013).toFixed(2)}"/>`);
-  out.push(`<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${(r * 0.08).toFixed(1)}" fill="${sensorGlow}" fill-opacity="${(ring * 0.24).toFixed(3)}"/>`);
   out.push("</g>");
   return out.join("\n");
 }
@@ -912,6 +889,13 @@ function fingerprintAperture(p) {
 function generateWallpaperSvg(p) {
   const rnd = mulberry32(p.seed);
   const parts = [svgHeader(p)];
+  const latticeSegments = [];
+
+  // Clear the fingerprint void out of the structural geometry: wrap it all in a
+  // masked group. The background gradients, bottom fade, corner brand, and the
+  // aperture ring itself stay outside the mask.
+  parts.push(apertureMaskDef(p));
+  parts.push(`<g id="geometry"${p.fingerprintEnabled ? ' mask="url(#apertureMask)"' : ""}>`);
 
   parts.push('<g id="top-scaffold">');
   const gridCount = Math.max(5, Math.round(9 * p.structureDensity));
@@ -933,12 +917,20 @@ function generateWallpaperSvg(p) {
   parts.push("</g>");
 
   parts.push('<g id="background-lattice">');
+  // Collect each lattice line's screen-space endpoints so the aperture can cap
+  // them where they cross the void boundary.
+  const addLattice = (x1, y1, x2, y2, z, opacity, dash) => {
+    const a = iso(x1, y1, z, p);
+    const b = iso(x2, y2, z, p);
+    latticeSegments.push([a, b]);
+    parts.push(line(a, b, { color: p.lineColor, opacity, sw: 1, dash }));
+  };
   for (let gx = -9; gx < 9; gx += 1) {
-    parts.push(scaffoldLineIso(gx, -5, gx + 8, 3, 0, p, p.latticeOpacity * 0.20, "5 11"));
-    parts.push(scaffoldLineIso(gx, 5, gx + 8, -3, 0, p, p.latticeOpacity * 0.16, "5 11"));
+    addLattice(gx, -5, gx + 8, 3, 0, p.latticeOpacity * 0.20, "5 11");
+    addLattice(gx, 5, gx + 8, -3, 0, p.latticeOpacity * 0.16, "5 11");
   }
   for (let gy = -6; gy <= 6; gy += 1) {
-    parts.push(scaffoldLineIso(-8, gy, 6, gy, 0, p, p.latticeOpacity * 0.13, "5 12"));
+    addLattice(-8, gy, 6, gy, 0, p.latticeOpacity * 0.13, "5 12");
   }
   parts.push("</g>");
 
@@ -1014,6 +1006,9 @@ function generateWallpaperSvg(p) {
   }
   parts.push("</g>");
 
+  // Close the masked geometry group; everything below renders unmasked.
+  parts.push("</g>");
+
   parts.push(`<linearGradient id="bottomFade" x1="0" y1="0" x2="0" y2="1">
   <stop offset="0%" stop-color="#000000" stop-opacity="0"/>
   <stop offset="100%" stop-color="#000000" stop-opacity="0.42"/>
@@ -1030,7 +1025,7 @@ function generateWallpaperSvg(p) {
     parts.push("</g>");
   }
 
-  parts.push(fingerprintAperture(p));
+  parts.push(fingerprintAperture(p, latticeSegments));
   parts.push("</svg>");
   return parts.join("\n");
 }
@@ -1460,9 +1455,8 @@ function filenameBase(p) {
   return `grapheneos-wallpaper-${p.deviceId}-${p.width}x${p.height}`;
 }
 
-async function render() {
+function render() {
   params = readParamsFromInputs();
-  if (params.useOfficialLogo) await loadOfficialLogo();
   currentSvg = generateWallpaperSvg(params);
   preview.innerHTML = currentSvg;
 
@@ -1483,7 +1477,7 @@ async function render() {
   syncControlReadouts();
 }
 
-async function initApp() {
+function initApp() {
   initDeviceSelect();
   initPaletteSelect();
   enhanceRangeControls();
@@ -1491,7 +1485,7 @@ async function initApp() {
   setupToggleLabels();
   setInputsFromParams(params);
   syncFingerprintVisibility();
-  await render();
+  render();
 }
 
 initApp();
@@ -1528,13 +1522,13 @@ paletteSelect.addEventListener("change", () => {
   render();
 });
 
-document.querySelector("#download-svg").addEventListener("click", async () => {
-  await render();
+document.querySelector("#download-svg").addEventListener("click", () => {
+  render();
   downloadText(`${filenameBase(params)}.svg`, currentSvg, "image/svg+xml;charset=utf-8");
 });
 
 document.querySelector("#download-png").addEventListener("click", async () => {
-  await render();
+  render();
   const scale = Math.max(0.35, Math.min(1, params.pngScale || 1));
   const mimeType = params.exportFormat || "image/webp";
   const quality = Math.max(0.5, Math.min(0.95, params.rasterQuality || 0.82));

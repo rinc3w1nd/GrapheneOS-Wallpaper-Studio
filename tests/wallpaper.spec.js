@@ -6,7 +6,7 @@ const { test, expect } = require("@playwright/test");
 // The grain <filter> is always defined in <defs>; only the rect that *uses*
 // it carries this attribute, so it reliably reflects the grain toggle.
 const GRAIN_MARKER = 'filter="url(#grain)"';
-const FINGERPRINT_MARKER = 'id="fingerprint-structural-aperture"';
+const FINGERPRINT_MARKER = 'id="fingerprint-aperture"';
 
 /**
  * Checkboxes are styled as chips with the native input visually hidden, so we
@@ -69,6 +69,44 @@ for (const { grain, fingerprint } of combos) {
     });
   });
 }
+
+// Structural assertions on the generator output. generateWallpaperSvg and
+// DEFAULT_PARAMS are top-level in app.js (classic script), reachable lexically
+// inside page.evaluate.
+async function genSvg(page, overrides) {
+  return page.evaluate(
+    // @ts-ignore — globals provided by app.js
+    (ov) => generateWallpaperSvg({ ...DEFAULT_PARAMS, ...ov }),
+    overrides || {}
+  );
+}
+
+test.describe("generation structure", () => {
+  test("official logo renders inline and tinted, never black", async ({ page }) => {
+    const svg = await genSvg(page, { useOfficialLogo: true });
+    expect(svg).toContain("official-grapheneos-logo");
+    // The asset's black path fill must be recolored to the accent.
+    expect(svg).not.toContain('fill="#000000"');
+  });
+
+  test("official logo off falls back to the drawn mark", async ({ page }) => {
+    const svg = await genSvg(page, { useOfficialLogo: false });
+    expect(svg).not.toContain("official-grapheneos-logo");
+  });
+
+  test("fingerprint enabled rings the void and masks the geometry", async ({ page }) => {
+    const svg = await genSvg(page, { fingerprintEnabled: true });
+    expect(svg).toContain('id="fingerprint-aperture"');
+    expect(svg).toContain('id="apertureMask"');
+    expect(svg).toContain('mask="url(#apertureMask)"');
+  });
+
+  test("fingerprint disabled leaves geometry unmasked", async ({ page }) => {
+    const svg = await genSvg(page, { fingerprintEnabled: false });
+    expect(svg).not.toContain("fingerprint-aperture");
+    expect(svg).not.toContain("apertureMask");
+  });
+});
 
 test("default raster export is small and lossy on every engine", async ({ page }, testInfo) => {
   const downloadPromise = page.waitForEvent("download");

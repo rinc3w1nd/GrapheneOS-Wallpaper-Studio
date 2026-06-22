@@ -81,14 +81,28 @@ GrapheneOS-supported Pixel hardware and include a `codename`.
 
 ### Official logo handling
 
-`useOfficialLogo` attempts to `fetch("./assets/grapheneos.svg")` and inline it after
-sanitizing through `sanitizeInlineSvg()` (strips `script`/`foreignObject` and sizing attrs).
-`assets/grapheneos.svg` is present, so by default the official mark embeds as a nested
-`<svg>` (via `officialGrapheneLogo`, used by `brandMark()` in both the central emblem and the
-corner brand). If the fetch fails, `brandMark()` falls back to the procedurally drawn
-`grapheneMark()`. Inlining (rather than `<image>`) is required so canvas raster export is not
-tainted. Note: because the logo embeds nested `<svg>` elements, a `#preview svg` selector is
-ambiguous — target the root with `#preview > svg`.
+`useOfficialLogo` renders the real GrapheneOS mark, **inlined** as `OFFICIAL_LOGO_PATH` /
+`OFFICIAL_LOGO_VIEWBOX` constants (sourced from `assets/grapheneos.svg`). No runtime fetch —
+inlining makes it work under `file://` and avoids tainting the canvas on raster export.
+`officialGrapheneLogo()` tints it via `fill="${p.accent2}"` (the asset's own black fill is
+dropped, else it'd be black-on-black). `brandMark()` uses it in both the central emblem and
+the corner brand; toggle off → procedural `grapheneMark()`. Note: the official logo embeds a
+nested `<svg>`, so a `#preview svg` selector is ambiguous — target the root with
+`#preview > svg`.
+
+## Fingerprint aperture
+
+`generateWallpaperSvg()` wraps the structural layers (top-scaffold → dot-matrix) in a
+`<g id="geometry" mask="url(#apertureMask)">`. When the fingerprint is enabled,
+`apertureMaskDef()` emits a mask (white field minus a soft-edged radial-gradient disc at the
+void) so geometry is cleared inside the void with a soft rim fade; disabled → no mask
+attribute. `fingerprintAperture()` then draws (unmasked, over the geometry) a hex ring at the
+void boundary plus accent "rim nodes" at the points where lattice segments cross the boundary
+(`lineCircleIntersections()` against the `latticeSegments` collected during lattice
+generation). The interior is left empty on purpose — Android paints the real sensor UI there.
+Controls: `fingerprintXPct`/`YPct` (center), `fingerprintRadiusPct` (void+ring radius),
+`fingerprintRingOpacity` (ring+node opacity), `fingerprintEnabled` (whole aperture + mask).
+Design rationale: [docs/superpowers/specs/2026-06-23-fingerprint-aperture-and-logo-design.md](docs/superpowers/specs/2026-06-23-fingerprint-aperture-and-logo-design.md).
 
 ### Raster export
 
