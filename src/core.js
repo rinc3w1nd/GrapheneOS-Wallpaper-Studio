@@ -472,41 +472,9 @@ const DEFAULT_PARAMS = {
   exportFormat: "image/webp",
   rasterQuality: 0.9,
 
-  // Chic style (tessellated GOS-mark grid). style switches generators.
+  // The active wallpaper style; the generateWallpaperSvg dispatcher routes on it.
   style: "lattice",
-  chicTheme: "dark",
-  chicPreset: "summer",
-  chicTileColor: "#c8642d",
-  chicAccentColor: "#28a0b4",
-  chicFill: "gradient",
-  chicEffect: "none",
-  chicDeep: false,
-  chicWeave: true,
-  chicWeaveDeg: 3,
-  chicSpacing: 1.6,
-  chicTileScale: 1.0,
-  chicCenterFill: true,
 };
-
-const CHIC_PRESETS = [
-  { id: "summer", name: "Summer", theme: "dark", tile: "#c8642d", accent: "#28a0b4" },
-  { id: "autumn", name: "Autumn", theme: "dark", tile: "#3c645a", accent: "#a0501e" },
-  { id: "spring", name: "Spring", theme: "dark", tile: "#7d8cb4", accent: "#b48c64" },
-  { id: "winter", name: "Winter", theme: "dark", tile: "#a03c4b", accent: "#8ca0c8" },
-  { id: "gold", name: "Gold", theme: "dark", tile: "#2a2a2a", accent: "#a08c3c" },
-  { id: "steel", name: "Steel", theme: "dark", tile: "#2a2a2a", accent: "#9aa3ad" },
-  { id: "red", name: "Red", theme: "dark", tile: "#2a2a2a", accent: "#8c2828" },
-  { id: "porcelain", name: "Porcelain", theme: "light", tile: "#8a8a8a", accent: "#3a6f64" },
-];
-
-function findChicPreset(id) {
-  return CHIC_PRESETS.find((c) => c.id === id) || CHIC_PRESETS[0];
-}
-
-function paramsForChicPreset(presetId, current) {
-  const c = findChicPreset(presetId);
-  return { ...current, chicPreset: presetId, chicTheme: c.theme, chicTileColor: c.tile, chicAccentColor: c.accent };
-}
 
 // Note: the device/palette <select>s are NOT in this list — they are keyed by
 // deviceId/paletteId and set explicitly in setInputsFromParams. Including them
@@ -550,19 +518,6 @@ const INPUT_IDS = [
   "exportFormat",
   "rasterQuality",
   "pngScale",
-  // Chic style controls (style + chicPreset are handled separately, like
-  // device/palette).
-  "chicTheme",
-  "chicFill",
-  "chicEffect",
-  "chicTileColor",
-  "chicAccentColor",
-  "chicTileScale",
-  "chicSpacing",
-  "chicWeaveDeg",
-  "chicWeave",
-  "chicDeep",
-  "chicCenterFill"
 ];
 
 function findDevice(id) {
@@ -757,13 +712,13 @@ function valueNoise2D(seed) {
 // - inputIds: control element ids this style owns (for the inputs map + read)
 // - controlsHtml: { setup?, form?, color? } HTML strings injected into the
 //   matching control panel, wrapped in a [data-styles="<id>"] group.
-// Built-in lattice/chic are NOT registered (they keep hand-written controls).
+// Built-in lattice is NOT registered (it keeps hand-written controls); every
+// other style (incl. Forge, which replaced Chic) self-registers via registerStyle.
 const STYLES = {};
 function registerStyle(def) { STYLES[def.id] = def; }
 
 const BUILTIN_STYLE_OPTIONS = [
   { id: "lattice", label: "Lattice" },
-  { id: "chic", label: "Chic" },
 ];
 
 function allStyleOptions() {

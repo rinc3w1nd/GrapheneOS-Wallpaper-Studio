@@ -14,7 +14,7 @@
 // Bump CACHE_NAME whenever the shell list changes (e.g. a new style file is
 // added) to purge stale caches on the next activate.
 
-const CACHE_NAME = "gos-wallpaper-shell-v3";
+const CACHE_NAME = "gos-wallpaper-shell-v4";
 
 // Precached on install so the very first offline launch works even if the user
 // never exercised every code path. (Network-first keeps these fresh thereafter.)
@@ -25,12 +25,19 @@ const SHELL = [
   "./src/style.css",
   "./src/core.js",
   "./src/styles/lattice.js",
-  "./src/styles/chic.js",
   "./src/styles/topographic.js",
   "./src/styles/constellation.js",
   "./src/styles/flow.js",
   "./src/styles/circuit.js",
   "./src/styles/bokeh.js",
+  "./src/styles/facets.js",
+  "./src/styles/sonar.js",
+  "./src/styles/truchet.js",
+  "./src/styles/modulation.js",
+  "./src/styles/matrix.js",
+  "./src/styles/crashdump.js",
+  "./src/styles/keepcalm.js",
+  "./src/styles/forge.js",
   "./src/app.js",
   "./icon.svg",
   "./icon-192.png",

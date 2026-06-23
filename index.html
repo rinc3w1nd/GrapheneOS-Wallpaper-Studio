@@ -74,10 +74,6 @@
               <span class="field-label">Palette</span>
               <select id="palette"></select>
             </label>
-            <label class="field" data-styles="chic">
-              <span class="field-label">Preset</span>
-              <select id="chicPreset"></select>
-            </label>
             <div id="style-setup-controls"></div>
 
             <div class="group-label" data-styles="lattice">Display</div>
@@ -100,21 +96,6 @@
               </label>
             </div>
 
-            <div class="group-label" data-styles="chic">Display</div>
-            <div class="toggle-group" data-styles="chic" aria-label="Chic toggles">
-              <label class="chip-toggle">
-                <input id="chicCenterFill" type="checkbox">
-                <span>Center<br />fill</span>
-              </label>
-              <label class="chip-toggle">
-                <input id="chicWeave" type="checkbox">
-                <span>Weave</span>
-              </label>
-              <label class="chip-toggle">
-                <input id="chicDeep" type="checkbox">
-                <span>Deep</span>
-              </label>
-            </div>
 
             <div class="group-label">Sensor</div>
             <div class="toggle-group" aria-label="Sensor toggles">
@@ -146,8 +127,8 @@
               </label>
             </div>
 
-            <div class="group-label" data-styles="topographic constellation flow bokeh modulation facets matrix crashdump keepcalm">Composition</div>
-            <div class="control-list" data-styles="topographic constellation flow bokeh modulation matrix crashdump keepcalm">
+            <div class="group-label" data-styles="topographic constellation flow bokeh modulation facets matrix crashdump keepcalm forge">Composition</div>
+            <div class="control-list" data-styles="topographic constellation flow bokeh modulation matrix crashdump keepcalm forge">
               <label class="field range">
                 <span class="field-label">Position X</span>
                 <input id="compositionXPct" type="range" min="0" max="100" step="0.5">
@@ -177,36 +158,6 @@
           <section class="panel" role="tabpanel" data-panel="form" aria-label="Form" hidden>
             <div class="panel-head">
               <h2>Form</h2>
-            </div>
-
-            <div class="control-list" data-styles="chic">
-              <label class="field range">
-                <span class="field-label">Tile size</span>
-                <input id="chicTileScale" type="range" min="0.5" max="2" step="0.05">
-              </label>
-              <label class="field range">
-                <span class="field-label">Spacing</span>
-                <input id="chicSpacing" type="range" min="1.1" max="2.4" step="0.05">
-              </label>
-              <label class="field range">
-                <span class="field-label">Weave angle</span>
-                <input id="chicWeaveDeg" type="range" min="0" max="10" step="0.5">
-              </label>
-              <label class="field">
-                <span class="field-label">Fill</span>
-                <select id="chicFill">
-                  <option value="flat">Flat</option>
-                  <option value="gradient">Gradient</option>
-                  <option value="duotone">Duotone</option>
-                </select>
-              </label>
-              <label class="field">
-                <span class="field-label">Effect</span>
-                <select id="chicEffect">
-                  <option value="none">None</option>
-                  <option value="glow">Glow</option>
-                </select>
-              </label>
             </div>
 
             <div class="control-list" data-styles="lattice">
@@ -267,28 +218,6 @@
           <section class="panel" role="tabpanel" data-panel="color" aria-label="Color" hidden>
             <div class="panel-head">
               <h2>Color</h2>
-            </div>
-
-            <div class="style-group" data-styles="chic">
-              <div class="group-label">Theme</div>
-              <label class="field">
-                <span class="field-label">Theme</span>
-                <select id="chicTheme">
-                  <option value="dark">Dark (OLED)</option>
-                  <option value="light">Light</option>
-                </select>
-              </label>
-              <div class="group-label">Colors</div>
-              <div class="field-grid two">
-                <label class="field color">
-                  <span class="field-label">Tile</span>
-                  <input id="chicTileColor" type="color">
-                </label>
-                <label class="field color">
-                  <span class="field-label">Accent</span>
-                  <input id="chicAccentColor" type="color">
-                </label>
-              </div>
             </div>
 
             <div class="style-group" data-styles="lattice">
@@ -395,7 +324,6 @@
   </main>
   <script src="./src/core.js"></script>
   <script src="./src/styles/lattice.js"></script>
-  <script src="./src/styles/chic.js"></script>
   <script src="./src/styles/topographic.js"></script>
   <script src="./src/styles/constellation.js"></script>
   <script src="./src/styles/flow.js"></script>
@@ -408,6 +336,7 @@
   <script src="./src/styles/matrix.js"></script>
   <script src="./src/styles/crashdump.js"></script>
   <script src="./src/styles/keepcalm.js"></script>
+  <script src="./src/styles/forge.js"></script>
   <script src="./src/app.js"></script>
 
   <!-- Register the service worker for offline use + installability. Secure-context

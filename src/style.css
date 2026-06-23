@@ -725,7 +725,8 @@ body.fingerprint-off .chip-toggle.sensor-group { pointer-events: none; }
 .preview { cursor: zoom-in; }
 
 /* corner affordance signalling the preview expands */
-.preview-expand {
+.preview-expand,
+.preview-reseed {
   position: absolute;
   top: 10px;
   right: 10px;
@@ -745,6 +746,10 @@ body.fingerprint-off .chip-toggle.sensor-group { pointer-events: none; }
 }
 .preview-expand:hover { background: rgba(8, 12, 17, 0.85); color: var(--accent-2); }
 .preview-expand svg { display: block; }
+/* second affordance: randomize-seed, stacked just beneath the expand toggle */
+.preview-reseed { top: 52px; }
+.preview-reseed:hover { background: rgba(8, 12, 17, 0.85); color: var(--accent-2); }
+.preview-reseed svg { display: block; }
 
 #preview-modal {
   width: 100vw;

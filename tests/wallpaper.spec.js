@@ -107,18 +107,18 @@ test.describe("generation structure", () => {
     expect(svg).not.toContain("apertureMask");
   });
 
-  test("chic style produces a tessellated grid + accent tile", async ({ page }) => {
-    const svg = await genSvg(page, { style: "chic" });
-    expect(svg).toContain('id="chic-grid"');
-    expect(svg).toContain('id="chic-accent"');
-    const tileCount = svg.split('class="chic-tile"').length - 1;
-    expect(tileCount).toBeGreaterThan(1);
+  test("forge style produces a tessellated metal-logo field", async ({ page }) => {
+    const svg = await genSvg(page, { style: "forge" });
+    expect(svg).toContain('id="forgeMask"');
+    expect(svg).toContain('id="forgeFrost"');
+    const useCount = svg.split("<use ").length - 1;
+    expect(useCount).toBeGreaterThan(10);
   });
 
   test("lattice style is unchanged by the dispatcher", async ({ page }) => {
     const svg = await genSvg(page, { style: "lattice" });
     expect(svg).toContain('id="geometry"');
-    expect(svg).not.toContain("chic-grid");
+    expect(svg).not.toContain("forgeMask");
   });
 });
 
@@ -137,14 +137,14 @@ test.describe("controls UI", () => {
 
   test("style toggle swaps generator and control groups", async ({ page }) => {
     await expect(page.locator("body")).toHaveClass(/style-lattice/);
-    await expect(page.locator("#chicPreset")).toBeHidden();
+    await expect(page.locator("#forgePreset")).toBeHidden();
 
     await page.locator("#open-style").click();
-    await page.locator('[data-style="chic"]').click();
+    await page.locator('[data-style="forge"]').click();
 
-    await expect(page.locator("body")).toHaveClass(/style-chic/);
-    await expect(page.locator("#chicPreset")).toBeVisible();
-    await expect.poll(async () => (await previewSvgHtml(page)).includes("chic-grid")).toBe(true);
+    await expect(page.locator("body")).toHaveClass(/style-forge/);
+    await expect(page.locator("#forgePreset")).toBeVisible();
+    await expect.poll(async () => (await previewSvgHtml(page)).includes("forgeMask")).toBe(true);
   });
 
   test("a slider drives a re-render", async ({ page }) => {

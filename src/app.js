@@ -5,7 +5,7 @@
 function generateWallpaperSvg(p) {
   const reg = STYLES[p.style];
   if (reg && typeof reg.generate === "function") return reg.generate(p);
-  return p.style === "chic" ? generateChicSvg(p) : generateLatticeSvg(p);
+  return generateLatticeSvg(p);
 }
 
 function downloadText(filename, text, type) {
@@ -201,7 +201,6 @@ function hideRenderBadge() {
 }
 const deviceSelect = document.querySelector("#device");
 const paletteSelect = document.querySelector("#palette");
-const chicPresetSelect = document.querySelector("#chicPreset");
 const deviceName = document.querySelector("#device-name");
 const deviceSize = document.querySelector("#device-size");
 
@@ -449,15 +448,6 @@ function initPaletteSelect() {
   });
 }
 
-function initChicPresetSelect() {
-  CHIC_PRESETS.forEach((c) => {
-    const option = document.createElement("option");
-    option.value = c.id;
-    option.textContent = c.name;
-    chicPresetSelect.appendChild(option);
-  });
-}
-
 function styleLabel(id) {
   const opt = allStyleOptions().find((s) => s.id === id);
   return opt ? opt.label : id;
@@ -497,16 +487,6 @@ function setupStyleToggle() {
       renderSoon();
     });
   });
-}
-
-function setChicPresetCustom() {
-  if (!CHIC_PRESETS.some((c) => c.id === "custom")) {
-    const option = document.createElement("option");
-    option.value = "custom";
-    option.textContent = "Custom";
-    chicPresetSelect.appendChild(option);
-  }
-  chicPresetSelect.value = "custom";
 }
 
 // Generic per-style color presets: any registered style with a `presets` array
@@ -557,7 +537,6 @@ function styleOwningColorId(id) {
 function setInputsFromParams(p) {
   deviceSelect.value = p.deviceId;
   paletteSelect.value = p.paletteId || "custom";
-  chicPresetSelect.value = p.chicPreset || "custom";
   stylesWithPresets().forEach((s) => {
     const sel = document.getElementById(`${s.id}Preset`);
     if (sel) sel.value = p[`${s.id}Preset`] || "custom";
@@ -575,7 +554,7 @@ function setInputsFromParams(p) {
 }
 
 // Generic read: coerce each registered input by its element type. Non-input
-// state (style, deviceId, paletteId, chicPreset) is carried via the spread.
+// state (style, deviceId, paletteId) is carried via the spread.
 function readParamsFromInputs() {
   const out = { ...params };
   allInputIds().forEach((id) => {
@@ -628,7 +607,6 @@ function render() {
 function initApp() {
   initDeviceSelect();
   initPaletteSelect();
-  initChicPresetSelect();
   injectStyleControls();   // add registered styles' control DOM first
   buildStyleToggle();      // generate Style selector buttons
   initStylePresets();      // populate per-style color-preset dropdowns
@@ -660,9 +638,6 @@ controls.addEventListener("input", (event) => {
   if (event.target && ["accent", "accent2", "lineColor", "backgroundTop", "backgroundMid", "backgroundBottom"].includes(event.target.id)) {
     setPaletteCustom();
   }
-  if (event.target && ["chicTileColor", "chicAccentColor"].includes(event.target.id)) {
-    setChicPresetCustom();
-  }
   // Editing any style's color switches its preset dropdown to Custom.
   if (event.target) {
     const owner = styleOwningColorId(event.target.id);
@@ -689,13 +664,6 @@ deviceSelect.addEventListener("change", () => {
 paletteSelect.addEventListener("change", () => {
   if (paletteSelect.value === "custom") return;
   params = paramsForPalette(paletteSelect.value, readParamsFromInputs());
-  setInputsFromParams(params);
-  renderSoon();
-});
-
-chicPresetSelect.addEventListener("change", () => {
-  if (chicPresetSelect.value === "custom") return;
-  params = paramsForChicPreset(chicPresetSelect.value, readParamsFromInputs());
   setInputsFromParams(params);
   renderSoon();
 });
@@ -747,14 +715,33 @@ document.querySelector("#reset-controls").addEventListener("click", () => {
 const seedField = document.querySelector("#seed");
 
 // Recycle: reroll the seed and re-render (the input event bubbles to #controls).
+function rerollSeed() {
+  if (!seedField) return;
+  seedField.readOnly = true;
+  document.querySelector("#seed-edit")?.classList.remove("is-active");
+  seedField.value = String(randomSeed());
+  seedField.dispatchEvent(new Event("input", { bubbles: true }));
+}
+
 const reseedBtn = document.querySelector("#reseed");
-if (reseedBtn && seedField) {
-  reseedBtn.addEventListener("click", () => {
-    seedField.readOnly = true;
-    document.querySelector("#seed-edit")?.classList.remove("is-active");
-    seedField.value = String(randomSeed());
-    seedField.dispatchEvent(new Event("input", { bubbles: true }));
+if (reseedBtn && seedField) reseedBtn.addEventListener("click", rerollSeed);
+
+// A second randomize-seed button floating just beneath the full-screen toggle on
+// the preview — for the odd soul who wants to reroll for a nat 20 without opening
+// the control panel.
+if (previewShell && seedField && !previewShell.querySelector(".preview-reseed")) {
+  const dice = document.createElement("button");
+  dice.type = "button";
+  dice.className = "preview-reseed";
+  dice.setAttribute("aria-label", "Randomize seed");
+  dice.title = "Randomize seed";
+  dice.innerHTML =
+    '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8" cy="8" r="1.4" fill="currentColor" stroke="none"/><circle cx="16" cy="8" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="8" cy="16" r="1.4" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="1.4" fill="currentColor" stroke="none"/></svg>';
+  dice.addEventListener("click", (event) => {
+    event.stopPropagation(); // don't trigger the preview's open-fullscreen
+    rerollSeed();
   });
+  previewShell.appendChild(dice);
 }
 
 // Pencil: toggle the field editable so a precise seed can be typed in.
