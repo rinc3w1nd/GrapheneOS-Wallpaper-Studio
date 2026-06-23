@@ -34,6 +34,33 @@
     [-1.25066, 0.02012, 0.06],
     [-0.7463, 0.1102, 0.05],
   ];
+  // Phoenix: z_{n+1} = z_n^2 + c + p*z_{n-1}. [cRe, cIm, pRe, pIm], z0 from plane.
+  const PHOENIX_CS = [
+    [0.5667, 0, -0.5, 0],
+    [0.56, -0.5, -0.5, 0],
+    [-0.5, 0.5, 0.3, 0],
+    [0.4, 0, -0.25, 0],
+    [0.5667, 0, -0.45, 0.05],
+    [-0.2, 0.35, 0.27, 0],
+  ];
+  const SHIP_VIEWS = [
+    [-0.5, -0.5, 1.7],
+    [-1.755, -0.03, 0.06],
+    [-1.62, -0.02, 0.12],
+    [-0.42, -0.6, 0.45],
+  ];
+  const TRICORN_VIEWS = [
+    [-0.25, 0, 1.9],
+    [-0.2, 0.85, 0.5],
+    [0.45, 0.6, 0.4],
+    [-0.95, 0.55, 0.35],
+  ];
+  const CELTIC_VIEWS = [
+    [-0.8, 0, 1.7],
+    [-1.25, 0.02, 0.2],
+    [-0.42, 0.66, 0.4],
+    [-1.7, 0, 0.18],
+  ];
 
   function generateFractalSvg(p) {
     const W = Math.max(1, Math.round(p.width));
@@ -41,7 +68,8 @@
     const unit = Math.min(W, H);
 
     const num = (v, d) => { const n = Number(v); return Number.isFinite(n) ? n : d; };
-    const set = p.fractalSet === "mandelbrot" ? "mandelbrot" : "julia";
+    const SET_IDS = ["julia", "mandelbrot", "phoenix", "burningship", "tricorn", "celtic"];
+    const set = SET_IDS.indexOf(p.fractalSet) >= 0 ? p.fractalSet : "julia";
     const maxIter = Math.max(24, Math.min(160, Math.round(num(p.fractalIterations, 72))));
     const zoom = Math.max(0.4, Math.min(4, num(p.fractalZoom, 1.15)));
     const detail = clamp01(num(p.fractalDetail, 0.7));
@@ -57,37 +85,62 @@
 
     const rand = mulberry32((p.seed >>> 0) || 1);
 
-    // ---- complex-plane mapping centered on the sensor ----
+    // ---- complex-plane mapping + recurrence selection (centered on sensor) ----
+    // kind: how the iteration is seeded — "julia"/"phoenix" start at the pixel
+    // with a fixed c; "map" starts at 0 with c = pixel + view center.
+    // iterType: which recurrence step to apply (mandel/ship/tricorn/celtic).
     const half = unit * 0.5;
-    let juliaRe = 0, juliaIm = 0;
-    let mCenRe = -0.5, mCenIm = 0, viewScale;
+    const pick = (list) => list[Math.floor(rand() * list.length) % list.length];
+    let kind, iterType, juliaRe = 0, juliaIm = 0, phPr = 0, phPi = 0;
+    let cenRe = 0, cenIm = 0, viewScale;
     if (set === "julia") {
-      const jc = JULIA_CS[Math.floor(rand() * JULIA_CS.length) % JULIA_CS.length];
+      kind = "julia"; iterType = "mandel";
+      const jc = pick(JULIA_CS);
       juliaRe = jc[0] + (rand() - 0.5) * 0.04;
       juliaIm = jc[1] + (rand() - 0.5) * 0.04;
-      viewScale = 1.6 / zoom; // central `half` px -> ~1.6 complex units
+      viewScale = 1.6 / zoom;
+    } else if (set === "phoenix") {
+      kind = "phoenix"; iterType = "mandel";
+      const pc = pick(PHOENIX_CS);
+      juliaRe = pc[0]; juliaIm = pc[1]; phPr = pc[2]; phPi = pc[3];
+      viewScale = 1.5 / zoom;
     } else {
-      const mv = MANDEL_VIEWS[Math.floor(rand() * MANDEL_VIEWS.length) % MANDEL_VIEWS.length];
-      mCenRe = mv[0];
-      mCenIm = mv[1];
+      kind = "map";
+      iterType = set === "burningship" ? "ship" : set === "tricorn" ? "tricorn" : set === "celtic" ? "celtic" : "mandel";
+      const views = set === "burningship" ? SHIP_VIEWS : set === "tricorn" ? TRICORN_VIEWS : set === "celtic" ? CELTIC_VIEWS : MANDEL_VIEWS;
+      const mv = pick(views);
+      cenRe = mv[0] + (rand() - 0.5) * mv[2] * 0.15; // small seed pan so reseed varies
+      cenIm = mv[1] + (rand() - 0.5) * mv[2] * 0.15;
       viewScale = mv[2] / zoom;
     }
-    // Smooth escape iteration; returns maxIter for points inside the set.
+
+    // Smooth escape iteration. step() applies the chosen recurrence; escapeStd
+    // covers julia/mandel/ship/tricorn/celtic, escapePhoenix adds the z_{n-1} term.
     const LOG2 = Math.log(2);
-    function escape(z0re, z0im, cre, cim) {
-      let zr = z0re, zi = z0im;
+    function step(zr, zi, cr, ci) {
+      switch (iterType) {
+        case "ship": { const a = Math.abs(zr), b = Math.abs(zi); return [a * a - b * b + cr, 2 * a * b + ci]; }
+        case "tricorn": return [zr * zr - zi * zi + cr, -2 * zr * zi + ci];
+        case "celtic": return [Math.abs(zr * zr - zi * zi) + cr, 2 * zr * zi + ci];
+        default: return [zr * zr - zi * zi + cr, 2 * zr * zi + ci]; // mandel / julia
+      }
+    }
+    function escapeStd(zr, zi, cr, ci) {
       let i = 0;
-      let zr2 = zr * zr, zi2 = zi * zi;
-      while (i < maxIter && zr2 + zi2 <= 64) {
-        zi = 2 * zr * zi + cim;
-        zr = zr2 - zi2 + cre;
-        zr2 = zr * zr;
-        zi2 = zi * zi;
-        i += 1;
+      while (i < maxIter && zr * zr + zi * zi <= 64) { const n = step(zr, zi, cr, ci); zr = n[0]; zi = n[1]; i += 1; }
+      if (i >= maxIter) return maxIter;
+      return i + 1 - Math.log(Math.log(Math.sqrt(zr * zr + zi * zi))) / LOG2;
+    }
+    function escapePhoenix(zr, zi, cr, ci) {
+      let i = 0, pr = 0, pi = 0;
+      while (i < maxIter && zr * zr + zi * zi <= 64) {
+        const z2r = zr * zr - zi * zi, z2i = 2 * zr * zi;
+        const ppr = phPr * pr - phPi * pi, ppi = phPr * pi + phPi * pr;
+        const nr = z2r + cr + ppr, ni = z2i + ci + ppi;
+        pr = zr; pi = zi; zr = nr; zi = ni; i += 1;
       }
       if (i >= maxIter) return maxIter;
-      const mag = Math.sqrt(zr2 + zi2);
-      return i + 1 - Math.log(Math.log(mag)) / LOG2; // smooth
+      return i + 1 - Math.log(Math.log(Math.sqrt(zr * zr + zi * zi))) / LOG2;
     }
 
     // ---- rasterize the escape-time field as ONE <image> (full smooth detail) ----
@@ -114,9 +167,9 @@
       const bgRow = lerpC(bgTopRGB, bgBotRGB, py / (rH - 1));
       for (let px = 0; px < rW; px += 1) {
         const vx = (((px + 0.5) * sxx - cx) / half) * viewScale;
-        const m = set === "julia"
-          ? escape(vx, vy, juliaRe, juliaIm)
-          : escape(0, 0, vx + mCenRe, vy + mCenIm);
+        const m = kind === "julia" ? escapeStd(vx, vy, juliaRe, juliaIm)
+          : kind === "phoenix" ? escapePhoenix(vx, vy, juliaRe, juliaIm)
+          : escapeStd(0, 0, vx + cenRe, vy + cenIm);
         let R, G, B;
         if (m >= maxIter) {                       // inside the set: dark body
           R = bgRow[0] * 0.8; G = bgRow[1] * 0.8; B = bgRow[2] * 0.8;
@@ -210,7 +263,13 @@
       form:
         '<div class="group-label">Fractal</div>' +
         '<label class="field"><span class="field-label">Set</span>' +
-        '<select id="fractalSet"><option value="julia">Julia</option><option value="mandelbrot">Mandelbrot</option></select></label>' +
+        '<select id="fractalSet">' +
+        '<option value="julia">Julia</option>' +
+        '<option value="mandelbrot">Mandelbrot</option>' +
+        '<option value="phoenix">Phoenix</option>' +
+        '<option value="burningship">Burning Ship</option>' +
+        '<option value="tricorn">Tricorn</option>' +
+        '<option value="celtic">Celtic</option></select></label>' +
         '<label class="field range"><span class="field-label">Iterations</span>' +
         '<input id="fractalIterations" type="range" min="24" max="160" step="2"></label>' +
         '<label class="field range"><span class="field-label">Zoom</span>' +
