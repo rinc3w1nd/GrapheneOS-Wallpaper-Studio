@@ -153,7 +153,7 @@ function generateKeepCalmSvg(p) {
   poster_.push(`<rect width="100%" height="100%" fill="url(#kcPoster)"/>`);
   // crown — clean, ink-coloured, top centre
   const crownW = unit * 0.34 * crownScale;
-  const crownTop = H * 0.03;
+  const crownTop = H * 0.05; // nudged down ~2% off the very top edge (status-bar zone)
   poster_.push(
     `<g id="keepcalm-crown"><svg x="${(cx - crownW / 2).toFixed(1)}" y="${crownTop.toFixed(1)}" width="${crownW.toFixed(1)}" height="${crownW.toFixed(1)}" viewBox="${KEEP_CALM_CROWN_VIEWBOX}" preserveAspectRatio="xMidYMid meet" fill="${ink}">${KEEP_CALM_CROWN}</svg></g>`
   );

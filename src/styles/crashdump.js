@@ -35,7 +35,7 @@ const CRASHDUMP_LANGS = {
   russian: {
     rtl: false,
     title: "ПАНИКА ЯДРА",
-    panic: "синхронизация невозможна: фатальное исключение",
+    panic: "сбой синхронизации: исключение",
     fault: "Невозможно обработать запрос подкачки",
     regs: "РЕГИСТРЫ",
     trace: "ТРАССИРОВКА",
@@ -259,7 +259,8 @@ function generateCrashdumpSvg(p) {
   {
     const sw = unit * 0.135; // shield width
     const sh = sw * 1.18;    // rounded-shield height
-    const sTop = H * 0.042;
+    // top edge aligned with the cap-top of the headline (baseline H*0.085 + headFont)
+    const sTop = H * 0.085 + headFont * 0.28;
     const sCx = rtl ? marginX + sw * 0.5 : W - marginX - sw * 0.5;
     const C = 2644.0798 / 2; // OFFICIAL_LOGO_VIEWBOX center
     // Rounded shield: rounded top corners, sides tapering to a soft point.
