@@ -402,6 +402,16 @@ const PALETTE_PRESETS = [
   }
 ];
 
+// Project the shared curated palette library onto a single style's color roles,
+// so every style draws from the same 36 named palettes instead of its own
+// divergent (near-duplicate-prone) list. mapFn receives a shared palette
+// {accent, accent2, lineColor, backgroundTop/Mid/Bottom} and returns that
+// style's { <styleColorId>: "#hex", ... } set; id/name carry over so a palette
+// reads as the same identity in every style.
+function projectPalettes(mapFn) {
+  return PALETTE_PRESETS.map((p) => ({ id: p.id, name: p.name, set: mapFn(p) }));
+}
+
 function findPalette(id) {
   return PALETTE_PRESETS.find((p) => p.id === id) || PALETTE_PRESETS[0];
 }
