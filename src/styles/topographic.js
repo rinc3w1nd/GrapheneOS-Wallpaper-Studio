@@ -15,8 +15,8 @@ function generateTopographicSvg(p) {
   const unit = Math.min(W, H);
 
   // Sensor void = the fingerprint core.
-  const cx = W * (Number(p.fingerprintXPct ?? 50) / 100);
-  const cy = H * (Number(p.fingerprintYPct ?? 72.5) / 100);
+  const cx = W * (Number(p.compositionXPct ?? p.fingerprintXPct ?? 50) / 100);
+  const cy = H * (Number(p.compositionYPct ?? p.fingerprintYPct ?? 72.5) / 100);
   const r0 = unit * (Number(p.fingerprintRadiusPct ?? 10) / 100);
 
   const seed = (Number(p.seed) >>> 0) || 1;

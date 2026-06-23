@@ -26,8 +26,8 @@
     const hubColor = p.constellationHubColor || "#cdeede";
 
     // ----- sensor focal point -----
-    const cx = W * ((p.fingerprintXPct ?? 50) / 100);
-    const cy = H * ((p.fingerprintYPct ?? 72.5) / 100);
+    const cx = W * ((p.compositionXPct ?? p.fingerprintXPct ?? 50) / 100);
+    const cy = H * ((p.compositionYPct ?? p.fingerprintYPct ?? 72.5) / 100);
     const sensorR = unit * ((p.fingerprintRadiusPct ?? 10) / 100);
     const calmR = sensorR * 1.35; // keep nodes/links out of the immediate disc
 

@@ -504,6 +504,8 @@ const DEFAULT_PARAMS = {
   sensorLogo: false,
   fingerprintXPct: 50,
   fingerprintYPct: 72.5,
+  compositionXPct: 50,
+  compositionYPct: 72.5,
   fingerprintRadiusPct: 10, // 10 without the sensor logo; toggle sets 16 when logo on
   fingerprintRingOpacity: 0.88,
   pngScale: 1.0,
@@ -559,6 +561,8 @@ const INPUT_IDS = [
   "sensorLogo",
   "fingerprintXPct",
   "fingerprintYPct",
+  "compositionXPct",
+  "compositionYPct",
   "fingerprintRadiusPct",
   "fingerprintRingOpacity",
   "seed",

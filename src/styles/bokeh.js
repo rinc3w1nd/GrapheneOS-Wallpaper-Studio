@@ -33,8 +33,8 @@
     const bgBottom = p.bokehBgBottom || "#02040a";
 
     // ---- sensor focal geometry ----
-    const cx = W * ((p.fingerprintXPct ?? 50) / 100);
-    const cy = H * ((p.fingerprintYPct ?? 72.5) / 100);
+    const cx = W * ((p.compositionXPct ?? p.fingerprintXPct ?? 50) / 100);
+    const cy = H * ((p.compositionYPct ?? p.fingerprintYPct ?? 72.5) / 100);
     const sensorR = unit * ((p.fingerprintRadiusPct ?? 10) / 100);
     const calmR = sensorR * 1.4;       // keep disc centers out of the immediate void
     const falloffR = sensorR * 4.5;    // density tapers within this radius of the sensor

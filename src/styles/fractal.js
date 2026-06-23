@@ -80,8 +80,8 @@
     const bgTop = p.fractalBgTop || "#02040a";
     const bgBottom = p.fractalBgBottom || "#070b12";
 
-    const cx = W * ((p.fingerprintXPct ?? 50) / 100);
-    const cy = H * ((p.fingerprintYPct ?? 72.5) / 100);
+    const cx = W * ((p.compositionXPct ?? p.fingerprintXPct ?? 50) / 100);
+    const cy = H * ((p.compositionYPct ?? p.fingerprintYPct ?? 72.5) / 100);
 
     const rand = mulberry32((p.seed >>> 0) || 1);
 

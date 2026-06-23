@@ -27,8 +27,8 @@ function generateFlowSvg(p) {
   const cool = p.flowCool || "#5aa6d1";
 
   // ---- sensor focal geometry ----
-  const cx = W * ((p.fingerprintXPct ?? 50) / 100);
-  const cy = H * ((p.fingerprintYPct ?? 72.5) / 100);
+  const cx = W * ((p.compositionXPct ?? p.fingerprintXPct ?? 50) / 100);
+  const cy = H * ((p.compositionYPct ?? p.fingerprintYPct ?? 72.5) / 100);
   const r = unit * ((p.fingerprintRadiusPct ?? 10) / 100);
   const calmR = r * 1.25;     // immediate sensor disc kept clear of streamlines
   const influenceR = r * 4.5; // vortex influence radius

@@ -34,8 +34,8 @@ function generateAuroraSvg(p) {
   const bgTop = p.auroraBgTop || "#040d06";
   const bgBottom = p.auroraBgBottom || "#020703";
 
-  const cx = W * ((p.fingerprintXPct ?? 50) / 100);
-  const cy = H * ((p.fingerprintYPct ?? 72.5) / 100);
+  const cx = W * ((p.compositionXPct ?? p.fingerprintXPct ?? 50) / 100);
+  const cy = H * ((p.compositionYPct ?? p.fingerprintYPct ?? 72.5) / 100);
   const r = unit * ((p.fingerprintRadiusPct ?? 10) / 100);
   const calmR = r * 1.6;
 
