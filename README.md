@@ -2,150 +2,144 @@
 
 A dependency-free static wallpaper generator for GrapheneOS-supported Pixel devices.
 
-No npm. No TypeScript build. No Vite. No backend. No package manager séance.
+No npm. No TypeScript build. No Vite. No backend. No package manager.
 
 Open `index.html` directly or host it on GitHub Pages.
 
 ## Files
 
 ```text
-index.html
+index.html                     # markup + control panel; loads the scripts in order
+sw.js                          # PWA service worker (network-first, offline shell)
+manifest.webmanifest
 src/
-  app.js
-  style.css
-.github/
-  workflows/
-    deploy.yml
+  core.js                      # shared data, primitives, style registry, sensor model
+  styles/<id>.js               # one self-registering SVG generator per style
+  app.js                       # dispatcher, raster export, all UI wiring (loaded last)
+  style.css                    # one consolidated stylesheet (no web fonts)
+.github/workflows/deploy.yml   # push-to-main → GitHub Pages, no build step
 ```
 
 ## Features
 
-- Two wallpaper styles: **Lattice** (isometric geometric structure) and **Chic** (a tessellated grid of the GrapheneOS mark, a client-side SVG port of [GOS-Chic](https://github.com/rinc3w1nd/GOS-Chic))
-- Client-side structural geometric SVG generation
-- Browser-side raster export (WebP / JPEG / PNG) using canvas
-- Deterministic seed
-- Accent color controls
-- Large curated palette set for accent/background pairings
-- Device presets including fold cover and inner screens
+- **12 wallpaper styles** (see below), all pure client-side SVG
+- Browser-side raster export (WebP / JPEG / PNG) via canvas, with an automatic Safari WebP→JPEG fallback
+- Deterministic output for a given seed
+- A shared curated palette library (36 dark technical palettes) that reads as the same identity across every style, and persists when you switch styles
+- Device presets for GrapheneOS-supported Pixels — including fold cover/inner screens — each with its real per-device fingerprint-sensor placement
+- Installable PWA that runs fully offline (zero runtime network requests)
 - GitHub Pages workflow with no build step
+
+## Wallpaper styles
+
+Pick a style from the **Style** button at the top of the control panel. Every style draws from the
+same palette library and frames the under-display fingerprint sensor (which you can move, resize, or
+disable):
+
+- **Lattice** — the original isometric geometric structure with a hexagonal fingerprint aperture
+- **Topographic** — contour-line topography (with **Sonar** and **Truchet** form variants)
+- **Constellation** — a seeded star-field node graph centered on the sensor
+- **Flow** — flow-field streamlines bending around the sensor like an attractor
+- **Circuit** — PCB trace routing radiating from the sensor
+- **Bokeh** — soft defocused light discs
+- **Facets** — a low-poly crystalline tessellation (**Gemstone** / **Mosaic** forms)
+- **Modulation** — a dot-matrix "pin-art" field
+- **Matrix** — dense digital rain parting around the sensor
+- **Crashdump** — a mobile kernel-panic / hexdump in five languages (English / Русский / 中文 / 한국어 / فارسی) with a GrapheneOS shield
+- **Keep Calm** — the WWII poster tearing away to reveal a hidden MTE crash terminal
+- **Forge** — the GrapheneOS mark tessellated as weathered, frosted metal — a client-side SVG port of [GOS-Chic](https://github.com/rinc3w1nd/GOS-Chic)
 
 ## Device presets
 
-Includes practical presets for:
+Includes practical presets for GrapheneOS-supported Pixel-class devices:
 
-- Pixel 10a / 10 / 10 Pro / 10 Pro XL
-- Pixel 10 Pro Fold cover and inner
-- Pixel 9a / 9 / 9 Pro / 9 Pro XL
-- Pixel 9 Pro Fold cover and inner
+- Pixel 10a / 10 / 10 Pro / 10 Pro XL, Pixel 10 Pro Fold cover and inner
+- Pixel 9a / 9 / 9 Pro / 9 Pro XL, Pixel 9 Pro Fold cover and inner
 - Pixel 8a / 8 / 8 Pro
-- Pixel Fold cover and inner
-- Pixel Tablet portrait and landscape
-- Pixel 7a / 7 / 7 Pro
-- Pixel 6a / 6 / 6 Pro
+- Pixel Fold cover and inner, Pixel Tablet portrait and landscape
+- Pixel 7a / 7 / 7 Pro, Pixel 6a / 6 / 6 Pro
 - Custom dimensions
 
-The preset list is intended to match GrapheneOS production-supported Pixel-class devices, with display resolutions based on Google Pixel hardware specs where available. Pixel 10a is included as a practical A-series preset and should be updated if its official resolution differs.
+Display resolutions are based on Google Pixel hardware specs. Each device also carries its
+**fingerprint-sensor vertical position** (sensors are horizontally centered, so only the height
+varies), so the sensor aperture lands correctly on each phone; devices without a measured value fall
+back to a sensible default.
 
 ## Curated palettes
 
-The app includes a large curated palette list ranging from subdued GrapheneOS-style greens and teals through graphite, moonstone, oxide, blueprint, Nord, Tokyo Night, Solarized, Gruvbox, Catppuccin, and other low-glare technical palettes. Choosing a palette updates accent A, accent B, line color, and background colors. Manually editing any of those color fields switches the palette selector to **Custom**.
+The app ships a single shared library of 36 dark, low-glare technical palettes (GrapheneOS-style
+greens and teals, graphite/oxide/blueprint neutrals, and editor-theme-inspired sets like Nord,
+Tokyo Night, Solarized, Gruvbox, Catppuccin). A palette reads as the same identity in every style,
+and stays selected when you switch styles. Manually editing any color field switches the selector to
+**Custom**.
 
 ## Local usage
 
 Double-click `index.html`, or serve it locally:
 
 ```bash
-python3 -m http.server 8000
-```
-
-Then open:
-
-```text
-http://localhost:8000
+python3 -m http.server 8000   # then open http://localhost:8000
 ```
 
 ## Deploy to GitHub Pages
 
-1. Create a GitHub repo.
-2. Put these files in the repo.
-3. Push to `main`.
-4. In GitHub: **Settings → Pages → Source: GitHub Actions**.
-5. Run or wait for `.github/workflows/deploy.yml`.
+1. Push to `main`.
+2. In GitHub: **Settings → Pages → Source: GitHub Actions**.
+3. Run or wait for `.github/workflows/deploy.yml` (it uploads the repo root as-is — no build step).
 
 ## Export formats and file size
 
-Raster export honors the **format** (WebP / JPEG / PNG), **quality**, and **scale**
-controls in the Output panel. Defaults are WebP at quality 0.90 and full (1.0) device
-scale, which produces crisp, wallpaper-grade output at a small size — a 1344×2992 export
-with grain lands around ~70 KB.
+Raster export honors the **format** (WebP / JPEG / PNG), **quality**, and **scale** controls in the
+Export panel. Defaults are WebP at quality 0.90 and full (1.0) device scale, which produces crisp,
+wallpaper-grade output at a small size.
 
-Notes:
+- **WebP** (default) and **JPEG** are lossy and handle gradients + grain efficiently.
+- **PNG** is lossless and pixel-exact, but the grain layer makes every pixel unique, so PNG files are
+  large (multiple MB). Use it only if you need lossless.
+- Keep **scale at 1.0** so it renders at native device resolution; lower scales get upscaled by the OS
+  and look soft.
 
-- **WebP** (default) and **JPEG** are lossy and handle the gradient + grain efficiently.
-- **PNG** is lossless and ideal for pixel-exact output, but the grain layer makes every
-  pixel unique, so PNG files are large (multiple MB). Use PNG only if you specifically need
-  lossless.
-- For a crisp wallpaper, keep **scale at 1.0** so it renders at native device resolution;
-  lower scales are upscaled by the OS and look soft.
-
-**Safari note:** Safari's canvas has no WebP encoder and silently falls back to lossless
-PNG (which, with grain, is ~5 MB). The app detects this and **automatically falls back to
-JPEG** when WebP isn't available, and always names the downloaded file by the bytes it
-actually produced — so on Safari a "WebP" export arrives as a small `.jpg` (~360 KB) rather
-than a multi-MB file mislabeled `.webp`. Chromium browsers (incl. Brave) get true WebP.
+**Safari note:** Safari's canvas has no WebP encoder and silently falls back to lossless PNG (~5 MB
+with grain). The app detects this and **automatically falls back to JPEG**, and always names the
+downloaded file by the bytes it actually produced — so on Safari a "WebP" export arrives as a small
+`.jpg` rather than a multi-MB file mislabeled `.webp`. Chromium browsers (incl. Brave) get true WebP.
 
 ## Testing
 
-End-to-end tests use [Playwright](https://playwright.dev/) and drive **Brave** (Chromium).
-This is dev-only tooling — the app itself ships with zero runtime dependencies.
+End-to-end tests use [Playwright](https://playwright.dev/), dev-only tooling — the app itself ships
+with zero runtime dependencies.
 
 ```bash
-npm install                 # installs @playwright/test (bundled browsers skipped; we use Brave)
-npx playwright install webkit   # once, for the Safari-engine project
-npm test                    # runs the suite against Brave + WebKit
-npm test -- --project=brave # Brave only (no WebKit download needed)
-npm run test:headed         # watch it run
+npm install                          # @playwright/test only (bundled browsers skipped; we use Brave)
+npx playwright install webkit        # once, for the Safari-engine project
+npx playwright test                  # Brave + WebKit
+npx playwright test --project=brave  # Brave only (the fast default during dev)
 ```
 
-The suite (`tests/wallpaper.spec.js`) serves the static site via `python3 -m http.server`
-and covers the grain × fingerprint toggle matrix plus the default raster export. It runs on
-two engines: **Brave** (Chromium) and **WebKit** (Safari's engine), the latter guarding the
-WebP→JPEG export fallback. Override the Brave binary location with
-`BRAVE_PATH=/path/to/brave npm test` if it isn't at the standard install path.
+The suite ([tests/](tests/), with per-style specs in [tests/styles/](tests/styles/)) serves the
+static site via `python3 -m http.server` and runs two engines: **Brave** (Chromium) and **WebKit**
+(Safari's engine, guarding the WebP→JPEG export fallback). Override the Brave binary with
+`BRAVE_PATH=/path/to/brave`.
 
 ## Official GrapheneOS logo note
 
-The **Official Logo** toggle uses the real GrapheneOS mark, inlined directly in `src/app.js`
-(`OFFICIAL_LOGO_PATH`, sourced from `assets/grapheneos.svg`). It is inlined rather than
-fetched so it works when you open `index.html` directly (`file://` blocks `fetch`) and never
-taints the canvas on raster export. The mark is tinted to the active accent color at render
-time, so it stays visible on the dark background. Turn the toggle off for the
-procedurally-drawn approximation (`grapheneMark()`). To swap the logo, replace the path data
-in `OFFICIAL_LOGO_PATH` (and its `OFFICIAL_LOGO_VIEWBOX`).
+The **Official Logo** / sensor-logo options use the real GrapheneOS mark, inlined directly in
+`src/core.js` (`OFFICIAL_LOGO_PATH`, sourced from `assets/grapheneos.svg`). It is inlined rather than
+fetched so it works when you open `index.html` directly (`file://` blocks `fetch`) and never taints
+the canvas on raster export. The mark is tinted to the active accent at render time.
 
-## Wallpaper styles
+## Fingerprint sensor
 
-The **Style** toggle (top of the Setup panel) switches between two generators:
+The under-display fingerprint sensor is treated as a focal point: structural geometry is cleared from
+a soft disc around it, and a hex ring (or the GrapheneOS mark) frames it. The interior is left empty —
+Android draws the real sensor UI there at runtime. Position, size, ring opacity, and the sensor logo
+are adjustable, and the sensor can be disabled entirely for devices without an under-display sensor.
 
-- **Lattice** — the isometric geometric structure with the fingerprint aperture.
-- **Chic** — a tessellated grid of the GrapheneOS mark on an OLED background with a single
-  accent tile at the fingerprint position. This is a dependency-free, client-side SVG port of
-  the signature look from [GOS-Chic](https://github.com/rinc3w1nd/GOS-Chic) (a Python tool).
-  Controls: preset (seasonal + metallic), theme (dark/light), tile + accent colors, fill
-  (flat/gradient/duotone), glow, weave, spacing, tile size, deep contrast, and center-fill.
-  The fingerprint position controls place + size the accent tile.
+## License
 
-## Fingerprint aperture
-
-The fingerprint region is rendered as a deliberate **architectural aperture**: the structural
-geometry is masked out of a hexagonal void, the surrounding lattice lines are capped with
-accent nodes where they meet the rim, and a hex ring frames it. The interior is intentionally
-left empty — Android draws the real under-display sensor UI there at runtime. Position, size,
-and ring opacity are adjustable in the Fingerprint panel; toggle it off entirely if your
-device has no under-display sensor.
+GPL-3.0-or-later. See [LICENSE.md](LICENSE.md).
 
 ## Security / dependency note
 
-This project has no external runtime dependencies and makes no network requests by default. The whole thing is static HTML/CSS/JS.
-
-Because apparently "a wallpaper generator should not need a supply chain risk register" is a radical position now.
+This project has no external runtime dependencies and makes no network requests by default. The whole
+thing is static HTML/CSS/JS.
