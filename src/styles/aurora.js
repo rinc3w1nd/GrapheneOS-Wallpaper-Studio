@@ -25,14 +25,14 @@ function generateAuroraSvg(p) {
   const segments = 44;
 
   const ramp = [
-    p.auroraLow || "#35ab70",
-    p.auroraAccent1 || "#3ad0d7",
-    p.auroraMid || "#5d95e4",
-    p.auroraAccent2 || "#968be7",
-    p.auroraHigh || "#d9b9e9",
+    p.auroraLow || "#1fd03d",
+    p.auroraAccent1 || "#31f0e0",
+    p.auroraMid || "#5b8ff8",
+    p.auroraAccent2 || "#ba8ef7",
+    p.auroraHigh || "#f6c1ed",
   ];
-  const bgTop = p.auroraBgTop || "#050d09";
-  const bgBottom = p.auroraBgBottom || "#020705";
+  const bgTop = p.auroraBgTop || "#040d06";
+  const bgBottom = p.auroraBgBottom || "#020703";
 
   const cx = W * ((p.fingerprintXPct ?? 50) / 100);
   const cy = H * ((p.fingerprintYPct ?? 72.5) / 100);
@@ -69,7 +69,7 @@ function generateAuroraSvg(p) {
   const rH = Math.max(96, Math.round((rW * H) / W));
   const bgTopRGB = hexToRgb(bgTop);
   const bgBotRGB = hexToRgb(bgBottom);
-  const intensity = baseOpacity * (0.8 + 0.7 * glow);
+  const intensity = baseOpacity * (1.05 + 0.85 * glow);
   const scx = (cx / W) * rW, scy = (cy / H) * rH;
   const calmRc = (calmR / W) * rW * 1.7;
 
@@ -88,12 +88,14 @@ function generateAuroraSvg(p) {
     ];
     for (let px = 0; px < rW; px += 1) {
       const nx = (px / rW) * fieldScale;
-      let b = clamp01((density(nx, ny) - 0.45) / 0.5);
-      b = Math.pow(b, 1.5) * intensity;
+      // sharper contrast -> dramatic bright tendrils over dark gaps
+      let b = clamp01((density(nx, ny) - 0.5) / 0.4);
+      b = Math.pow(b, 1.85) * intensity;
       const dd = Math.hypot(px - scx, py - scy);
       if (dd < calmRc) b *= clamp01(dd / calmRc);
-      // hue across the ramp: horizontal sweep + noise wobble + slight vertical
-      const ht = clamp01(px / rW * 0.7 + (noise(px / rW * 2 + 50, py / rH * 1.2 + 80) - 0.5) * 0.5 + (py / rH) * 0.12);
+      // hue across the ramp: wide horizontal sweep + strong noise wobble so the
+      // full multi-colour range shows in one frame
+      const ht = clamp01(px / rW * 0.95 + (noise(px / rW * 2.2 + 50, py / rH * 1.3 + 80) - 0.5) * 0.75 + (py / rH) * 0.18);
       const tint = colAt(ht);
       const o = (py * rW + px) * 4;
       // screen blend tint*b over the background row
@@ -166,11 +168,11 @@ function generateAuroraSvg(p) {
       const phase2 = rand() * 1000;
       const startY = rand() * H;
       const endY = Math.min(H, startY + (0.12 + rand() * 0.42) * H);
-      const bright = rand() < 0.32;
+      const bright = rand() < 0.42;
       const sw = bright
-        ? Math.max(1.4, unit * 0.0035 * (0.7 + rand()))
+        ? Math.max(1.6, unit * 0.004 * (0.7 + rand()))
         : Math.max(0.8, unit * 0.0015 * (0.6 + rand() * 1.8));
-      const op = band.op * (bright ? 0.22 + rand() * 0.22 : 0.08 + rand() * 0.14) * (0.6 + 0.6 * glow);
+      const op = band.op * (bright ? 0.32 + rand() * 0.3 : 0.1 + rand() * 0.16) * (0.7 + 0.6 * glow);
       const col = bandColor(clamp01(band.hue + (rand() - 0.5) * 0.34));
       const d = strandPath(band, laneOffset, phase2, startY, endY, bright ? 1.7 : 1.3);
       parts.push(`<path d="${d}" fill="none" stroke="${col}" stroke-opacity="${op.toFixed(3)}" stroke-width="${sw.toFixed(2)}" stroke-linecap="round"/>`);
@@ -200,29 +202,30 @@ registerStyle({
     auroraWidth: 0.18,
     auroraGlow: 0.6,
     auroraOpacity: 0.6,
-    auroraLow: "#35ab70",
-    auroraAccent1: "#3ad0d7",
-    auroraMid: "#5d95e4",
-    auroraAccent2: "#968be7",
-    auroraHigh: "#d9b9e9",
-    auroraBgTop: "#050d09",
-    auroraBgBottom: "#020705",
+    auroraLow: "#1fd03d",
+    auroraAccent1: "#31f0e0",
+    auroraMid: "#5b8ff8",
+    auroraAccent2: "#ba8ef7",
+    auroraHigh: "#f6c1ed",
+    auroraBgTop: "#040d06",
+    auroraBgBottom: "#020703",
     auroraPreset: "borealis",
   },
   colorIds: ["auroraLow", "auroraAccent1", "auroraMid", "auroraAccent2", "auroraHigh", "auroraBgTop", "auroraBgBottom"],
   presets: [
-    { id: "borealis", name: "Borealis", set: { auroraLow: "#35ab70", auroraAccent1: "#3ad0d7", auroraMid: "#5d95e4", auroraAccent2: "#968be7", auroraHigh: "#d9b9e9", auroraBgTop: "#050d09", auroraBgBottom: "#020705" } },
-    { id: "emerald", name: "Emerald", set: { auroraLow: "#35ab53", auroraAccent1: "#3ad77b", auroraMid: "#5de4ac", auroraAccent2: "#8be7d0", auroraHigh: "#b9e9e5", auroraBgTop: "#050d07", auroraBgBottom: "#020704" } },
-    { id: "cyan", name: "Cyan", set: { auroraLow: "#37a99a", auroraAccent1: "#3dd0d4", auroraMid: "#60cae2", auroraAccent2: "#8cc7e6", auroraHigh: "#bad1e9", auroraBgTop: "#050d0c", auroraBgBottom: "#030706" } },
-    { id: "azure", name: "Azure", set: { auroraLow: "#3787a9", auroraAccent1: "#3d81d4", auroraMid: "#607ae2", auroraAccent2: "#918ce6", auroraHigh: "#c8bae9", auroraBgTop: "#050a0d", auroraBgBottom: "#030507" } },
-    { id: "violet", name: "Violet", set: { auroraLow: "#4d3ba6", auroraAccent1: "#8342cf", auroraMid: "#bf64dd", auroraAccent2: "#e38fdf", auroraHigh: "#e7bbd8", auroraBgTop: "#07050c", auroraBgBottom: "#030307" } },
-    { id: "magenta", name: "Magenta", set: { auroraLow: "#a63ba6", auroraAccent1: "#cf42af", auroraMid: "#dd64a6", auroraAccent2: "#e38fa9", auroraHigh: "#e7bbbf", auroraBgTop: "#0c050c", auroraBgBottom: "#070307" } },
-    { id: "ember", name: "Ember", set: { auroraLow: "#af4231", auroraAccent1: "#dc6a35", auroraMid: "#e8a159", auroraAccent2: "#eacb88", auroraHigh: "#ebe4b7", auroraBgTop: "#0d0605", auroraBgBottom: "#070302" } },
-    { id: "gold", name: "Gold", set: { auroraLow: "#a97f37", auroraAccent1: "#d4c43d", auroraMid: "#cee260", auroraAccent2: "#c1e68c", auroraHigh: "#c9e9ba", auroraBgTop: "#0d0a05", auroraBgBottom: "#070503" } },
-    { id: "rose", name: "Rose", set: { auroraLow: "#a04170", auroraAccent1: "#c74969", auroraMid: "#d76a6a", auroraAccent2: "#dea694", auroraHigh: "#e5d1be", auroraBgTop: "#0c0609", auroraBgBottom: "#060305" } },
-    { id: "teal-violet", name: "Teal Violet", set: { auroraLow: "#37a98d", auroraAccent1: "#3dabd4", auroraMid: "#607be2", auroraAccent2: "#a88ce6", auroraHigh: "#e1bae9", auroraBgTop: "#050d0b", auroraBgBottom: "#030706" } },
-    { id: "ice", name: "Ice", set: { auroraLow: "#54858d", auroraAccent1: "#6396ae", auroraMid: "#80a1c1", auroraAccent2: "#a3b1cf", auroraHigh: "#c5c9dd", auroraBgTop: "#070a0b", auroraBgBottom: "#040506" } },
-    { id: "mono", name: "Monolith", set: { auroraLow: "#697178", auroraAccent1: "#7e8993", auroraMid: "#98a0a9", auroraAccent2: "#b3b8bf", auroraHigh: "#ced0d4", auroraBgTop: "#080909", auroraBgBottom: "#040505" } },
+    { id: "borealis", name: "Borealis", set: { auroraLow: "#1fd03d", auroraAccent1: "#31f0e0", auroraMid: "#5b8ff8", auroraAccent2: "#ba8ef7", auroraHigh: "#f6c1ed", auroraBgTop: "#040d06", auroraBgBottom: "#020703" } },
+    { id: "spectrum", name: "Spectrum", set: { auroraLow: "#69d41c", auroraAccent1: "#2ef49d", auroraMid: "#58a3fb", auroraAccent2: "#c58cf9", auroraHigh: "#f7c0db", auroraBgTop: "#080d04", auroraBgBottom: "#040702" } },
+    { id: "emerald", name: "Emerald", set: { auroraLow: "#3dd01f", auroraAccent1: "#31f05d", auroraMid: "#5bf8bd", auroraAccent2: "#8ef5f7", auroraHigh: "#c1e0f6", auroraBgTop: "#060d04", auroraBgBottom: "#030702" } },
+    { id: "cyan", name: "Cyan", set: { auroraLow: "#22cea3", auroraAccent1: "#34ccee", auroraMid: "#5d99f6", auroraAccent2: "#938ff6", auroraHigh: "#dac2f5", auroraBgTop: "#040d0b", auroraBgBottom: "#020706" } },
+    { id: "azure", name: "Azure", set: { auroraLow: "#24a2cc", auroraAccent1: "#366bec", auroraMid: "#785ff4", auroraAccent2: "#cf91f4", auroraHigh: "#f4c2f0", auroraBgTop: "#040b0d", auroraBgBottom: "#020607" } },
+    { id: "violet", name: "Violet", set: { auroraLow: "#3c26ca", auroraAccent1: "#a838e9", auroraMid: "#f261df", auroraAccent2: "#f392b5", auroraHigh: "#f4c9c3", auroraBgTop: "#06040d", auroraBgBottom: "#030207" } },
+    { id: "magenta", name: "Magenta", set: { auroraLow: "#aa24cc", auroraAccent1: "#ec36b7", auroraMid: "#f45f81", auroraAccent2: "#f4ab91", auroraHigh: "#f4e8c2", auroraBgTop: "#0c040d", auroraBgBottom: "#060207" } },
+    { id: "ember", name: "Ember", set: { auroraLow: "#d71939", auroraAccent1: "#f7592a", auroraMid: "#fbbe58", auroraAccent2: "#f8fb8a", auroraHigh: "#e0f8bf", auroraBgTop: "#0d0406", auroraBgBottom: "#070203" } },
+    { id: "gold", name: "Gold", set: { auroraLow: "#d0721f", auroraAccent1: "#f0eb31", auroraMid: "#acf85b", auroraAccent2: "#8ff78e", auroraHigh: "#c1f6db", auroraBgTop: "#0d0904", auroraBgBottom: "#070402" } },
+    { id: "rose", name: "Rose", set: { auroraLow: "#c828ba", auroraAccent1: "#e73b94", auroraMid: "#f06374", auroraAccent2: "#f2ad93", auroraHigh: "#f3e3c4", auroraBgTop: "#0d040d", auroraBgBottom: "#070207" } },
+    { id: "teal-violet", name: "Teal Violet", set: { auroraLow: "#1fd087", auroraAccent1: "#31c3f0", auroraMid: "#5b6cf8", auroraAccent2: "#c78ef7", auroraHigh: "#f6c1eb", auroraBgTop: "#040d0a", auroraBgBottom: "#020705" } },
+    { id: "ice", name: "Ice", set: { auroraLow: "#47a8a5", auroraAccent1: "#5ca6c5", auroraMid: "#7f9ed5", auroraAccent2: "#a6a8df", auroraHigh: "#d6cdea", auroraBgTop: "#060c0c", auroraBgBottom: "#030606" } },
+    { id: "mono", name: "Monolith", set: { auroraLow: "#6d7a83", auroraAccent1: "#85919c", auroraMid: "#a0a8b3", auroraAccent2: "#bcc0c9", auroraHigh: "#d8dadf", auroraBgTop: "#08090a", auroraBgBottom: "#040505" } },
   ],
   inputIds: [
     "auroraBands",
