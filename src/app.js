@@ -184,6 +184,21 @@ function debounce(fn, ms) {
 const controls = document.querySelector("#controls");
 const preview = document.querySelector("#preview");
 const previewShell = document.querySelector("#preview-shell");
+const renderBadge = document.querySelector("#render-badge");
+
+// Only the canvas-raster styles (see canvas-vs-SVG policy) take long enough to
+// warrant a "Rendering…" badge; pure-SVG styles finish in a few ms and would
+// just flash it. Badge shows during the deferred render and clears when done.
+const HEAVY_STYLES = ["aurora", "fractal"];
+function activeStyleIsHeavy() {
+  return HEAVY_STYLES.some((s) => document.body.classList.contains(`style-${s}`));
+}
+function showRenderBadge() {
+  if (renderBadge && activeStyleIsHeavy()) renderBadge.hidden = false;
+}
+function hideRenderBadge() {
+  if (renderBadge) renderBadge.hidden = true;
+}
 const deviceSelect = document.querySelector("#device");
 const paletteSelect = document.querySelector("#palette");
 const chicPresetSelect = document.querySelector("#chicPreset");
@@ -466,7 +481,7 @@ function initStylePresets() {
       params = { ...readParamsFromInputs(), ...pr.set };
       params[`${s.id}Preset`] = sel.value;
       setInputsFromParams(params);
-      render();
+      renderSoon();
     });
   });
 }
@@ -555,6 +570,7 @@ function render() {
   }
   // State is intentionally not written to the URL. Reload resets controls.
   syncControlReadouts();
+  hideRenderBadge();   // generation done — clear the "Rendering…" badge
 }
 
 function initApp() {
@@ -578,7 +594,13 @@ function initApp() {
 
 initApp();
 
-const renderSoon = debounce(render, 40);
+const renderDebounced = debounce(render, 40);
+// Show the badge synchronously, then let the debounce window hand the browser a
+// frame to paint it before the heavy generate freezes the main thread.
+function renderSoon() {
+  showRenderBadge();
+  renderDebounced();
+}
 
 controls.addEventListener("input", (event) => {
   if (event.target && event.target.id === "device") return;
@@ -608,21 +630,21 @@ controls.addEventListener("change", () => {
 deviceSelect.addEventListener("change", () => {
   params = paramsForDevice(deviceSelect.value, readParamsFromInputs());
   setInputsFromParams(params);
-  render();
+  renderSoon();
 });
 
 paletteSelect.addEventListener("change", () => {
   if (paletteSelect.value === "custom") return;
   params = paramsForPalette(paletteSelect.value, readParamsFromInputs());
   setInputsFromParams(params);
-  render();
+  renderSoon();
 });
 
 chicPresetSelect.addEventListener("change", () => {
   if (chicPresetSelect.value === "custom") return;
   params = paramsForChicPreset(chicPresetSelect.value, readParamsFromInputs());
   setInputsFromParams(params);
-  render();
+  renderSoon();
 });
 
 document.querySelector("#download-svg").addEventListener("click", () => {
@@ -664,7 +686,7 @@ document.querySelector("#reset-controls").addEventListener("click", () => {
   setInputsFromParams(params);             // calls applyStyle(keepStyle)
   syncFingerprintVisibility();
   setupToggleLabels();
-  render();
+  renderSoon();
 });
 
 // Seed control: a read-only seed field with three inline icon buttons —

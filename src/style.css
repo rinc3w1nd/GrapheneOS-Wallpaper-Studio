@@ -175,10 +175,53 @@ button:active { transform: translateY(1px); }
 .accent-btn:hover { background: rgba(119, 182, 158, 0.26); }
 
 .preview-shell {
+  position: relative;
   min-height: 0;
   display: grid;
   place-items: center;
   padding: 2px 0 4px;
+}
+
+/* "Rendering…" badge overlaid on the preview while the slow canvas styles
+   (aurora/fractal) generate. app.js toggles [hidden] around the deferred
+   render; the dot pulse runs on the compositor so it stays alive even while
+   the main thread is busy in the per-pixel loop. */
+.render-badge {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 15px;
+  border-radius: 999px;
+  background: rgba(8, 12, 17, 0.86);
+  border: 1px solid var(--hair-2);
+  color: var(--text);
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+}
+.render-badge[hidden] { display: none; }
+.render-badge__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent, #77b69e);
+  animation: render-pulse 0.9s ease-in-out infinite;
+}
+@keyframes render-pulse {
+  0%, 100% { opacity: 0.25; transform: scale(0.75); }
+  50% { opacity: 1; transform: scale(1.25); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .render-badge__dot { animation: none; opacity: 0.9; }
 }
 
 .preview {

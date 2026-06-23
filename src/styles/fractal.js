@@ -148,7 +148,7 @@
     // SVG vector tiles can't capture fine fractal filigree under the element
     // budget, so the field is rendered on a canvas and inlined as a data URI.
     // Deterministic per browser for a given seed; the seed picks the figure.
-    const rW = Math.max(96, Math.min(W, Math.round(360 + detail * 340))); // 360..700
+    const rW = Math.max(96, Math.min(W, Math.round(250 + detail * 250))); // 325..500; upscaled, so smaller raster ~halves the per-pixel loop
     const rH = Math.max(96, Math.round((rW * H) / W));
     const sxx = W / rW, syy = H / rH;
     const innerRGB = hexToRgb(colorInner);

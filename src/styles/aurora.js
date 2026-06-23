@@ -66,7 +66,7 @@ function generateAuroraSvg(p) {
     return [a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f, a[2] + (b[2] - a[2]) * f];
   }
 
-  const rW = Math.max(96, Math.min(W, 460));
+  const rW = Math.max(96, Math.min(W, 320)); // gas cloud is soft + upscaled; smaller raster ~halves the per-pixel loop
   const rH = Math.max(96, Math.round((rW * H) / W));
   const bgTopRGB = hexToRgb(bgTop);
   const bgBotRGB = hexToRgb(bgBottom);
