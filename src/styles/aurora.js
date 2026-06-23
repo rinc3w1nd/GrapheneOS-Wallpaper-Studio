@@ -73,68 +73,50 @@ function generateAuroraSvg(p) {
   const parts = [`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">`];
   parts.push("<defs>");
   parts.push(`<linearGradient id="auroraBg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${bgTop}"/><stop offset="100%" stop-color="${bgBottom}"/></linearGradient>`);
-  // One vertical luminance gradient per band: transparent top -> bright mid -> transparent bottom.
-  for (let b = 0; b < bands; b += 1) {
-    const col = bandColor(bandDefs[b].hue);
-    parts.push(
-      `<linearGradient id="auroraG${b}" x1="0" y1="0" x2="0" y2="1">` +
-      `<stop offset="0%" stop-color="${col}" stop-opacity="0"/>` +
-      `<stop offset="22%" stop-color="${col}" stop-opacity="0.55"/>` +
-      `<stop offset="50%" stop-color="${col}" stop-opacity="1"/>` +
-      `<stop offset="80%" stop-color="${col}" stop-opacity="0.45"/>` +
-      `<stop offset="100%" stop-color="${col}" stop-opacity="0"/></linearGradient>`
-    );
-  }
+  // Gaussian blur diffuses the fine strands into soft billows (the milk-in-tea look).
+  const blurStd = unit * (0.008 + glow * 0.013);
+  parts.push(`<filter id="auroraBlur" x="-15%" y="-15%" width="130%" height="130%"><feGaussianBlur stdDeviation="${blurStd.toFixed(1)}"/></filter>`);
   parts.push(sensorMaskDef(p));
   parts.push("</defs>");
   parts.push(`<rect width="100%" height="100%" fill="url(#auroraBg)"/>`);
 
-  // Screen blend gives the additive, luminous layering of overlapping curtains.
-  parts.push(`<g id="aurora-curtains" style="mix-blend-mode:screen"${sensorMaskAttr(p)}>`);
+  // Wispy curtains: each band is a swarm of thin, translucent, meandering
+  // strands of varying length and width (a few wide soft washes, mostly fine
+  // filaments), each billowing horizontally on its own value-noise lane. Screen-
+  // blended and overlapping, they diffuse like milk curling into tea rather than
+  // reading as solid sheets. The shared mask still clears the sensor void.
+  parts.push(`<g id="aurora-curtains" filter="url(#auroraBlur)" style="mix-blend-mode:screen"${sensorMaskAttr(p)}>`);
 
+  const strandsPerBand = Math.max(6, Math.min(Math.floor(680 / bands), Math.round(16 + glow * 34)));
+  const stepY = H / segments;
   for (let b = 0; b < bands; b += 1) {
     const band = bandDefs[b];
-    // Build the curtain as a closed ribbon: down the right edge, up the left edge.
-    const right = [];
-    const left = [];
-    for (let i = 0; i <= segments; i += 1) {
-      const y = (i / segments) * H;
-      const c = centerX(band, y);
-      // taper the curtain a touch near top/bottom so it reads as a hanging sheet
-      const taper = 0.6 + 0.4 * Math.sin((i / segments) * Math.PI);
-      // widen the gap where the curtain crosses the sensor (calm focal void)
-      let hw = band.halfW * taper;
-      const dy = Math.abs(y - cy);
-      if (dy < calmR) {
-        const sink = 1 - dy / calmR; // 1 at sensor row -> 0 at edge of calm band
-        hw *= 1 - 0.85 * sink;
+    for (let s = 0; s < strandsPerBand; s += 1) {
+      const laneOffset = (rand() - 0.5) * band.halfW * 2;
+      const phase2 = rand() * 1000;            // this strand's own billow lane
+      const wander = 0.3 + rand() * 0.9;       // billow scale
+      const startY = rand() * H;
+      const endY = Math.min(H, startY + (0.12 + rand() * 0.5) * H);
+      const wide = rand() < 0.24;              // more soft body washes
+      const sw = wide
+        ? Math.max(3, unit * 0.018 * (0.6 + rand() * 1.0))
+        : Math.max(1, unit * 0.0016 * (0.6 + rand() * 2.2));
+      const sop = band.op * (wide ? 0.06 + rand() * 0.07 : 0.07 + rand() * 0.16) * (0.5 + 0.7 * glow);
+      const col = bandColor(clamp01(band.hue + (rand() - 0.5) * 0.28));
+      const seg = [];
+      let first = true;
+      for (let y = startY; y <= endY + 0.001; y += stepY) {
+        const yy = Math.min(endY, y);
+        const billow = (noise(phase2, (yy / H) * warpScale * 1.7) - 0.5) * warp * W * 0.7 * wander;
+        const x = centerX(band, yy) + laneOffset + billow;
+        seg.push(`${first ? "M" : "L"}${x.toFixed(1)} ${yy.toFixed(1)}`);
+        first = false;
       }
-      right.push([c + hw, y]);
-      left.push([c - hw, y]);
-    }
-    const pts = right.concat(left.reverse());
-    const d = pts.map(([x, y], i) => `${i === 0 ? "M" : "L"}${x.toFixed(1)} ${y.toFixed(1)}`).join(" ") + " Z";
-    parts.push(`<path d="${d}" fill="url(#auroraG${b})" fill-opacity="${band.op.toFixed(3)}"/>`);
-
-    // Faint vertical streak lines inside the curtain for the shimmering grain.
-    if (glow > 0.05 && band.streaks > 0) {
-      const streakCol = bandColor(clamp01(band.hue + 0.12));
-      for (let sIdx = 0; sIdx < band.streaks; sIdx += 1) {
-        const frac = (sIdx + 1) / (band.streaks + 1) - 0.5; // [-0.5, 0.5)
-        const seg = [];
-        for (let i = 0; i <= segments; i += 1) {
-          const y = (i / segments) * H;
-          const c = centerX(band, y);
-          const taper = 0.6 + 0.4 * Math.sin((i / segments) * Math.PI);
-          let hw = band.halfW * taper;
-          const dy = Math.abs(y - cy);
-          if (dy < calmR) hw *= 1 - 0.85 * (1 - dy / calmR);
-          seg.push(`${i === 0 ? "M" : "L"}${(c + frac * 2 * hw).toFixed(1)} ${y.toFixed(1)}`);
-        }
-        const sop = (band.op * 0.25 * glow).toFixed(3);
-        const sw = Math.max(0.6, unit * 0.0012);
-        parts.push(`<path d="${seg.join(" ")}" fill="none" stroke="${streakCol}" stroke-opacity="${sop}" stroke-width="${sw.toFixed(2)}"/>`);
-      }
+      if (seg.length < 2) continue;
+      parts.push(
+        `<path d="${seg.join(" ")}" fill="none" stroke="${col}" ` +
+        `stroke-opacity="${sop.toFixed(3)}" stroke-width="${sw.toFixed(2)}" stroke-linecap="round"/>`
+      );
     }
   }
   parts.push("</g>");

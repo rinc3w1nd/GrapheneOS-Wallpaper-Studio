@@ -27,6 +27,7 @@
     const depth = clamp01(Number(p.bokehDepth) ?? 0.7);         // background-vs-foreground bias
 
     const warm = p.bokehWarm || "#e0a26a";
+    const accent = p.bokehAccent || "#c78ae0";
     const cool = p.bokehCool || "#6ab6e0";
     const bgTop = p.bokehBgTop || "#04060c";
     const bgBottom = p.bokehBgBottom || "#02040a";
@@ -44,9 +45,8 @@
     // ---- shared gradients keyed by tint family x softness band (bounded) ----
     // Three tint families (warm / neutral / cool) x two softness bands
     // (soft rim-heavy, crisp tight core) = 6 fill gradients + 1 ring gradient.
-    const neutral = mix(warm, cool, 0.5);
-    const tintHex = { warm, neutral, cool };
-    const tintKeys = ["warm", "neutral", "cool"];
+    const tintHex = { warm, accent, cool };
+    const tintKeys = ["warm", "accent", "cool"];
     const bands = ["soft", "crisp"];
 
     function fillGradId(tint, band) { return `bokeh-fill-${tint}-${band}`; }
@@ -86,14 +86,18 @@
       );
     });
 
-    // Tint family by horizontal position (left=cool, right=warm) with a gentle
-    // noise wobble, so the palette drifts across the canvas deterministically.
-    function tintFor(x, y) {
-      let t = x / W;
-      t = clamp01(t * 0.8 + (noise(x / (unit * 0.7), y / (unit * 0.7)) - 0.5) * 0.5 + 0.1);
-      if (t < 0.38) return "cool";
-      if (t > 0.62) return "warm";
-      return "neutral";
+    // Pick one of the three tints per disc: cool biased left, warm biased right,
+    // the accent scattered throughout, with a gentle noise wobble. The per-disc
+    // roll keeps all three colors mixed across the field (not banded).
+    function pickTint(x, y, roll) {
+      const pos = clamp01(x / W + (noise(x / (unit * 0.7), y / (unit * 0.7)) - 0.5) * 0.4);
+      const wCool = (1 - pos) * 1.15;
+      const wWarm = pos * 1.15;
+      const wAcc = 0.7;
+      const r = roll * (wCool + wWarm + wAcc);
+      if (r < wCool) return "cool";
+      if (r < wCool + wWarm) return "warm";
+      return "accent";
     }
 
     // Density weighting near the sensor: 0 at the void, ramping to 1 by falloffR.
@@ -108,9 +112,10 @@
 
     // ---- depth layers: counts split background / mid / foreground ----
     // `depth` biases toward more soft background discs (calmer) when high.
-    const bgFrac = 0.10 + depth * 0.16;      // few large soft discs
-    const fgFrac = 0.30 - depth * 0.14;      // small crisp sparkles
-    const midFrac = Math.max(0.1, 1 - bgFrac - fgFrac);
+    // Fewer, dimmer, smaller large discs so the field doesn't blow out; most of
+    // the count goes to mid + crisp foreground sparkles.
+    const bgFrac = 0.04 + depth * 0.07;
+    const fgFrac = 0.32 - depth * 0.12;
     const bgN = Math.round(discCount * bgFrac);
     const fgN = Math.round(discCount * fgFrac);
     const midN = Math.max(0, discCount - bgN - fgN);
@@ -118,11 +123,11 @@
     const sMin = unit * (sizeMin / 100);
     const sMax = unit * (sizeMax / 100);
 
-    // layer descriptors: size range (of [sMin,sMax]), band, base opacity, blur
+    // layer descriptors: size range (of [sMin,sMax]), band, base opacity.
     const layers = [
-      { n: bgN,  lo: 0.55, hi: 1.0,  band: "soft",  op: 0.10 + 0.10 * (1 - depth), z: "bg" },
-      { n: midN, lo: 0.22, hi: 0.62, band: "soft",  op: 0.20, z: "mid" },
-      { n: fgN,  lo: 0.05, hi: 0.26, band: "crisp", op: 0.42, z: "fg" },
+      { n: bgN,  lo: 0.45, hi: 0.78, band: "soft",  op: 0.05 + 0.05 * (1 - depth), z: "bg" },
+      { n: midN, lo: 0.18, hi: 0.5,  band: "soft",  op: 0.15, z: "mid" },
+      { n: fgN,  lo: 0.05, hi: 0.22, band: "crisp", op: 0.40, z: "fg" },
     ];
 
     const parts = [
@@ -164,19 +169,21 @@
         const x = rand() * W;
         const y = rand() * H;
         const rRoll = rand();
-        const tintRoll = rand();    // consumed for stable stream regardless of keep
+        const tintRoll = rand();    // consumed for a stable stream regardless of keep
         const ringRoll = rand();
+        const opRoll = rand();
         const keep = sensorKeep(x, y);
         if (rand() > keep) continue; // density falls off near the sensor
 
-        const tint = tintFor(x, y);
+        const tint = pickTint(x, y, tintRoll);
         const sizeT = layer.lo + (layer.hi - layer.lo) * rRoll;
         const r = sMin + (sMax - sMin) * sizeT;
         // per-disc opacity jitter, scaled by global opacity + layer base.
-        const op = clamp01(layer.op * opacity * (0.6 + 0.8 * tintRoll) * 2.0);
+        const op = clamp01(layer.op * opacity * (0.6 + 0.8 * opRoll) * 1.6);
 
-        // ~16% of mid/bg discs are hollow lens rings (only larger, soft discs).
-        const isRing = layer.z !== "fg" && ringRoll < 0.16;
+        // Large/background discs are mostly hollow lens rings (defocused light
+        // circles) instead of solid blobs; a few mid discs ring too.
+        const isRing = layer.z === "bg" ? ringRoll < 0.5 : (layer.z === "mid" && ringRoll < 0.18);
         const fill = isRing ? `url(#${ringGradId(tint)})` : `url(#${fillGradId(tint, layer.band)})`;
         parts.push(
           `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r.toFixed(1)}" ` +
@@ -202,34 +209,35 @@
     defaults: {
       bokehDiscCount: 320,
       bokehSizeMin: 1.6,
-      bokehSizeMax: 14,
+      bokehSizeMax: 11,
       bokehSoftness: 0.7,
       bokehOpacity: 0.5,
       bokehDepth: 0.7,
       bokehWarm: "#e0a26a",
+      bokehAccent: "#c78ae0",
       bokehCool: "#6ab6e0",
       bokehBgTop: "#04060c",
       bokehBgBottom: "#02040a",
       bokehPreset: "nightlights"
     },
-    colorIds: ["bokehWarm", "bokehCool", "bokehBgTop", "bokehBgBottom"],
+    colorIds: ["bokehWarm", "bokehAccent", "bokehCool", "bokehBgTop", "bokehBgBottom"],
     presets: [
-      { id: "nightlights", name: "Night Lights", set: { bokehWarm: "#e0a26a", bokehCool: "#6ab6e0", bokehBgTop: "#04060c", bokehBgBottom: "#02040a" } },
-      { id: "graphene", name: "Graphene", set: { bokehWarm: "#9ad4c2", bokehCool: "#4fb8c9", bokehBgTop: "#040808", bokehBgBottom: "#02050a" } },
-      { id: "emerald", name: "Emerald", set: { bokehWarm: "#a7f3c4", bokehCool: "#3fae7c", bokehBgTop: "#040b08", bokehBgBottom: "#020604" } },
-      { id: "cyan", name: "Cyan", set: { bokehWarm: "#8fe6f2", bokehCool: "#46b8e0", bokehBgTop: "#04090d", bokehBgBottom: "#020508" } },
-      { id: "azure", name: "Azure", set: { bokehWarm: "#9ccdff", bokehCool: "#5a8fe0", bokehBgTop: "#04070e", bokehBgBottom: "#02040a" } },
-      { id: "indigo", name: "Indigo", set: { bokehWarm: "#a9b6ff", bokehCool: "#6e6fe0", bokehBgTop: "#05060e", bokehBgBottom: "#020308" } },
-      { id: "violet", name: "Violet", set: { bokehWarm: "#d7b0ff", bokehCool: "#9c6fe0", bokehBgTop: "#07050e", bokehBgBottom: "#040308" } },
-      { id: "amber", name: "Amber", set: { bokehWarm: "#f0c074", bokehCool: "#d68a4a", bokehBgTop: "#0a0704", bokehBgBottom: "#050302" } },
-      { id: "ember", name: "Ember", set: { bokehWarm: "#f0a070", bokehCool: "#c96a52", bokehBgTop: "#0a0604", bokehBgBottom: "#050202" } },
-      { id: "rose", name: "Rose", set: { bokehWarm: "#f0a6c0", bokehCool: "#d0709a", bokehBgTop: "#0a050a", bokehBgBottom: "#050207" } },
-      { id: "crimson", name: "Crimson", set: { bokehWarm: "#f08a98", bokehCool: "#c95870", bokehBgTop: "#0a0507", bokehBgBottom: "#050203" } },
-      { id: "sodium", name: "Sodium", set: { bokehWarm: "#ffcf8a", bokehCool: "#e0a85a", bokehBgTop: "#080604", bokehBgBottom: "#040302" } },
-      { id: "teal", name: "Teal", set: { bokehWarm: "#7fe0cf", bokehCool: "#37a89a", bokehBgTop: "#040a09", bokehBgBottom: "#020605" } },
-      { id: "ice", name: "Ice", set: { bokehWarm: "#c7e2f0", bokehCool: "#8fb6cf", bokehBgTop: "#06090c", bokehBgBottom: "#030506" } },
-      { id: "mono", name: "Monolith", set: { bokehWarm: "#d8d8d8", bokehCool: "#a0a0a0", bokehBgTop: "#080808", bokehBgBottom: "#040404" } },
-      { id: "duotone", name: "Warm & Cool", set: { bokehWarm: "#f0b060", bokehCool: "#5aa6f0", bokehBgTop: "#05060c", bokehBgBottom: "#020308" } }
+      { id: "nightlights", name: "Night Lights", set: { bokehWarm: "#e0a26a", bokehAccent: "#c78ae0", bokehCool: "#6ab6e0", bokehBgTop: "#04060c", bokehBgBottom: "#02040a" } },
+      { id: "graphene", name: "Graphene", set: { bokehWarm: "#9ad4c2", bokehAccent: "#e0cf8a", bokehCool: "#4fb8c9", bokehBgTop: "#040808", bokehBgBottom: "#02050a" } },
+      { id: "emerald", name: "Emerald", set: { bokehWarm: "#a7f3c4", bokehAccent: "#d7f0a0", bokehCool: "#3fae7c", bokehBgTop: "#040b08", bokehBgBottom: "#020604" } },
+      { id: "cyan", name: "Cyan", set: { bokehWarm: "#8fe6f2", bokehAccent: "#b6f2ff", bokehCool: "#46b8e0", bokehBgTop: "#04090d", bokehBgBottom: "#020508" } },
+      { id: "azure", name: "Azure", set: { bokehWarm: "#9ccdff", bokehAccent: "#c4b0ff", bokehCool: "#5a8fe0", bokehBgTop: "#04070e", bokehBgBottom: "#02040a" } },
+      { id: "indigo", name: "Indigo", set: { bokehWarm: "#a9b6ff", bokehAccent: "#d0a0ff", bokehCool: "#6e6fe0", bokehBgTop: "#05060e", bokehBgBottom: "#020308" } },
+      { id: "violet", name: "Violet", set: { bokehWarm: "#d7b0ff", bokehAccent: "#f0a0d0", bokehCool: "#9c6fe0", bokehBgTop: "#07050e", bokehBgBottom: "#040308" } },
+      { id: "amber", name: "Amber", set: { bokehWarm: "#f0c074", bokehAccent: "#f0e08a", bokehCool: "#d68a4a", bokehBgTop: "#0a0704", bokehBgBottom: "#050302" } },
+      { id: "ember", name: "Ember", set: { bokehWarm: "#f0a070", bokehAccent: "#f0d28a", bokehCool: "#c96a52", bokehBgTop: "#0a0604", bokehBgBottom: "#050202" } },
+      { id: "rose", name: "Rose", set: { bokehWarm: "#f0a6c0", bokehAccent: "#f0c89a", bokehCool: "#d0709a", bokehBgTop: "#0a050a", bokehBgBottom: "#050207" } },
+      { id: "crimson", name: "Crimson", set: { bokehWarm: "#f08a98", bokehAccent: "#f0b070", bokehCool: "#c95870", bokehBgTop: "#0a0507", bokehBgBottom: "#050203" } },
+      { id: "sodium", name: "Sodium", set: { bokehWarm: "#ffcf8a", bokehAccent: "#fff0c0", bokehCool: "#e0a85a", bokehBgTop: "#080604", bokehBgBottom: "#040302" } },
+      { id: "teal", name: "Teal", set: { bokehWarm: "#7fe0cf", bokehAccent: "#b6f0e0", bokehCool: "#37a89a", bokehBgTop: "#040a09", bokehBgBottom: "#020605" } },
+      { id: "ice", name: "Ice", set: { bokehWarm: "#c7e2f0", bokehAccent: "#e0d0f0", bokehCool: "#8fb6cf", bokehBgTop: "#06090c", bokehBgBottom: "#030506" } },
+      { id: "mono", name: "Monolith", set: { bokehWarm: "#d8d8d8", bokehAccent: "#b8c4c0", bokehCool: "#a0a0a0", bokehBgTop: "#080808", bokehBgBottom: "#040404" } },
+      { id: "duotone", name: "Warm & Cool", set: { bokehWarm: "#f0b060", bokehAccent: "#c78ae0", bokehCool: "#5aa6f0", bokehBgTop: "#05060c", bokehBgBottom: "#020308" } }
     ],
     inputIds: [
       "bokehDiscCount",
@@ -239,6 +247,7 @@
       "bokehOpacity",
       "bokehDepth",
       "bokehWarm",
+      "bokehAccent",
       "bokehCool",
       "bokehBgTop",
       "bokehBgBottom"
@@ -265,6 +274,8 @@
         '<div class="group-label">Bokeh colors</div>' +
         '<label class="field color"><span class="field-label">Warm light</span>' +
         '<input id="bokehWarm" type="color"></label>' +
+        '<label class="field color"><span class="field-label">Accent light</span>' +
+        '<input id="bokehAccent" type="color"></label>' +
         '<label class="field color"><span class="field-label">Cool light</span>' +
         '<input id="bokehCool" type="color"></label>' +
         '<label class="field color"><span class="field-label">Background top</span>' +
