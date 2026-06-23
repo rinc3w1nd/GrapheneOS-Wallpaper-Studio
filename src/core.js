@@ -51,104 +51,14 @@ const PALETTE_PRESETS = [
     backgroundBottom: "#0d1318"
   },
   {
-    id: "auditor-green",
-    name: "Auditor Green",
-    accent: "#4fb477",
-    accent2: "#a7f3c4",
-    lineColor: "#6b7f76",
-    backgroundTop: "#040806",
-    backgroundMid: "#07110c",
-    backgroundBottom: "#030604"
-  },
-  {
-    id: "vanadium-cyan",
-    name: "Vanadium Cyan",
-    accent: "#47b8c9",
-    accent2: "#b6f2ff",
-    lineColor: "#657b84",
-    backgroundTop: "#04080b",
-    backgroundMid: "#071118",
-    backgroundBottom: "#030609"
-  },
-  {
-    id: "hardened-teal",
-    name: "Hardened Teal",
-    accent: "#2fb7a3",
-    accent2: "#9ff3df",
-    lineColor: "#667f7a",
-    backgroundTop: "#040808",
-    backgroundMid: "#071314",
-    backgroundBottom: "#030606"
-  },
-  {
-    id: "permission-amber",
-    name: "Permission Amber",
-    accent: "#d1a24c",
-    accent2: "#ffe2a3",
-    lineColor: "#827964",
-    backgroundTop: "#090705",
-    backgroundMid: "#130f08",
-    backgroundBottom: "#050403"
-  },
-  {
-    id: "sandbox-violet",
-    name: "Sandbox Violet",
-    accent: "#8f7bdc",
-    accent2: "#d7cbff",
-    lineColor: "#716d84",
-    backgroundTop: "#07060c",
-    backgroundMid: "#0f0d19",
-    backgroundBottom: "#040307"
-  },
-  {
-    id: "memory-slate",
-    name: "Memory Slate",
-    accent: "#8fa4b8",
-    accent2: "#d8e7f4",
-    lineColor: "#6e7b86",
-    backgroundTop: "#06080a",
-    backgroundMid: "#0c1116",
-    backgroundBottom: "#040506"
-  },
-  {
-    id: "monolith",
-    name: "Monolith",
-    accent: "#a8b0b5",
-    accent2: "#eef3f5",
-    lineColor: "#747b80",
-    backgroundTop: "#050505",
-    backgroundMid: "#0c0d0d",
-    backgroundBottom: "#030303"
-  },
-  {
-    id: "terminal-mint",
-    name: "Terminal Mint",
-    accent: "#59d98e",
-    accent2: "#c1ffd7",
-    lineColor: "#687c70",
-    backgroundTop: "#030806",
-    backgroundMid: "#07130d",
-    backgroundBottom: "#020403"
-  },
-  {
-    id: "oceanic-depth",
-    name: "Oceanic Depth",
-    accent: "#3aa7c8",
-    accent2: "#98e8ff",
-    lineColor: "#5f7883",
-    backgroundTop: "#03070b",
-    backgroundMid: "#06101a",
-    backgroundBottom: "#020408"
-  },
-  {
-    id: "aurora-low",
-    name: "Aurora Low",
-    accent: "#57c99b",
-    accent2: "#a9c7ff",
-    lineColor: "#677b82",
-    backgroundTop: "#05070d",
-    backgroundMid: "#0a1119",
-    backgroundBottom: "#030407"
+    id: "aurora-borealis",
+    name: "Aurora Borealis",
+    accent: "#3ad6a0",
+    accent2: "#9b6cff",
+    lineColor: "#34424a",
+    backgroundTop: "#05100f",
+    backgroundMid: "#04130f",
+    backgroundBottom: "#020a0b"
   },
   {
     id: "oxidized-copper",
@@ -161,234 +71,14 @@ const PALETTE_PRESETS = [
     backgroundBottom: "#030302"
   },
   {
-    id: "cold-graphite",
-    name: "Cold Graphite",
-    accent: "#6aa6d8",
-    accent2: "#c4e5ff",
-    lineColor: "#687987",
-    backgroundTop: "#05070a",
-    backgroundMid: "#0a1016",
-    backgroundBottom: "#030508"
-  },
-  {
-    id: "jade-noir",
-    name: "Jade Noir",
-    accent: "#58b987",
-    accent2: "#b9f6d0",
-    lineColor: "#637b6f",
-    backgroundTop: "#030705",
-    backgroundMid: "#08120d",
-    backgroundBottom: "#020403"
-  },
-  {
-    id: "porcelain-night",
-    name: "Porcelain Night",
-    accent: "#bfc9c3",
-    accent2: "#fff3df",
-    lineColor: "#818680",
-    backgroundTop: "#070707",
-    backgroundMid: "#10100e",
-    backgroundBottom: "#030303"
-  },
-  {
-    id: "obsidian-ice",
-    name: "Obsidian Ice",
-    accent: "#7db7ff",
-    accent2: "#d6ecff",
-    lineColor: "#65778b",
-    backgroundTop: "#03050a",
-    backgroundMid: "#090f18",
-    backgroundBottom: "#020307"
-  },
-  {
-    id: "moonstone",
-    name: "Moonstone",
-    accent: "#9baec7",
-    accent2: "#d8e5ff",
-    lineColor: "#6d7788",
-    backgroundTop: "#06070a",
-    backgroundMid: "#0d1018",
-    backgroundBottom: "#030407"
-  },
-  {
-    id: "jade-pixel",
-    name: "Jade Pixel",
-    accent: "#89b58a",
-    accent2: "#dbf5cf",
-    lineColor: "#707d68",
-    backgroundTop: "#060806",
-    backgroundMid: "#0e130b",
-    backgroundBottom: "#030403"
-  },
-  {
-    id: "porcelain-pixel",
-    name: "Porcelain Pixel",
-    accent: "#d2c2a3",
-    accent2: "#fff0cf",
-    lineColor: "#857b68",
-    backgroundTop: "#080704",
-    backgroundMid: "#12100b",
-    backgroundBottom: "#040302"
-  },
-  {
-    id: "night-vision",
-    name: "Night Vision",
-    accent: "#7be06e",
-    accent2: "#d3ffc9",
-    lineColor: "#72806d",
-    backgroundTop: "#030702",
-    backgroundMid: "#091207",
-    backgroundBottom: "#020401"
-  },
-  {
-    id: "blueprint",
-    name: "Blueprint",
-    accent: "#5c9de6",
-    accent2: "#b7d9ff",
-    lineColor: "#607893",
-    backgroundTop: "#030712",
-    backgroundMid: "#081227",
-    backgroundBottom: "#02040b"
-  },
-  {
-    id: "infrared-muted",
-    name: "Infrared Muted",
-    accent: "#c46a64",
-    accent2: "#ffc7bd",
-    lineColor: "#816d68",
-    backgroundTop: "#090504",
-    backgroundMid: "#130b09",
-    backgroundBottom: "#040202"
-  },
-  {
-    id: "magnesium",
-    name: "Magnesium",
-    accent: "#b5b9a7",
-    accent2: "#eff2dd",
-    lineColor: "#7d8275",
-    backgroundTop: "#060706",
-    backgroundMid: "#0f100d",
-    backgroundBottom: "#030403"
-  },
-  {
-    id: "plasma-dim",
-    name: "Plasma Dim",
-    accent: "#b979d4",
-    accent2: "#f0c9ff",
-    lineColor: "#796982",
-    backgroundTop: "#07050a",
-    backgroundMid: "#100a16",
-    backgroundBottom: "#030204"
-  },
-  {
-    id: "cobalt-ash",
-    name: "Cobalt Ash",
-    accent: "#5d78cf",
-    accent2: "#c3ceff",
-    lineColor: "#666f86",
-    backgroundTop: "#05060b",
-    backgroundMid: "#0b0e18",
-    backgroundBottom: "#020306"
-  },
-  {
-    id: "sea-glass",
-    name: "Sea Glass",
-    accent: "#69c3b3",
-    accent2: "#c7fff2",
-    lineColor: "#69807b",
-    backgroundTop: "#040807",
-    backgroundMid: "#081412",
-    backgroundBottom: "#020504"
-  },
-  {
-    id: "desert-night",
-    name: "Desert Night",
-    accent: "#c99b63",
-    accent2: "#ffe0ad",
-    lineColor: "#83725f",
-    backgroundTop: "#080604",
-    backgroundMid: "#120d08",
-    backgroundBottom: "#040302"
-  },
-  {
-    id: "electric-lichen",
-    name: "Electric Lichen",
-    accent: "#a8d957",
-    accent2: "#ecffbd",
-    lineColor: "#7c8366",
-    backgroundTop: "#050702",
-    backgroundMid: "#0e1207",
-    backgroundBottom: "#020301"
-  },
-  {
-    id: "deep-space",
-    name: "Deep Space",
-    accent: "#6e83ff",
-    accent2: "#d3d9ff",
-    lineColor: "#666d8d",
-    backgroundTop: "#03030a",
-    backgroundMid: "#080a18",
-    backgroundBottom: "#020207"
-  },
-  {
-    id: "quiet-rose",
-    name: "Quiet Rose",
-    accent: "#c7798c",
-    accent2: "#ffd0dc",
-    lineColor: "#806a72",
-    backgroundTop: "#080506",
-    backgroundMid: "#110b0e",
-    backgroundBottom: "#030203"
-  },
-  {
-    id: "brass-patina",
-    name: "Brass Patina",
-    accent: "#b9a158",
-    accent2: "#7fd1bd",
-    lineColor: "#7d7866",
-    backgroundTop: "#060604",
-    backgroundMid: "#10100b",
-    backgroundBottom: "#030302"
-  },
-  {
-    id: "frosted-green",
-    name: "Frosted Green",
-    accent: "#9bd8b5",
-    accent2: "#e1fff0",
-    lineColor: "#728278",
-    backgroundTop: "#040706",
-    backgroundMid: "#0a110e",
-    backgroundBottom: "#020403"
-  },
-  {
-    id: "titanium-blue",
-    name: "Titanium Blue",
-    accent: "#7aa4bf",
-    accent2: "#d5edfa",
-    lineColor: "#6d7d86",
-    backgroundTop: "#050708",
-    backgroundMid: "#0c1114",
-    backgroundBottom: "#030404"
-  },
-  {
-    id: "warning-subtle",
-    name: "Warning Subtle",
-    accent: "#d7b84c",
-    accent2: "#fff0a1",
-    lineColor: "#857c5d",
-    backgroundTop: "#080704",
-    backgroundMid: "#111006",
-    backgroundBottom: "#040302"
-  },
-  {
-    id: "mint-and-lavender",
-    name: "Mint and Lavender",
-    accent: "#7fd7b2",
-    accent2: "#c9bbff",
-    lineColor: "#707887",
-    backgroundTop: "#05070b",
-    backgroundMid: "#0b1017",
-    backgroundBottom: "#030407"
+    id: "teal-meridian",
+    name: "Teal Meridian",
+    accent: "#1fc7b4",
+    accent2: "#ff6f59",
+    lineColor: "#1f3230",
+    backgroundTop: "#03090a",
+    backgroundMid: "#020607",
+    backgroundBottom: "#010304"
   },
   {
     id: "solarized-dark",
@@ -401,34 +91,14 @@ const PALETTE_PRESETS = [
     backgroundBottom: "#001f27"
   },
   {
-    id: "tokyo-night",
-    name: "Tokyo Night",
-    accent: "#7aa2f7",
-    accent2: "#9ece6a",
-    lineColor: "#565f89",
-    backgroundTop: "#11121d",
-    backgroundMid: "#16161e",
-    backgroundBottom: "#0b0c13"
-  },
-  {
-    id: "catppuccin-mocha",
-    name: "Catppuccin Mocha",
-    accent: "#89b4fa",
-    accent2: "#a6e3a1",
-    lineColor: "#6c7086",
-    backgroundTop: "#11111b",
-    backgroundMid: "#181825",
-    backgroundBottom: "#0b0b12"
-  },
-  {
-    id: "nord-deep",
-    name: "Nord Deep",
-    accent: "#88c0d0",
-    accent2: "#a3be8c",
-    lineColor: "#4c566a",
-    backgroundTop: "#242933",
-    backgroundMid: "#2e3440",
-    backgroundBottom: "#1b2029"
+    id: "anodized-titanium",
+    name: "Anodized Titanium",
+    accent: "#36b9c6",
+    accent2: "#b06ed4",
+    lineColor: "#6a7a82",
+    backgroundTop: "#04070a",
+    backgroundMid: "#081218",
+    backgroundBottom: "#020406"
   },
   {
     id: "dracula-muted",
@@ -441,6 +111,276 @@ const PALETTE_PRESETS = [
     backgroundBottom: "#101117"
   },
   {
+    id: "cyan-aperture",
+    name: "Cyan Aperture",
+    accent: "#2bd6ff",
+    accent2: "#cdf4ff",
+    lineColor: "#1f3036",
+    backgroundTop: "#03090c",
+    backgroundMid: "#020609",
+    backgroundBottom: "#010305"
+  },
+  {
+    id: "nord-deep",
+    name: "Nord Deep",
+    accent: "#88c0d0",
+    accent2: "#a3be8c",
+    lineColor: "#4c566a",
+    backgroundTop: "#242933",
+    backgroundMid: "#2e3440",
+    backgroundBottom: "#1b2029"
+  },
+  {
+    id: "azure-vector",
+    name: "Azure Vector",
+    accent: "#3392ff",
+    accent2: "#ffb142",
+    lineColor: "#202a36",
+    backgroundTop: "#04070c",
+    backgroundMid: "#020509",
+    backgroundBottom: "#010305"
+  },
+  {
+    id: "catppuccin-mocha",
+    name: "Catppuccin Mocha",
+    accent: "#89b4fa",
+    accent2: "#a6e3a1",
+    lineColor: "#6c7086",
+    backgroundTop: "#11111b",
+    backgroundMid: "#181825",
+    backgroundBottom: "#0b0b12"
+  },
+  {
+    id: "lapis-pyrite",
+    name: "Lapis & Pyrite",
+    accent: "#3a6fd0",
+    accent2: "#d4b24a",
+    lineColor: "#6a7280",
+    backgroundTop: "#04060c",
+    backgroundMid: "#080d1a",
+    backgroundBottom: "#020308"
+  },
+  {
+    id: "storm-cell",
+    name: "Storm Cell",
+    accent: "#7a8fb8",
+    accent2: "#e9d873",
+    lineColor: "#2f3640",
+    backgroundTop: "#0a0d13",
+    backgroundMid: "#070a10",
+    backgroundBottom: "#04060a"
+  },
+  {
+    id: "cobalt-ore",
+    name: "Cobalt Ore",
+    accent: "#4a72d8",
+    accent2: "#bcd0ff",
+    lineColor: "#6b7384",
+    backgroundTop: "#04050b",
+    backgroundMid: "#080c18",
+    backgroundBottom: "#020307"
+  },
+  {
+    id: "indigo-phase",
+    name: "Indigo Phase",
+    accent: "#6a4fe6",
+    accent2: "#cdc4ff",
+    lineColor: "#5b5780",
+    backgroundTop: "#05040e",
+    backgroundMid: "#0a0818",
+    backgroundBottom: "#030208"
+  },
+  {
+    id: "nebula-drift",
+    name: "Nebula Drift",
+    accent: "#b160e8",
+    accent2: "#46d6c4",
+    lineColor: "#3a3146",
+    backgroundTop: "#0d0716",
+    backgroundMid: "#0a0612",
+    backgroundBottom: "#05030a"
+  },
+  {
+    id: "one-dark-pro",
+    name: "One Dark Pro",
+    accent: "#c678dd",
+    accent2: "#98c379",
+    lineColor: "#333842",
+    backgroundTop: "#282c34",
+    backgroundMid: "#21252b",
+    backgroundBottom: "#1a1d23"
+  },
+  {
+    id: "magenta-pulse",
+    name: "Magenta Pulse",
+    accent: "#e83ad8",
+    accent2: "#ffd1f6",
+    lineColor: "#33233a",
+    backgroundTop: "#0a040b",
+    backgroundMid: "#070308",
+    backgroundBottom: "#040205"
+  },
+  {
+    id: "magenta-bismuth",
+    name: "Bismuth Flash",
+    accent: "#c849a6",
+    accent2: "#46c8b0",
+    lineColor: "#7a6a76",
+    backgroundTop: "#080409",
+    backgroundMid: "#120815",
+    backgroundBottom: "#040205"
+  },
+  {
+    id: "rose-calibration",
+    name: "Rose Calibration",
+    accent: "#ff3d7f",
+    accent2: "#33d9c4",
+    lineColor: "#352431",
+    backgroundTop: "#0b0508",
+    backgroundMid: "#080306",
+    backgroundBottom: "#050204"
+  },
+  {
+    id: "monokai-pro",
+    name: "Monokai Pro",
+    accent: "#ff6188",
+    accent2: "#ffd866",
+    lineColor: "#403e44",
+    backgroundTop: "#2d2a2e",
+    backgroundMid: "#272528",
+    backgroundBottom: "#211f22"
+  },
+  {
+    id: "rose-quartz-gunmetal",
+    name: "Rose Quartz & Gunmetal",
+    accent: "#cf6f86",
+    accent2: "#8b9096",
+    lineColor: "#736b6e",
+    backgroundTop: "#080507",
+    backgroundMid: "#11090d",
+    backgroundBottom: "#040203"
+  },
+  {
+    id: "rose-pine",
+    name: "Rosé Pine",
+    accent: "#ebbcba",
+    accent2: "#c4a7e7",
+    lineColor: "#3a3450",
+    backgroundTop: "#191724",
+    backgroundMid: "#15131f",
+    backgroundBottom: "#100e18"
+  },
+  {
+    id: "ember-bed",
+    name: "Ember Bed",
+    accent: "#e84d3a",
+    accent2: "#ffb38a",
+    lineColor: "#42302b",
+    backgroundTop: "#130604",
+    backgroundMid: "#0d0504",
+    backgroundBottom: "#070302"
+  },
+  {
+    id: "cinnabar-mercury",
+    name: "Cinnabar & Mercury",
+    accent: "#d8442f",
+    accent2: "#c9d2d6",
+    lineColor: "#7d6f6a",
+    backgroundTop: "#0a0504",
+    backgroundMid: "#150807",
+    backgroundBottom: "#050202"
+  },
+  {
+    id: "hematite-rust",
+    name: "Hematite Rust",
+    accent: "#c4623a",
+    accent2: "#e88a5a",
+    lineColor: "#6f6864",
+    backgroundTop: "#080503",
+    backgroundMid: "#120a06",
+    backgroundBottom: "#040302"
+  },
+  {
+    id: "vermilion-burn",
+    name: "Vermilion Burn",
+    accent: "#ff6a1f",
+    accent2: "#1fb6c9",
+    lineColor: "#332723",
+    backgroundTop: "#0c0704",
+    backgroundMid: "#080503",
+    backgroundBottom: "#050302"
+  },
+  {
+    id: "total-eclipse",
+    name: "Total Eclipse",
+    accent: "#e0935a",
+    accent2: "#c75a8f",
+    lineColor: "#3a3138",
+    backgroundTop: "#0c0810",
+    backgroundMid: "#08060c",
+    backgroundBottom: "#040308"
+  },
+  {
+    id: "amber-readout",
+    name: "Amber Readout",
+    accent: "#ffae29",
+    accent2: "#ffe9c2",
+    lineColor: "#352c1f",
+    backgroundTop: "#0c0803",
+    backgroundMid: "#080502",
+    backgroundBottom: "#050301"
+  },
+  {
+    id: "ayu-mirage",
+    name: "Ayu Mirage",
+    accent: "#ffcc66",
+    accent2: "#5ccfe6",
+    lineColor: "#39414f",
+    backgroundTop: "#1f2430",
+    backgroundMid: "#1a1f29",
+    backgroundBottom: "#13161e"
+  },
+  {
+    id: "sulfur-grid",
+    name: "Sulfur Grid",
+    accent: "#e6d324",
+    accent2: "#7a3df0",
+    lineColor: "#2f2e1f",
+    backgroundTop: "#0a0a04",
+    backgroundMid: "#070702",
+    backgroundBottom: "#040401"
+  },
+  {
+    id: "uranium-glass",
+    name: "Uranium Glass",
+    accent: "#aed23a",
+    accent2: "#e6ffb0",
+    lineColor: "#717c5f",
+    backgroundTop: "#040703",
+    backgroundMid: "#0a1206",
+    backgroundBottom: "#020402"
+  },
+  {
+    id: "chartreuse-bias",
+    name: "Chartreuse Bias",
+    accent: "#a6e635",
+    accent2: "#e8f7c8",
+    lineColor: "#28301f",
+    backgroundTop: "#070a04",
+    backgroundMid: "#050702",
+    backgroundBottom: "#030401"
+  },
+  {
+    id: "everforest-dark",
+    name: "Everforest",
+    accent: "#a7c080",
+    accent2: "#e69875",
+    lineColor: "#3a4242",
+    backgroundTop: "#2d353b",
+    backgroundMid: "#272e33",
+    backgroundBottom: "#21272b"
+  },
+  {
     id: "gruvbox-dark",
     name: "Gruvbox Dark",
     accent: "#8ec07c",
@@ -449,6 +389,16 @@ const PALETTE_PRESETS = [
     backgroundTop: "#1d2021",
     backgroundMid: "#282828",
     backgroundBottom: "#141617"
+  },
+  {
+    id: "phosphor-sweep",
+    name: "Phosphor Sweep",
+    accent: "#2fe87a",
+    accent2: "#cffae0",
+    lineColor: "#5f7a6e",
+    backgroundTop: "#040906",
+    backgroundMid: "#081410",
+    backgroundBottom: "#020604"
   }
 ];
 
@@ -632,6 +582,18 @@ function paramsForDevice(deviceId, current) {
 
 function clamp01(n) {
   return Math.max(0, Math.min(1, n));
+}
+
+// Encode a canvas as a compact data URI for inlining as an <image>. Per-pixel
+// field styles (fractal, aurora) produce noisy continuous-tone rasters that
+// balloon as lossless PNG; WebP/JPEG shrink the inlined string 8-26x with no
+// perceptible change. Mirrors the export-side encodeRaster() WebP->JPEG
+// fallback (WebKit/Safari has no canvas WebP encoder). Deterministic per
+// browser for identical pixels, same as toDataURL("image/png").
+function rasterDataUrl(canvas, quality = 0.9) {
+  const webp = canvas.toDataURL("image/webp", quality);
+  if (webp.startsWith("data:image/webp")) return webp;
+  return canvas.toDataURL("image/jpeg", quality); // Safari fallback (opaque pixels, no alpha needed)
 }
 
 function hexToRgb(hex) {
