@@ -77,7 +77,7 @@
 
     const colorInner = p.fractalColorInner || "#bde7d6";
     const colorOuter = p.fractalColorOuter || "#3c6f7f";
-    const colorAccent = p.fractalAccent || "#eafff7";
+    const colorAccent = p.fractalAccent || "#ffd23a";
     const bgTop = p.fractalBgTop || "#02040a";
     const bgBottom = p.fractalBgBottom || "#070b12";
 
@@ -179,11 +179,11 @@
           const t = clamp01(m / maxIter);          // 0 far exterior -> ~1 near the set
           // outer -> inner -> bright accent toward the set, so the finest
           // boundary detail pops in high contrast instead of fading to oblivion.
-          const tint = t < 0.6
-            ? lerpC(outerRGB, innerRGB, t / 0.6)
-            : lerpC(innerRGB, accentRGB, (t - 0.6) / 0.4);
-          const band = 0.56 + 0.44 * Math.sin(m * 0.8);   // crisper contour bands
-          const intensity = clamp01(Math.pow(t, 1.15) * 1.12); // brighter; less fade-out
+          const tint = t < 0.5
+            ? lerpC(outerRGB, innerRGB, t / 0.5)
+            : lerpC(innerRGB, accentRGB, Math.pow((t - 0.5) / 0.5, 0.7));
+          const band = 0.32 + 0.68 * (0.5 + 0.5 * Math.sin(m * 0.95)); // bold high-contrast bands
+          const intensity = clamp01(Math.pow(t, 1.0) * 1.25);          // brighter; pattern pops
           const lit = [tint[0] * band, tint[1] * band, tint[2] * band];
           const out = lerpC(bgRow, lit, intensity);
           R = out[0]; G = out[1]; B = out[2];
@@ -232,25 +232,25 @@
       fractalOpacity: 0.85,
       fractalColorInner: "#bde7d6",
       fractalColorOuter: "#3c6f7f",
-      fractalAccent: "#eafff7",
+      fractalAccent: "#ffd23a",
       fractalBgTop: "#02040a",
       fractalBgBottom: "#070b12",
       fractalPreset: "graphene",
     },
     colorIds: ["fractalColorInner", "fractalColorOuter", "fractalAccent", "fractalBgTop", "fractalBgBottom"],
     presets: [
-      { id: "graphene", name: "Graphene", set: { fractalColorInner: "#bde7d6", fractalColorOuter: "#3c6f7f", fractalAccent: "#eafff7", fractalBgTop: "#02040a", fractalBgBottom: "#070b12" } },
-      { id: "emerald", name: "Emerald", set: { fractalColorInner: "#bdf0cf", fractalColorOuter: "#357a55", fractalAccent: "#d8ffe2", fractalBgTop: "#030906", fractalBgBottom: "#06110b" } },
-      { id: "cyan", name: "Cyan", set: { fractalColorInner: "#c3f3f0", fractalColorOuter: "#2f7e88", fractalAccent: "#d6ffff", fractalBgTop: "#02080a", fractalBgBottom: "#061115" } },
-      { id: "azure", name: "Azure", set: { fractalColorInner: "#c6e6fb", fractalColorOuter: "#356a96", fractalAccent: "#dceeff", fractalBgTop: "#02060c", fractalBgBottom: "#060f1a" } },
-      { id: "indigo", name: "Indigo", set: { fractalColorInner: "#cdcffb", fractalColorOuter: "#414a93", fractalAccent: "#e6e6ff", fractalBgTop: "#04050c", fractalBgBottom: "#0a0b1a" } },
-      { id: "violet", name: "Violet", set: { fractalColorInner: "#dcc8f4", fractalColorOuter: "#5b3f8a", fractalAccent: "#f4e2ff", fractalBgTop: "#06040c", fractalBgBottom: "#0d0a1a" } },
-      { id: "amber", name: "Amber", set: { fractalColorInner: "#f0dcb3", fractalColorOuter: "#9a6f33", fractalAccent: "#fff2cc", fractalBgTop: "#0a0703", fractalBgBottom: "#16100a" } },
-      { id: "rose", name: "Rose", set: { fractalColorInner: "#f3cdd9", fractalColorOuter: "#9a4f5f", fractalAccent: "#ffe2ec", fractalBgTop: "#0a0405", fractalBgBottom: "#16090d" } },
-      { id: "crimson", name: "Crimson", set: { fractalColorInner: "#f0c2c4", fractalColorOuter: "#963c3c", fractalAccent: "#ffd2d2", fractalBgTop: "#0a0303", fractalBgBottom: "#160808" } },
-      { id: "ember", name: "Ember", set: { fractalColorInner: "#f1d3c2", fractalColorOuter: "#a05a30", fractalAccent: "#ffe8d0", fractalBgTop: "#0a0503", fractalBgBottom: "#160d08" } },
-      { id: "lime", name: "Lime", set: { fractalColorInner: "#dbeec1", fractalColorOuter: "#6b8a3c", fractalAccent: "#f0ffcc", fractalBgTop: "#070903", fractalBgBottom: "#0e1207" } },
-      { id: "ice", name: "Ice", set: { fractalColorInner: "#dbe7ec", fractalColorOuter: "#5a7d8e", fractalAccent: "#f0f8ff", fractalBgTop: "#05080a", fractalBgBottom: "#0b1115" } },
+      { id: "graphene", name: "Graphene", set: { fractalColorInner: "#bde7d6", fractalColorOuter: "#3c6f7f", fractalAccent: "#ffd23a", fractalBgTop: "#02040a", fractalBgBottom: "#070b12" } },
+      { id: "emerald", name: "Emerald", set: { fractalColorInner: "#bdf0cf", fractalColorOuter: "#357a55", fractalAccent: "#ffe24a", fractalBgTop: "#030906", fractalBgBottom: "#06110b" } },
+      { id: "cyan", name: "Cyan", set: { fractalColorInner: "#c3f3f0", fractalColorOuter: "#2f7e88", fractalAccent: "#ff7e4a", fractalBgTop: "#02080a", fractalBgBottom: "#061115" } },
+      { id: "azure", name: "Azure", set: { fractalColorInner: "#c6e6fb", fractalColorOuter: "#356a96", fractalAccent: "#ffd24a", fractalBgTop: "#02060c", fractalBgBottom: "#060f1a" } },
+      { id: "indigo", name: "Indigo", set: { fractalColorInner: "#cdcffb", fractalColorOuter: "#414a93", fractalAccent: "#ffd24a", fractalBgTop: "#04050c", fractalBgBottom: "#0a0b1a" } },
+      { id: "violet", name: "Violet", set: { fractalColorInner: "#dcc8f4", fractalColorOuter: "#5b3f8a", fractalAccent: "#ffe24a", fractalBgTop: "#06040c", fractalBgBottom: "#0d0a1a" } },
+      { id: "amber", name: "Amber", set: { fractalColorInner: "#f0dcb3", fractalColorOuter: "#9a6f33", fractalAccent: "#4ad6ff", fractalBgTop: "#0a0703", fractalBgBottom: "#16100a" } },
+      { id: "rose", name: "Rose", set: { fractalColorInner: "#f3cdd9", fractalColorOuter: "#9a4f5f", fractalAccent: "#4affc0", fractalBgTop: "#0a0405", fractalBgBottom: "#16090d" } },
+      { id: "crimson", name: "Crimson", set: { fractalColorInner: "#f0c2c4", fractalColorOuter: "#963c3c", fractalAccent: "#4affd2", fractalBgTop: "#0a0303", fractalBgBottom: "#160808" } },
+      { id: "ember", name: "Ember", set: { fractalColorInner: "#f1d3c2", fractalColorOuter: "#a05a30", fractalAccent: "#4ad6ff", fractalBgTop: "#0a0503", fractalBgBottom: "#160d08" } },
+      { id: "lime", name: "Lime", set: { fractalColorInner: "#dbeec1", fractalColorOuter: "#6b8a3c", fractalAccent: "#ff4ad6", fractalBgTop: "#070903", fractalBgBottom: "#0e1207" } },
+      { id: "ice", name: "Ice", set: { fractalColorInner: "#dbe7ec", fractalColorOuter: "#5a7d8e", fractalAccent: "#ffcf4a", fractalBgTop: "#05080a", fractalBgBottom: "#0b1115" } },
       { id: "mono", name: "Monolith", set: { fractalColorInner: "#d8d8d8", fractalColorOuter: "#5a5a5a", fractalAccent: "#ffffff", fractalBgTop: "#070707", fractalBgBottom: "#101010" } },
     ],
     inputIds: [

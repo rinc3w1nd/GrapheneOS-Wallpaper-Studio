@@ -19,6 +19,8 @@ function generateTopographicSvg(p) {
   const fScale = Math.max(0.5, Math.min(6, num(p.topographicScale, 2.2)));
   const lineOpacity = clamp01(num(p.topographicLineOpacity, 0.6));
   const lineWidth = Math.max(0.2, num(p.topographicLineWidth, 1.2)) * (unit / 1080);
+  const accentOn = p.topographicAccentOn !== false; // highlight a few lines
+  const accentCol = p.topographicAccent || "#e0894c";
 
   const accIn = p.topographicColorInner || "#9ad4c2";
   const accOut = p.topographicColorOuter || "#6d7882";
@@ -30,6 +32,7 @@ function generateTopographicSvg(p) {
   const cy = H * (Number(p.compositionYPct ?? p.fingerprintYPct ?? 72.5) / 100);
 
   const noise = valueNoise2D((Number(p.seed) >>> 0) || 1);
+  const arng = mulberry32(((((Number(p.seed) >>> 0) || 1) ^ 0x5eed) >>> 0)); // accent-line picks
   function fbm(x, y) {
     let v = 0, a = 0.5, f = 1;
     for (let o = 0; o < 4; o += 1) { v += a * noise(x * f, y * f); f *= 2; a *= 0.5; }
@@ -119,9 +122,11 @@ function generateTopographicSvg(p) {
       }
     }
     if (!d) continue;
-    const col = mix(accIn, accOut, t);
-    const op = lineOpacity * (0.55 + 0.45 * (1 - t));
-    parts.push(`<path d="${d}" stroke="${col}" stroke-opacity="${op.toFixed(3)}" stroke-width="${lineWidth.toFixed(2)}"/>`);
+    const isAccent = accentOn && arng() < 0.18; // a select few highlighted lines
+    const col = isAccent ? accentCol : mix(accIn, accOut, t);
+    const op = isAccent ? clamp01(lineOpacity * 1.7) : lineOpacity * (0.55 + 0.45 * (1 - t));
+    const sw = isAccent ? lineWidth * 1.7 : lineWidth;
+    parts.push(`<path d="${d}" stroke="${col}" stroke-opacity="${op.toFixed(3)}" stroke-width="${sw.toFixed(2)}"/>`);
   }
   parts.push("</g>");
 
@@ -141,22 +146,24 @@ registerStyle({
     topographicScale: 2.2,
     topographicLineOpacity: 0.6,
     topographicLineWidth: 1.2,
+    topographicAccentOn: true,
+    topographicAccent: "#e0894c",
     topographicColorInner: "#9ad4c2",
     topographicColorOuter: "#6d7882",
     topographicPreset: "graphene",
   },
-  colorIds: ["topographicColorInner", "topographicColorOuter"],
+  colorIds: ["topographicColorInner", "topographicColorOuter", "topographicAccent"],
   presets: [
-    { id: "graphene", name: "Graphene", set: { topographicColorInner: "#9ad4c2", topographicColorOuter: "#6d7882" } },
-    { id: "amber", name: "Amber", set: { topographicColorInner: "#d1a24c", topographicColorOuter: "#7c6a4a" } },
-    { id: "cyan", name: "Cyan", set: { topographicColorInner: "#47b8c9", topographicColorOuter: "#5f7884" } },
-    { id: "violet", name: "Violet", set: { topographicColorInner: "#8f7bdc", topographicColorOuter: "#6b6480" } },
-    { id: "rose", name: "Rose", set: { topographicColorInner: "#c7798c", topographicColorOuter: "#806a72" } },
-    { id: "emerald", name: "Emerald", set: { topographicColorInner: "#5fcf91", topographicColorOuter: "#5f7a68" } },
-    { id: "ember", name: "Ember", set: { topographicColorInner: "#e0895a", topographicColorOuter: "#806150" } },
-    { id: "ice", name: "Ice", set: { topographicColorInner: "#9fc4dd", topographicColorOuter: "#6c7780" } },
-    { id: "oxidized-copper", name: "Oxidized Copper", set: { topographicColorInner: "#4fb5a0", topographicColorOuter: "#a07a52" } },
-    { id: "mono", name: "Monolith", set: { topographicColorInner: "#cdd6da", topographicColorOuter: "#6b7378" } },
+    { id: "graphene", name: "Graphene", set: { topographicColorInner: "#9ad4c2", topographicColorOuter: "#6d7882", topographicAccent: "#e0894c" } },
+    { id: "amber", name: "Amber", set: { topographicColorInner: "#d1a24c", topographicColorOuter: "#7c6a4a", topographicAccent: "#4fc9d6" } },
+    { id: "cyan", name: "Cyan", set: { topographicColorInner: "#47b8c9", topographicColorOuter: "#5f7884", topographicAccent: "#ffae5a" } },
+    { id: "violet", name: "Violet", set: { topographicColorInner: "#8f7bdc", topographicColorOuter: "#6b6480", topographicAccent: "#e0c050" } },
+    { id: "rose", name: "Rose", set: { topographicColorInner: "#c7798c", topographicColorOuter: "#806a72", topographicAccent: "#5fd0c0" } },
+    { id: "emerald", name: "Emerald", set: { topographicColorInner: "#5fcf91", topographicColorOuter: "#5f7a68", topographicAccent: "#e08a5a" } },
+    { id: "ember", name: "Ember", set: { topographicColorInner: "#e0895a", topographicColorOuter: "#806150", topographicAccent: "#4fb8c9" } },
+    { id: "ice", name: "Ice", set: { topographicColorInner: "#9fc4dd", topographicColorOuter: "#6c7780", topographicAccent: "#e0b060" } },
+    { id: "oxidized-copper", name: "Oxidized Copper", set: { topographicColorInner: "#4fb5a0", topographicColorOuter: "#a07a52", topographicAccent: "#6fd0e0" } },
+    { id: "mono", name: "Monolith", set: { topographicColorInner: "#cdd6da", topographicColorOuter: "#6b7378", topographicAccent: "#e0894c" } },
   ],
   inputIds: [
     "topographicLevels",
@@ -164,12 +171,16 @@ registerStyle({
     "topographicScale",
     "topographicLineOpacity",
     "topographicLineWidth",
+    "topographicAccentOn",
+    "topographicAccent",
     "topographicColorInner",
     "topographicColorOuter",
   ],
   controlsHtml: {
     setup:
-      '<label class="field"><span class="field-label">Palette</span><select id="topographicPreset"></select></label>',
+      '<label class="field"><span class="field-label">Palette</span><select id="topographicPreset"></select></label>' +
+      '<div class="group-label">Display</div>' +
+      '<div class="toggle-group"><label class="chip-toggle"><input id="topographicAccentOn" type="checkbox"><span>Accent<br />lines</span></label></div>',
     form:
       '<div class="group-label">Contours</div>' +
       '<label class="field range"><span class="field-label">Levels</span>' +
@@ -187,6 +198,8 @@ registerStyle({
       '<label class="field color"><span class="field-label">Inner (low)</span>' +
       '<input id="topographicColorInner" type="color"></label>' +
       '<label class="field color"><span class="field-label">Outer (high)</span>' +
-      '<input id="topographicColorOuter" type="color"></label>',
+      '<input id="topographicColorOuter" type="color"></label>' +
+      '<label class="field color"><span class="field-label">Accent lines</span>' +
+      '<input id="topographicAccent" type="color"></label>',
   },
 });

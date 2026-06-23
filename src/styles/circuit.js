@@ -13,7 +13,7 @@ function generateCircuitSvg(p) {
   const bgBottom = p.circuitBgBottom || "#010305";
   const traceColor = p.circuitTraceColor || "#4fb8c9";
   const traceColor2 = p.circuitTraceColor2 || "#b6f2ff";
-  const padColor = p.circuitPadColor || "#77b69e";
+  const padColor = p.circuitPadColor || "#f0c860";
 
   const traceOpacity = clamp01(p.circuitTraceOpacity ?? 0.55);
   const padOpacity = clamp01(p.circuitPadOpacity ?? 0.8);
@@ -173,29 +173,29 @@ registerStyle({
     circuitBgBottom: "#010305",
     circuitTraceColor: "#4fb8c9",
     circuitTraceColor2: "#b6f2ff",
-    circuitPadColor: "#77b69e",
+    circuitPadColor: "#f0c860",
     circuitPreset: "cyan",
   },
   colorIds: ["circuitTraceColor", "circuitTraceColor2", "circuitPadColor", "circuitBgTop", "circuitBgBottom"],
   presets: [
-    { id: "graphene", name: "Graphene", set: { circuitTraceColor: "#61b8a9", circuitTraceColor2: "#c4dfda", circuitPadColor: "#74adb3", circuitBgTop: "#060c0b", circuitBgBottom: "#030606" } },
-    { id: "emerald", name: "Emerald", set: { circuitTraceColor: "#53c58c", circuitTraceColor2: "#bfe3d1", circuitPadColor: "#6bbdaa", circuitBgTop: "#050c09", circuitBgBottom: "#030605" } },
-    { id: "lime", name: "Lime", set: { circuitTraceColor: "#89c059", circuitTraceColor2: "#d0e1c1", circuitPadColor: "#7db96e", circuitBgTop: "#090c06", circuitBgBottom: "#040603" } },
-    { id: "amber", name: "Amber", set: { circuitTraceColor: "#ce994a", circuitTraceColor2: "#e6d5bd", circuitPadColor: "#c4b764", circuitBgTop: "#0d0a05", circuitBgBottom: "#070502" } },
-    { id: "gold", name: "Gold", set: { circuitTraceColor: "#cab14e", circuitTraceColor2: "#e4ddbe", circuitPadColor: "#bbc167", circuitBgTop: "#0d0b05", circuitBgBottom: "#070603" } },
-    { id: "ember", name: "Ember", set: { circuitTraceColor: "#cc6e4c", circuitTraceColor2: "#e5c8bd", circuitPadColor: "#c29765", circuitBgTop: "#0d0705", circuitBgBottom: "#070402" } },
-    { id: "crimson", name: "Crimson", set: { circuitTraceColor: "#c55363", circuitTraceColor2: "#e3bfc4", circuitPadColor: "#bd766b", circuitBgTop: "#0c0506", circuitBgBottom: "#060303" } },
-    { id: "rose", name: "Rose", set: { circuitTraceColor: "#bc5d86", circuitTraceColor2: "#e0c2cf", circuitPadColor: "#b6717d", circuitBgTop: "#0c0609", circuitBgBottom: "#060304" } },
-    { id: "magenta", name: "Magenta", set: { circuitTraceColor: "#c059ab", circuitTraceColor2: "#e1c1db", circuitPadColor: "#b96e96", circuitBgTop: "#0c060b", circuitBgBottom: "#060306" } },
-    { id: "amethyst", name: "Amethyst", set: { circuitTraceColor: "#a55ebb", circuitTraceColor2: "#d9c3e0", circuitPadColor: "#b672b3", circuitBgTop: "#0a060c", circuitBgBottom: "#050306" } },
-    { id: "violet", name: "Violet", set: { circuitTraceColor: "#7f5bbe", circuitTraceColor2: "#cdc2e1", circuitPadColor: "#9d70b8", circuitBgTop: "#08060c", circuitBgBottom: "#040306" } },
-    { id: "indigo", name: "Indigo", set: { circuitTraceColor: "#595fc0", circuitTraceColor2: "#c1c3e1", circuitPadColor: "#7d6eb9", circuitBgTop: "#06060c", circuitBgBottom: "#030306" } },
-    { id: "cobalt", name: "Cobalt", set: { circuitTraceColor: "#4c77cc", circuitTraceColor2: "#bdcae5", circuitPadColor: "#656cc2", circuitBgTop: "#05080d", circuitBgBottom: "#020407" } },
-    { id: "azure", name: "Azure", set: { circuitTraceColor: "#4c9dcc", circuitTraceColor2: "#bdd6e5", circuitPadColor: "#6588c2", circuitBgTop: "#050a0d", circuitBgBottom: "#020507" } },
-    { id: "cyan", name: "Cyan", set: { circuitTraceColor: "#4fb8c9", circuitTraceColor2: "#b6f2ff", circuitPadColor: "#77b69e", circuitBgTop: "#04070a", circuitBgBottom: "#010305" } },
-    { id: "ice", name: "Ice", set: { circuitTraceColor: "#7695a3", circuitTraceColor2: "#cad4d8", circuitPadColor: "#8392a4", circuitBgTop: "#08090a", circuitBgBottom: "#040505" } },
-    { id: "slate", name: "Slate", set: { circuitTraceColor: "#808b99", circuitTraceColor2: "#cdd1d5", circuitPadColor: "#8b8e9d", circuitBgTop: "#08090a", circuitBgBottom: "#040505" } },
-    { id: "mono", name: "Monolith", set: { circuitTraceColor: "#8c8c8c", circuitTraceColor2: "#d1d1d1", circuitPadColor: "#949494", circuitBgTop: "#090909", circuitBgBottom: "#050505" } },
+    { id: "graphene", name: "Graphene", set: { circuitTraceColor: "#61b8a9", circuitTraceColor2: "#c4dfda", circuitPadColor: "#f0c860", circuitBgTop: "#060c0b", circuitBgBottom: "#030606" } },
+    { id: "emerald", name: "Emerald", set: { circuitTraceColor: "#53c58c", circuitTraceColor2: "#bfe3d1", circuitPadColor: "#f0c860", circuitBgTop: "#050c09", circuitBgBottom: "#030605" } },
+    { id: "lime", name: "Lime", set: { circuitTraceColor: "#89c059", circuitTraceColor2: "#d0e1c1", circuitPadColor: "#f0c860", circuitBgTop: "#090c06", circuitBgBottom: "#040603" } },
+    { id: "amber", name: "Amber", set: { circuitTraceColor: "#ce994a", circuitTraceColor2: "#e6d5bd", circuitPadColor: "#5fd0e0", circuitBgTop: "#0d0a05", circuitBgBottom: "#070502" } },
+    { id: "gold", name: "Gold", set: { circuitTraceColor: "#cab14e", circuitTraceColor2: "#e4ddbe", circuitPadColor: "#5fd0e0", circuitBgTop: "#0d0b05", circuitBgBottom: "#070603" } },
+    { id: "ember", name: "Ember", set: { circuitTraceColor: "#cc6e4c", circuitTraceColor2: "#e5c8bd", circuitPadColor: "#5fd0e0", circuitBgTop: "#0d0705", circuitBgBottom: "#070402" } },
+    { id: "crimson", name: "Crimson", set: { circuitTraceColor: "#c55363", circuitTraceColor2: "#e3bfc4", circuitPadColor: "#5fd0e0", circuitBgTop: "#0c0506", circuitBgBottom: "#060303" } },
+    { id: "rose", name: "Rose", set: { circuitTraceColor: "#bc5d86", circuitTraceColor2: "#e0c2cf", circuitPadColor: "#5fd0e0", circuitBgTop: "#0c0609", circuitBgBottom: "#060304" } },
+    { id: "magenta", name: "Magenta", set: { circuitTraceColor: "#c059ab", circuitTraceColor2: "#e1c1db", circuitPadColor: "#f0c860", circuitBgTop: "#0c060b", circuitBgBottom: "#060306" } },
+    { id: "amethyst", name: "Amethyst", set: { circuitTraceColor: "#a55ebb", circuitTraceColor2: "#d9c3e0", circuitPadColor: "#f0c860", circuitBgTop: "#0a060c", circuitBgBottom: "#050306" } },
+    { id: "violet", name: "Violet", set: { circuitTraceColor: "#7f5bbe", circuitTraceColor2: "#cdc2e1", circuitPadColor: "#f0c860", circuitBgTop: "#08060c", circuitBgBottom: "#040306" } },
+    { id: "indigo", name: "Indigo", set: { circuitTraceColor: "#595fc0", circuitTraceColor2: "#c1c3e1", circuitPadColor: "#f0c860", circuitBgTop: "#06060c", circuitBgBottom: "#030306" } },
+    { id: "cobalt", name: "Cobalt", set: { circuitTraceColor: "#4c77cc", circuitTraceColor2: "#bdcae5", circuitPadColor: "#f0c860", circuitBgTop: "#05080d", circuitBgBottom: "#020407" } },
+    { id: "azure", name: "Azure", set: { circuitTraceColor: "#4c9dcc", circuitTraceColor2: "#bdd6e5", circuitPadColor: "#f0c860", circuitBgTop: "#050a0d", circuitBgBottom: "#020507" } },
+    { id: "cyan", name: "Cyan", set: { circuitTraceColor: "#4fb8c9", circuitTraceColor2: "#b6f2ff", circuitPadColor: "#f0c860", circuitBgTop: "#04070a", circuitBgBottom: "#010305" } },
+    { id: "ice", name: "Ice", set: { circuitTraceColor: "#7695a3", circuitTraceColor2: "#cad4d8", circuitPadColor: "#f0c860", circuitBgTop: "#08090a", circuitBgBottom: "#040505" } },
+    { id: "slate", name: "Slate", set: { circuitTraceColor: "#808b99", circuitTraceColor2: "#cdd1d5", circuitPadColor: "#f0c860", circuitBgTop: "#08090a", circuitBgBottom: "#040505" } },
+    { id: "mono", name: "Monolith", set: { circuitTraceColor: "#8c8c8c", circuitTraceColor2: "#d1d1d1", circuitPadColor: "#5fd0e0", circuitBgTop: "#090909", circuitBgBottom: "#050505" } },
   ],
   inputIds: [
     "circuitGridPitch",
