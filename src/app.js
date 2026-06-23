@@ -560,6 +560,7 @@ function initApp() {
   setupStyleToggle();
   setupToggleLabels();
   params = { ...effectiveDefaults() };
+  params.seed = randomSeed();   // fresh figure on each load/reload
   setInputsFromParams(params);
   syncFingerprintVisibility();
   render();
@@ -638,10 +639,29 @@ document.querySelector("#download-png").addEventListener("click", async () => {
   );
 });
 
+// A fresh random seed (UI-only; the generators stay deterministic for a given
+// seed). Drives every style's PRNG, so it rerolls the fractal figure, lattice
+// dots, bokeh layout, aurora gas, etc.
+function randomSeed() {
+  return Math.floor(Math.random() * 4294967294) + 1;
+}
+
 document.querySelector("#reset-controls").addEventListener("click", () => {
   params = { ...effectiveDefaults() };
+  params.seed = randomSeed();
   setInputsFromParams(params);
   syncFingerprintVisibility();
   setupToggleLabels();
   render();
 });
+
+// "Random" button next to the Seed field rerolls the seed and re-renders.
+const reseedBtn = document.querySelector("#reseed");
+if (reseedBtn) {
+  reseedBtn.addEventListener("click", () => {
+    const el = document.querySelector("#seed");
+    if (!el) return;
+    el.value = String(randomSeed());
+    el.dispatchEvent(new Event("input", { bubbles: true }));
+  });
+}

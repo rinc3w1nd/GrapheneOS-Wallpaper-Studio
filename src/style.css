@@ -478,6 +478,15 @@ input[type="color"] {
 
 .style-group { display: grid; gap: var(--gap); }
 
+/* global seed control: number field + Random button */
+.seed-row { display: flex; gap: 8px; align-items: center; }
+.seed-row input[type="number"] {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: var(--mono, ui-monospace, monospace);
+}
+.seed-row .ghost-btn { flex: 0 0 auto; white-space: nowrap; }
+
 /* visibility for style-specific control groups is JS-driven (applyStyle sets
    the [hidden] attribute on [data-styles] elements). Force it to win over the
    grid/flex display of .field/.style-group/.toggle-group. */
