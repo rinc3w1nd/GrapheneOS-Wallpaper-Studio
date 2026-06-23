@@ -399,6 +399,12 @@ function applyStyle(style) {
   document.querySelectorAll(".style-opt").forEach((btn) => {
     btn.classList.toggle("is-active", btn.dataset.style === style);
   });
+  // Keep the active chip in view within the single-row scroll strip (no page scroll).
+  const styleToggle = document.querySelector(".style-toggle");
+  const activeOpt = styleToggle && styleToggle.querySelector(".style-opt.is-active");
+  if (styleToggle && activeOpt) {
+    styleToggle.scrollLeft = activeOpt.offsetLeft - styleToggle.clientWidth / 2 + activeOpt.clientWidth / 2;
+  }
   // Show only the active style's control groups.
   document.querySelectorAll("[data-styles]").forEach((el) => {
     el.hidden = !el.dataset.styles.split(/\s+/).includes(style);
