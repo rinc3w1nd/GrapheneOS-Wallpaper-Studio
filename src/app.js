@@ -391,6 +391,11 @@ function initChicPresetSelect() {
   });
 }
 
+function styleLabel(id) {
+  const opt = allStyleOptions().find((s) => s.id === id);
+  return opt ? opt.label : id;
+}
+
 function applyStyle(style) {
   [...document.body.classList].forEach((c) => {
     if (c.startsWith("style-")) document.body.classList.remove(c);
@@ -399,12 +404,9 @@ function applyStyle(style) {
   document.querySelectorAll(".style-opt").forEach((btn) => {
     btn.classList.toggle("is-active", btn.dataset.style === style);
   });
-  // Keep the active chip in view within the single-row scroll strip (no page scroll).
-  const styleToggle = document.querySelector(".style-toggle");
-  const activeOpt = styleToggle && styleToggle.querySelector(".style-opt.is-active");
-  if (styleToggle && activeOpt) {
-    styleToggle.scrollLeft = activeOpt.offsetLeft - styleToggle.clientWidth / 2 + activeOpt.clientWidth / 2;
-  }
+  // The header button reflects (and opens) the current style.
+  const openBtn = document.querySelector("#open-style");
+  if (openBtn) openBtn.textContent = styleLabel(style);
   // Show only the active style's control groups.
   document.querySelectorAll("[data-styles]").forEach((el) => {
     el.hidden = !el.dataset.styles.split(/\s+/).includes(style);
@@ -412,12 +414,18 @@ function applyStyle(style) {
 }
 
 function setupStyleToggle() {
+  const modal = document.querySelector("#style-modal");
+  const openBtn = document.querySelector("#open-style");
+  if (openBtn && modal) {
+    openBtn.addEventListener("click", () => modal.showModal());
+  }
   document.querySelectorAll(".style-opt").forEach((btn) => {
     btn.addEventListener("click", () => {
       params = readParamsFromInputs();
       params.style = btn.dataset.style;
       applyStyle(params.style);
       render();
+      if (modal && modal.open) modal.close();   // picking a style dismisses the picker
     });
   });
 }
@@ -647,21 +655,69 @@ function randomSeed() {
 }
 
 document.querySelector("#reset-controls").addEventListener("click", () => {
+  const keepStyle = params.style;          // reset everything EXCEPT the active style
   params = { ...effectiveDefaults() };
+  params.style = keepStyle;
   params.seed = randomSeed();
-  setInputsFromParams(params);
+  setInputsFromParams(params);             // calls applyStyle(keepStyle)
   syncFingerprintVisibility();
   setupToggleLabels();
   render();
 });
 
-// "Random" button next to the Seed field rerolls the seed and re-renders.
+// Seed control: a read-only seed field with three inline icon buttons —
+// edit (pencil, unlocks the field), copy (stacked papers), randomize (recycle).
+const seedField = document.querySelector("#seed");
+
+// Recycle: reroll the seed and re-render (the input event bubbles to #controls).
 const reseedBtn = document.querySelector("#reseed");
-if (reseedBtn) {
+if (reseedBtn && seedField) {
   reseedBtn.addEventListener("click", () => {
-    const el = document.querySelector("#seed");
-    if (!el) return;
-    el.value = String(randomSeed());
-    el.dispatchEvent(new Event("input", { bubbles: true }));
+    seedField.readOnly = true;
+    document.querySelector("#seed-edit")?.classList.remove("is-active");
+    seedField.value = String(randomSeed());
+    seedField.dispatchEvent(new Event("input", { bubbles: true }));
+  });
+}
+
+// Pencil: toggle the field editable so a precise seed can be typed in.
+const seedEditBtn = document.querySelector("#seed-edit");
+if (seedEditBtn && seedField) {
+  seedEditBtn.addEventListener("click", () => {
+    const editing = seedField.readOnly;        // about to unlock?
+    seedField.readOnly = !editing;
+    seedEditBtn.classList.toggle("is-active", editing);
+    if (editing) {
+      seedField.focus();
+      seedField.select();
+    }
+  });
+  // Leaving the field (blur / Enter) re-locks it.
+  seedField.addEventListener("blur", () => {
+    seedField.readOnly = true;
+    seedEditBtn.classList.remove("is-active");
+  });
+  seedField.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      seedField.blur();
+    }
+  });
+}
+
+// Copy: put the current seed on the clipboard, with a brief confirmation flash.
+const seedCopyBtn = document.querySelector("#seed-copy");
+if (seedCopyBtn && seedField) {
+  seedCopyBtn.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(seedField.value);
+      seedCopyBtn.classList.add("copied");
+      setTimeout(() => seedCopyBtn.classList.remove("copied"), 900);
+    } catch (_) {
+      // Clipboard blocked (insecure context / denied) — select so the user can copy manually.
+      seedField.readOnly = false;
+      seedField.focus();
+      seedField.select();
+    }
   });
 }

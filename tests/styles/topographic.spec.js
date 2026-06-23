@@ -34,6 +34,7 @@ test("topographic: bounded element count", async ({ page }) => {
 });
 
 test("topographic: style switch shows it", async ({ page }) => {
+  await page.locator("#open-style").click();
   await page.locator('[data-style="topographic"]').click();
   await expect(page.locator("body")).toHaveClass(/style-topographic/);
   await expect

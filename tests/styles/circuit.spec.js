@@ -34,6 +34,7 @@ test("circuit: respects width/height", async ({ page }) => {
 });
 
 test("circuit: style switch shows it", async ({ page }) => {
+  await page.locator("#open-style").click();
   await page.locator('[data-style="circuit"]').click();
   await expect(page.locator("body")).toHaveClass(/style-circuit/);
   await expect

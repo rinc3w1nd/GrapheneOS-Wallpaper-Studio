@@ -49,6 +49,7 @@ test("flow: params change the output", async ({ page }) => {
 });
 
 test("flow: style switch shows it", async ({ page }) => {
+  await page.locator("#open-style").click();
   await page.locator('[data-style="flow"]').click();
   await expect(page.locator("body")).toHaveClass(/style-flow/);
   await expect

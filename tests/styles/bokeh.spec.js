@@ -39,6 +39,7 @@ test("bokeh: masked disc group + bounded gradient defs", async ({ page }) => {
 });
 
 test("bokeh: style switch shows it", async ({ page }) => {
+  await page.locator("#open-style").click();
   await page.locator('[data-style="bokeh"]').click();
   await expect(page.locator("body")).toHaveClass(/style-bokeh/);
   await expect

@@ -51,6 +51,7 @@ test("constellation: respects sensor position params", async ({ page }) => {
 });
 
 test("constellation: style switch shows it", async ({ page }) => {
+  await page.locator("#open-style").click();
   await page.locator('[data-style="constellation"]').click();
   await expect(page.locator("body")).toHaveClass(/style-constellation/);
   await expect

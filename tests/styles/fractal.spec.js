@@ -45,6 +45,7 @@ test("fractal: params change the output", async ({ page }) => {
 });
 
 test("fractal: style switch shows it", async ({ page }) => {
+  await page.locator("#open-style").click();
   await page.locator('[data-style="fractal"]').click();
   await expect(page.locator("body")).toHaveClass(/style-fractal/);
   await expect

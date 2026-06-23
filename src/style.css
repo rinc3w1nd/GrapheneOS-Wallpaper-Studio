@@ -438,54 +438,83 @@ input[type="color"] {
   cursor: pointer;
 }
 
-/* style switch (lattice / chic / + registered styles) */
+/* style switch (lattice / chic / + registered styles) — a wrapping grid inside
+   the #style-modal dialog, opened from the header "Style" button. */
 .style-toggle {
-  position: relative;
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 6px;
-  padding: 5px;
-  border: 1px solid var(--hair);
-  border-radius: 18px;
-  background: var(--surface);
-  overflow-x: auto;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
-  scroll-snap-type: x proximity;
-  /* fade the edges to signal the row scrolls horizontally */
-  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
-          mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
 }
-.style-toggle::-webkit-scrollbar { display: none; }
 .style-opt {
-  flex: 0 0 auto;
-  min-height: 38px;
-  padding: 0 16px;
-  border: 0;
-  border-radius: 999px;
-  background: transparent;
+  min-height: 46px;
+  padding: 0 14px;
+  border: 1px solid var(--hair);
+  border-radius: var(--r-sm);
+  background: var(--surface);
   color: var(--muted);
   font-size: 0.74rem;
   letter-spacing: 0.08em;
   white-space: nowrap;
-  scroll-snap-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
+.style-opt:hover { border-color: var(--hair-2); background: var(--surface-2); color: var(--text); }
 .style-opt.is-active {
   color: #06140f;
+  border-color: var(--accent-line);
   background: linear-gradient(180deg, var(--accent-2), var(--accent));
   box-shadow: 0 6px 18px rgba(119, 182, 158, 0.24);
 }
 
+/* style picker dialog (mirrors the value-picker chrome) */
+#style-modal {
+  width: min(92vw, 460px);
+  border: 1px solid var(--hair-2);
+  border-radius: var(--r-lg);
+  padding: 0;
+  color: var(--text);
+  background: rgba(8, 12, 17, 0.98);
+  box-shadow: 0 30px 120px rgba(0, 0, 0, 0.7);
+}
+#style-modal::backdrop { background: rgba(2, 4, 6, 0.66); backdrop-filter: blur(3px); }
+.style-modal-card { display: grid; gap: 16px; padding: 16px; }
+#style-modal-title {
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+}
+
 .style-group { display: grid; gap: var(--gap); }
 
-/* global seed control: number field + Random button */
+/* global seed control: read-only field + pencil / copy / recycle icon buttons */
 .seed-row { display: flex; gap: 8px; align-items: center; }
 .seed-row input[type="number"] {
   flex: 1 1 auto;
   min-width: 0;
   font-family: var(--mono, ui-monospace, monospace);
 }
-.seed-row .ghost-btn { flex: 0 0 auto; white-space: nowrap; }
+.seed-row input[type="number"][readonly] { color: var(--accent-2); cursor: default; }
+.icon-btn {
+  flex: 0 0 auto;
+  display: inline-grid;
+  place-items: center;
+  min-height: 38px;
+  min-width: 38px;
+  padding: 0;
+  border-radius: var(--r-sm);
+  color: var(--muted);
+}
+.icon-btn:hover { color: var(--accent-2); border-color: var(--hair-2); background: var(--surface-2); }
+.icon-btn.is-active,
+.icon-btn.copied {
+  color: #06140f;
+  border-color: var(--accent-line);
+  background: linear-gradient(180deg, var(--accent-2), var(--accent));
+}
+.icon-btn svg { display: block; }
+
+.export-svg-btn { width: 100%; }
 
 /* visibility for style-specific control groups is JS-driven (applyStyle sets
    the [hidden] attribute on [data-styles] elements). Force it to win over the

@@ -34,7 +34,7 @@
           </p>
         </div>
         <div class="top-actions">
-          <button id="download-svg" type="button" class="ghost-btn">SVG</button>
+          <button id="open-style" type="button" class="ghost-btn" aria-haspopup="dialog" title="Change wallpaper style">Style</button>
           <button id="download-png" type="button" class="accent-btn">Export</button>
         </div>
       </div>
@@ -61,9 +61,6 @@
               <h2>Setup</h2>
               <button id="reset-controls" type="button" class="ghost-btn small">Reset all</button>
             </div>
-
-            <div class="group-label">Style</div>
-            <div class="style-toggle" role="tablist" aria-label="Wallpaper style"></div>
 
             <label class="field">
               <span class="field-label">Device</span>
@@ -160,8 +157,16 @@
 
             <div class="group-label">Seed</div>
             <div class="seed-row">
-              <input id="seed" type="number" min="1" max="4294967295" step="1" aria-label="Random seed">
-              <button id="reseed" type="button" class="ghost-btn small">Random</button>
+              <input id="seed" type="number" min="1" max="4294967295" step="1" aria-label="Random seed" readonly>
+              <button id="seed-edit" type="button" class="icon-btn" aria-label="Edit seed" title="Edit seed">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z"/></svg>
+              </button>
+              <button id="seed-copy" type="button" class="icon-btn" aria-label="Copy seed" title="Copy seed">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              </button>
+              <button id="reseed" type="button" class="icon-btn" aria-label="Randomize seed" title="Randomize seed">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+              </button>
             </div>
           </section>
 
@@ -364,11 +369,26 @@
               </label>
             </div>
 
-            <p class="hint">Export uses the buttons in the header. WebP/JPEG stay small; PNG is lossless but large with grain.</p>
+            <button id="download-svg" type="button" class="ghost-btn export-svg-btn">Download SVG</button>
+
+            <p class="hint">The header <strong>Export</strong> button saves a raster (WebP/JPEG stay small; PNG is lossless but large with grain). <strong>Download SVG</strong> saves the vector source.</p>
           </section>
         </div>
       </form>
     </section>
+
+    <!-- Style picker. Opened by the "Style" button in the header. Holds the
+         .style-opt[data-style] buttons (built by app.js) so the active style is
+         chosen here rather than from a persistent strip. -->
+    <dialog id="style-modal" aria-label="Choose wallpaper style">
+      <form method="dialog" class="style-modal-card">
+        <div class="picker-head">
+          <strong id="style-modal-title">Style</strong>
+          <button type="submit" value="close" class="ghost-btn small">Done</button>
+        </div>
+        <div class="style-toggle" role="tablist" aria-label="Wallpaper style"></div>
+      </form>
+    </dialog>
   </main>
   <script src="./src/core.js"></script>
   <script src="./src/styles/lattice.js"></script>

@@ -139,6 +139,7 @@ test.describe("controls UI", () => {
     await expect(page.locator("body")).toHaveClass(/style-lattice/);
     await expect(page.locator("#chicPreset")).toBeHidden();
 
+    await page.locator("#open-style").click();
     await page.locator('[data-style="chic"]').click();
 
     await expect(page.locator("body")).toHaveClass(/style-chic/);

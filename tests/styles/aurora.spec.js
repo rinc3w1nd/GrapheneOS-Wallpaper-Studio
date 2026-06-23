@@ -53,6 +53,7 @@ test("aurora: balanced groups", async ({ page }) => {
 });
 
 test("aurora: style switch shows it", async ({ page }) => {
+  await page.locator("#open-style").click();
   await page.locator('[data-style="aurora"]').click();
   await expect(page.locator("body")).toHaveClass(/style-aurora/);
   await expect
