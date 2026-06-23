@@ -147,6 +147,20 @@ test.describe("controls UI", () => {
     await expect.poll(async () => (await previewSvgHtml(page)).includes("forgeMask")).toBe(true);
   });
 
+  test("palette + device persist across a style switch", async ({ page }) => {
+    const lineColor = await page.evaluate(() => findPalette("vermilion-burn").lineColor);
+    // pick a palette + a non-default device on lattice
+    for (const [sel, v] of [["#palette", "vermilion-burn"], ["#device", "pixel-9"]]) {
+      await page.locator(sel).selectOption(v);
+    }
+    // switch to forge — the palette identity + device carry over
+    await page.locator("#open-style").click();
+    await page.locator('[data-style="forge"]').click();
+    await expect(page.locator("#forgePreset")).toHaveValue("vermilion-burn");
+    await expect(page.locator("#forgeMetal")).toHaveValue(lineColor); // forge metal = palette lineColor
+    await expect(page.locator("#device")).toHaveValue("pixel-9");
+  });
+
   test("a slider drives a re-render", async ({ page }) => {
     const before = await previewSvgHtml(page);
     await page.locator('.tab[data-tab="form"]').click();

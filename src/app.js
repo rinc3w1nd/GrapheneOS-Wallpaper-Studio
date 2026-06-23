@@ -470,6 +470,21 @@ function applyStyle(style) {
   });
 }
 
+// Carry the current palette identity (params.paletteId) onto a style's own colour
+// roles, so the chosen palette persists when you switch styles (each style selects
+// its palette via a different control — lattice's #palette vs a per-style #<id>Preset).
+// Returns updated params; a "custom" palette is left untouched per style.
+function paletteForStyle(p, pid) {
+  if (!pid || pid === "custom") return p;
+  const s = STYLES[p.style];
+  if (s && Array.isArray(s.presets) && s.presets.length) {
+    const pr = s.presets.find((x) => x.id === pid);
+    return pr ? { ...p, ...pr.set, [`${s.id}Preset`]: pid } : p;
+  }
+  if (p.style === "lattice") return paramsForPalette(pid, p);
+  return p;
+}
+
 function setupStyleToggle() {
   const modal = document.querySelector("#style-modal");
   const openBtn = document.querySelector("#open-style");
@@ -480,10 +495,11 @@ function setupStyleToggle() {
     btn.addEventListener("click", () => {
       params = readParamsFromInputs();
       params.style = btn.dataset.style;
-      applyStyle(params.style);                  // cheap DOM: active state, group show/hide, header label
-      if (modal && modal.open) modal.close();    // dismiss immediately so the tap feels acknowledged
-      // Defer the heavy per-pixel generate (aurora/fractal) so the closed modal
-      // and highlighted button paint first; debounce also coalesces rapid taps.
+      params = paletteForStyle(params, params.paletteId); // keep the chosen palette across the switch
+      if (modal && modal.open) modal.close();             // dismiss immediately so the tap feels acknowledged
+      setInputsFromParams(params);                        // applies style classes/groups + carried colours
+      // Defer the heavy generate so the closed modal and highlighted button paint
+      // first; debounce also coalesces rapid taps.
       renderSoon();
     });
   });
@@ -512,6 +528,7 @@ function initStylePresets() {
       if (!pr) return;
       params = { ...readParamsFromInputs(), ...pr.set };
       params[`${s.id}Preset`] = sel.value;
+      params.paletteId = sel.value; // track globally so the palette persists across styles
       setInputsFromParams(params);
       renderSoon();
     });
@@ -637,11 +654,12 @@ controls.addEventListener("input", (event) => {
   if (event.target && event.target.id === "device") return;
   if (event.target && ["accent", "accent2", "lineColor", "backgroundTop", "backgroundMid", "backgroundBottom"].includes(event.target.id)) {
     setPaletteCustom();
+    params.paletteId = "custom"; // hand-edited colours → don't re-apply a palette on the next style switch
   }
   // Editing any style's color switches its preset dropdown to Custom.
   if (event.target) {
     const owner = styleOwningColorId(event.target.id);
-    if (owner) setStylePresetCustom(owner.id);
+    if (owner) { setStylePresetCustom(owner.id); params.paletteId = "custom"; }
   }
   syncControlReadouts();
   syncFingerprintVisibility();
