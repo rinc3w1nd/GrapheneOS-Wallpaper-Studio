@@ -1,9 +1,9 @@
 /* styles/facets.js — "Facets": a low-poly crystalline tessellation. A jittered
  * grid is triangulated (each quad split into 2 triangles) and every shard is
- * shaded per the Form param: "lit" refracts the two colours as a key-lit
- * crystal (radial focus + specular jitter), while "gemstone" treats the colour
- * as MATERIAL — each facet a value of the same stone, from its own cut geometry,
- * with no key light or specular shine. Thin facetEdge strokes trace every shard. Element count is
+ * shaded per the Form param as MATERIAL (no key light, no specular): "gemstone"
+ * (default) gives each facet a value of one stone from its own cut geometry,
+ * while "mosaic" splits the two palette colours into interlocking mineral
+ * domains/veins. Thin facetEdge strokes trace every shard. Element count is
  * bounded (columns capped so triangles stay well under ~2800). Deterministic:
  * vertex jitter and per-facet brightness come from mulberry32(p.seed) and the
  * shading field from valueNoise2D(p.seed) — never Math.random / Date.
@@ -23,7 +23,7 @@ function generateFacetsSvg(p) {
   const fillOpacity = clamp01(num(p.facetsFillOpacity, 0.85));
   const edgeOpacity = clamp01(num(p.facetsEdgeOpacity, 0.5));
   const glow = clamp01(num(p.facetsGlow, 0.7));
-  const form = p.facetsForm || "lit"; // "lit" (key-lit crystal) | "gemstone" (material)
+  const form = p.facetsForm || "gemstone"; // "gemstone" (default) | "mosaic" — both pure material
 
   // --- colors (mapped from palette accent / accent2 / lineColor / bg) ---
   const facetLow = p.facetsLow || p.accent || "#77b69e";
@@ -80,10 +80,6 @@ function generateFacetsSvg(p) {
     }
   }
 
-  // radial falloff radius for the focal glow
-  const focusR = unit * 0.62 || 1e-6;
-  const maxD = Math.hypot(Math.max(cx, W - cx), Math.max(cy, H - cy)) || 1e-6;
-
   const parts = [
     `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">`,
   ];
@@ -92,21 +88,10 @@ function generateFacetsSvg(p) {
     `<linearGradient id="facets-bg" x1="0" y1="0" x2="0" y2="1">` +
     `<stop offset="0%" stop-color="${bgTop}"/><stop offset="100%" stop-color="${bgBottom}"/></linearGradient>`
   );
-  parts.push(
-    `<radialGradient id="facets-focus" gradientUnits="userSpaceOnUse" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${focusR.toFixed(1)}">` +
-    `<stop offset="0%" stop-color="${facetHigh}" stop-opacity="${(0.22 * glow).toFixed(3)}"/>` +
-    `<stop offset="55%" stop-color="${facetHigh}" stop-opacity="${(0.08 * glow).toFixed(3)}"/>` +
-    `<stop offset="100%" stop-color="${facetHigh}" stop-opacity="0"/></radialGradient>`
-  );
   parts.push(sensorMaskDef(p));
   parts.push("</defs>");
 
   parts.push(`<rect x="0" y="0" width="${W}" height="${H}" fill="url(#facets-bg)"/>`);
-  // soft atmospheric bloom behind the shards at the focal point (lit form only —
-  // the gemstone form is pure material, no key light)
-  if (form !== "gemstone") {
-    parts.push(`<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${focusR.toFixed(1)}" fill="url(#facets-focus)"/>`);
-  }
 
   parts.push(
     `<g id="facets-shards" stroke="${facetEdge}" stroke-opacity="${edgeOpacity.toFixed(3)}" ` +
@@ -144,17 +129,23 @@ function generateFacetsSvg(p) {
       }
       op = clamp01(fillOpacity * (0.6 + 0.4 * v) * (1 + 0.12 * glow));
     } else {
-      // LIT: key light toward the focal centre + per-facet specular jitter.
-      const d = Math.hypot(mx - cx, my - cy);
-      const radial = clamp01(1 - d / maxD);
-      const nv = noise(mx / (unit * 0.18 || 1e-6) + 3.7, my / (unit * 0.18 || 1e-6) + 1.9);
-      let t = clamp01(0.45 * nv + 0.55 * radial);
-      const lift = Math.exp(-(d * d) / (focusR * focusR * 0.6)) * glow;
-      t = clamp01(t + lift * 0.55);
-      const fill = mix(facetLow, facetHigh, t);
-      const bright = 0.82 + rand() * 0.36;
-      fcol = scaleColor(fill, bright);
-      op = clamp01(fillOpacity * (0.62 + 0.38 * t));
+      // MOSAIC: the two palette colours as interlocking mineral domains/veins —
+      // a smooth field thresholded (no gradient), each facet cut to a tonal
+      // shade, with deep cleavage facets and rare opposite-mineral flecks.
+      const ds = unit * 0.34 || 1e-6;
+      const domain = noise(mx / ds + 11.3, my / ds + 4.1);
+      const vein = (noise(mx / (ds * 0.32) + 2.7, my / (ds * 0.32) + 8.9) - 0.5) * 0.22;
+      const isHigh = (domain + vein) >= 0.5;
+      let base = isHigh ? facetHigh : facetLow;
+      let f = 0.9 + rand() * 0.22;
+      const roll = rand();
+      if (roll < 0.14) {
+        f *= 0.46 + rand() * 0.16;             // deep cleavage / inclusions
+      } else if (roll < 0.20) {
+        base = isHigh ? facetLow : facetHigh;  // rare opposite-mineral flecks
+      }
+      fcol = scaleColor(base, f);
+      op = clamp01(fillOpacity * (0.94 + (noise(mx / ds + 30.0, my / ds + 17.0) - 0.5) * 0.12));
     }
 
     return (
@@ -209,7 +200,7 @@ registerStyle({
     facetsBgTop: "#05070a",
     facetsBgBottom: "#0d1318",
     facetsPreset: "graphene-default",
-    facetsForm: "lit",
+    facetsForm: "gemstone",
   },
   colorIds: ["facetsLow", "facetsHigh", "facetsEdge", "facetsBgTop", "facetsBgBottom"],
   presets: projectPalettes((p) => ({
@@ -238,7 +229,7 @@ registerStyle({
     form:
       '<div class="group-label">Form</div>' +
       '<label class="field"><span class="field-label">Form</span><select id="facetsForm">' +
-      '<option value="lit">Lit</option><option value="gemstone">Gemstone</option>' +
+      '<option value="gemstone">Gemstone</option><option value="mosaic">Mosaic</option>' +
       '</select></label>' +
       '<div class="group-label">Crystal</div>' +
       '<label class="field range"><span class="field-label">Density</span>' +
