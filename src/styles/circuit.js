@@ -47,7 +47,7 @@ function generateCircuitSvg(p) {
   parts.push(sensorMaskDef(p));
   parts.push("</defs>");
   parts.push(`<rect width="100%" height="100%" fill="url(#circuitBg)"/>`);
-  parts.push(`<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${(r * 3.2).toFixed(1)}" fill="url(#circuitGlow)"/>`);
+  if (g.on) parts.push(`<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${(r * 3.2).toFixed(1)}" fill="url(#circuitGlow)"/>`);
 
   // Everything structural is masked so the sensor disc stays clean.
   parts.push(`<g id="circuit-board"${sensorMaskAttr(p)}>`);

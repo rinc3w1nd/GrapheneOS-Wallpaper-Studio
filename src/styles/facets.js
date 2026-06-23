@@ -173,10 +173,12 @@ function generateFacetsSvg(p) {
   parts.push("</g>");
 
   // keep the immediate sensor disc calm: a faint settling vignette over the shards
-  parts.push(
-    `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${(r * 1.05).toFixed(1)}" ` +
-    `fill="${bgBottom}" fill-opacity="0.55"/>`
-  );
+  if (sensorGeom(p).on) {
+    parts.push(
+      `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${(r * 1.05).toFixed(1)}" ` +
+      `fill="${bgBottom}" fill-opacity="0.55"/>`
+    );
+  }
 
   parts.push(sensorRing(p, facetHigh, facetLow, "hex"));
   parts.push(cornerBrand(p, facetHigh));

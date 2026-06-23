@@ -122,11 +122,13 @@
     parts.push(`<rect width="${W}" height="${H}" fill="url(#constellation-bg)"/>`);
 
     // hub glow behind everything else (calm, soft, centered on sensor)
-    const glowR = sensorR * 3.4;
-    parts.push(
-      `<circle id="constellation-glow" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" ` +
-      `r="${glowR.toFixed(1)}" fill="url(#constellation-hubglow)"/>`
-    );
+    if (sensorGeom(p).on) {
+      const glowR = sensorR * 3.4;
+      parts.push(
+        `<circle id="constellation-glow" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" ` +
+        `r="${glowR.toFixed(1)}" fill="url(#constellation-hubglow)"/>`
+      );
+    }
 
     // field (links + nodes) is masked so the sensor disc clears cleanly.
     parts.push(`<g id="constellation-field"${sensorMaskAttr(p)}>`);

@@ -94,7 +94,7 @@ function generateMatrixSvg(p) {
   parts.push("</defs>");
 
   parts.push(`<rect width="100%" height="100%" fill="url(#matrixBg)"/>`);
-  parts.push(`<rect width="100%" height="100%" fill="url(#matrixCore)"/>`);
+  if (sensorGeomOn(p)) parts.push(`<rect width="100%" height="100%" fill="url(#matrixCore)"/>`);
 
   // ---- faint vertical column guides: engineered depth, drawn under the rain ----
   // One hairline per column, dim and clipped by the sensor mask too.

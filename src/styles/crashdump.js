@@ -393,7 +393,7 @@ function generateCrashdumpSvg(p) {
       `fill="${bright}" fill-opacity="0.9" font-weight="bold" ` +
       `xml:space="preserve">${HI}${crashEsc(hex8(baseAddr + 0xbad))} »</text>`
   );
-  parts.push(`<g id="crashdump-callout">${callout.join("")}</g>`);
+  if (sensorGeom(p).on) parts.push(`<g id="crashdump-callout">${callout.join("")}</g>`);
 
   // Closing panic line sits right below the sensor cutout; the bottom of the
   // screen is intentionally left empty for the Android system UI.

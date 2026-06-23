@@ -119,9 +119,11 @@ function generateFlowSvg(p) {
   parts.push("</g>");
 
   // ---- sensor focal framing: glow + shared ring/logo ----
-  parts.push('<g id="flow-sensor">');
-  parts.push(`<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${influenceR.toFixed(1)}" fill="url(#flowSensorGlow)"/>`);
-  parts.push("</g>");
+  if (sensorGeom(p).on) {
+    parts.push('<g id="flow-sensor">');
+    parts.push(`<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${influenceR.toFixed(1)}" fill="url(#flowSensorGlow)"/>`);
+    parts.push("</g>");
+  }
   parts.push(sensorRing(p, warm, cool, "circle"));
 
   parts.push(cornerBrand(p, cool));
