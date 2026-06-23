@@ -309,11 +309,23 @@ registerStyle({
   colorIds: ["topographicColorInner", "topographicColorOuter"],
   presets: [
     { id: "graphene", name: "Graphene", set: { topographicColorInner: "#9ad4c2", topographicColorOuter: "#6d7882" } },
-    { id: "amber", name: "Amber", set: { topographicColorInner: "#d1a24c", topographicColorOuter: "#7c6a4a" } },
-    { id: "cyan", name: "Cyan", set: { topographicColorInner: "#47b8c9", topographicColorOuter: "#5f7884" } },
-    { id: "violet", name: "Violet", set: { topographicColorInner: "#8f7bdc", topographicColorOuter: "#6b6480" } },
-    { id: "rose", name: "Rose", set: { topographicColorInner: "#c7798c", topographicColorOuter: "#806a72" } },
-    { id: "mono", name: "Monolith", set: { topographicColorInner: "#cdd6da", topographicColorOuter: "#6b7378" } },
+    { id: "emerald", name: "Emerald", set: { topographicColorInner: "#79d8a8", topographicColorOuter: "#769d8a" } },
+    { id: "lime", name: "Lime", set: { topographicColorInner: "#a5d47d", topographicColorOuter: "#899b78" } },
+    { id: "amber", name: "Amber", set: { topographicColorInner: "#e0b371", topographicColorOuter: "#a08e73" } },
+    { id: "gold", name: "Gold", set: { topographicColorInner: "#dcc874", topographicColorOuter: "#9f9675" } },
+    { id: "ember", name: "Ember", set: { topographicColorInner: "#de8f73", topographicColorOuter: "#a08074" } },
+    { id: "crimson", name: "Crimson", set: { topographicColorInner: "#d87985", topographicColorOuter: "#9d767c" } },
+    { id: "rose", name: "Rose", set: { topographicColorInner: "#d080a3", topographicColorOuter: "#9a7a88" } },
+    { id: "magenta", name: "Magenta", set: { topographicColorInner: "#d47dc2", topographicColorOuter: "#9b7894" } },
+    { id: "amethyst", name: "Amethyst", set: { topographicColorInner: "#bd81cf", topographicColorOuter: "#927a9a" } },
+    { id: "violet", name: "Violet", set: { topographicColorInner: "#9d7fd2", topographicColorOuter: "#85799b" } },
+    { id: "indigo", name: "Indigo", set: { topographicColorInner: "#7d83d4", topographicColorOuter: "#787a9b" } },
+    { id: "cobalt", name: "Cobalt", set: { topographicColorInner: "#7396de", topographicColorOuter: "#7482a0" } },
+    { id: "azure", name: "Azure", set: { topographicColorInner: "#73b7de", topographicColorOuter: "#7490a0" } },
+    { id: "cyan", name: "Cyan", set: { topographicColorInner: "#76cadb", topographicColorOuter: "#75979e" } },
+    { id: "ice", name: "Ice", set: { topographicColorInner: "#95b0bb", topographicColorOuter: "#828d91" } },
+    { id: "slate", name: "Slate", set: { topographicColorInner: "#9ea7b3", topographicColorOuter: "#85898e" } },
+    { id: "mono", name: "Monolith", set: { topographicColorInner: "#a8a8a8", topographicColorOuter: "#8a8a8a" } },
   ],
   inputIds: [
     "topographicPattern",
@@ -326,6 +338,8 @@ registerStyle({
     "topographicColorOuter",
   ],
   controlsHtml: {
+    setup:
+      '<label class="field"><span class="field-label">Palette</span><select id="topographicPreset"></select></label>',
     form:
       '<div class="group-label">Fingerprint</div>' +
       '<label class="field"><span class="field-label">Pattern</span>' +
@@ -345,7 +359,6 @@ registerStyle({
       '<input id="topographicLineWidth" type="range" min="0.4" max="4" step="0.1"></label>',
     color:
       '<div class="group-label">Topographic colors</div>' +
-      '<label class="field"><span class="field-label">Preset</span><select id="topographicPreset"></select></label>' +
       '<label class="field color"><span class="field-label">Inner (core)</span>' +
       '<input id="topographicColorInner" type="color"></label>' +
       '<label class="field color"><span class="field-label">Outer (ridges)</span>' +

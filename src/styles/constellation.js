@@ -191,12 +191,25 @@
     },
     colorIds: ["constellationNodeColor", "constellationLinkColor", "constellationHubColor", "constellationBgTop", "constellationBgBottom"],
     presets: [
-      { id: "graphene", name: "Graphene", set: { constellationNodeColor: "#9ad4c2", constellationLinkColor: "#5f7e8c", constellationHubColor: "#cdeede", constellationBgTop: "#02040a", constellationBgBottom: "#04070d" } },
-      { id: "aurora", name: "Aurora", set: { constellationNodeColor: "#7fd7b2", constellationLinkColor: "#5a6f9a", constellationHubColor: "#c9bbff", constellationBgTop: "#05070d", constellationBgBottom: "#0b1019" } },
-      { id: "amber", name: "Amber", set: { constellationNodeColor: "#d7b84c", constellationLinkColor: "#7c6a4a", constellationHubColor: "#ffe2a3", constellationBgTop: "#090705", constellationBgBottom: "#130f08" } },
-      { id: "ice", name: "Ice", set: { constellationNodeColor: "#8fb0c8", constellationLinkColor: "#4c566a", constellationHubColor: "#d8e7f4", constellationBgTop: "#060809", constellationBgBottom: "#0c1014" } },
-      { id: "crimson", name: "Crimson", set: { constellationNodeColor: "#c46a64", constellationLinkColor: "#6b4a4a", constellationHubColor: "#ffc7bd", constellationBgTop: "#080504", constellationBgBottom: "#130b09" } }
-    ],
+    { id: "graphene", name: "Graphene", set: { constellationNodeColor: "#9ad4c2", constellationLinkColor: "#5f7e8c", constellationHubColor: "#cdeede", constellationBgTop: "#02040a", constellationBgBottom: "#04070d" } },
+    { id: "emerald", name: "Emerald", set: { constellationNodeColor: "#79d8a8", constellationLinkColor: "#769d8a", constellationHubColor: "#bfe3d1", constellationBgTop: "#050c09", constellationBgBottom: "#030605" } },
+    { id: "lime", name: "Lime", set: { constellationNodeColor: "#a5d47d", constellationLinkColor: "#899b78", constellationHubColor: "#d0e1c1", constellationBgTop: "#090c06", constellationBgBottom: "#040603" } },
+    { id: "amber", name: "Amber", set: { constellationNodeColor: "#e0b371", constellationLinkColor: "#a08e73", constellationHubColor: "#e6d5bd", constellationBgTop: "#0d0a05", constellationBgBottom: "#070502" } },
+    { id: "gold", name: "Gold", set: { constellationNodeColor: "#dcc874", constellationLinkColor: "#9f9675", constellationHubColor: "#e4ddbe", constellationBgTop: "#0d0b05", constellationBgBottom: "#070603" } },
+    { id: "ember", name: "Ember", set: { constellationNodeColor: "#de8f73", constellationLinkColor: "#a08074", constellationHubColor: "#e5c8bd", constellationBgTop: "#0d0705", constellationBgBottom: "#070402" } },
+    { id: "crimson", name: "Crimson", set: { constellationNodeColor: "#d87985", constellationLinkColor: "#9d767c", constellationHubColor: "#e3bfc4", constellationBgTop: "#0c0506", constellationBgBottom: "#060303" } },
+    { id: "rose", name: "Rose", set: { constellationNodeColor: "#d080a3", constellationLinkColor: "#9a7a88", constellationHubColor: "#e0c2cf", constellationBgTop: "#0c0609", constellationBgBottom: "#060304" } },
+    { id: "magenta", name: "Magenta", set: { constellationNodeColor: "#d47dc2", constellationLinkColor: "#9b7894", constellationHubColor: "#e1c1db", constellationBgTop: "#0c060b", constellationBgBottom: "#060306" } },
+    { id: "amethyst", name: "Amethyst", set: { constellationNodeColor: "#bd81cf", constellationLinkColor: "#927a9a", constellationHubColor: "#d9c3e0", constellationBgTop: "#0a060c", constellationBgBottom: "#050306" } },
+    { id: "violet", name: "Violet", set: { constellationNodeColor: "#9d7fd2", constellationLinkColor: "#85799b", constellationHubColor: "#cdc2e1", constellationBgTop: "#08060c", constellationBgBottom: "#040306" } },
+    { id: "indigo", name: "Indigo", set: { constellationNodeColor: "#7d83d4", constellationLinkColor: "#787a9b", constellationHubColor: "#c1c3e1", constellationBgTop: "#06060c", constellationBgBottom: "#030306" } },
+    { id: "cobalt", name: "Cobalt", set: { constellationNodeColor: "#7396de", constellationLinkColor: "#7482a0", constellationHubColor: "#bdcae5", constellationBgTop: "#05080d", constellationBgBottom: "#020407" } },
+    { id: "azure", name: "Azure", set: { constellationNodeColor: "#73b7de", constellationLinkColor: "#7490a0", constellationHubColor: "#bdd6e5", constellationBgTop: "#050a0d", constellationBgBottom: "#020507" } },
+    { id: "cyan", name: "Cyan", set: { constellationNodeColor: "#76cadb", constellationLinkColor: "#75979e", constellationHubColor: "#bedee4", constellationBgTop: "#050b0d", constellationBgBottom: "#030607" } },
+    { id: "ice", name: "Ice", set: { constellationNodeColor: "#95b0bb", constellationLinkColor: "#828d91", constellationHubColor: "#cad4d8", constellationBgTop: "#08090a", constellationBgBottom: "#040505" } },
+    { id: "slate", name: "Slate", set: { constellationNodeColor: "#9ea7b3", constellationLinkColor: "#85898e", constellationHubColor: "#cdd1d5", constellationBgTop: "#08090a", constellationBgBottom: "#040505" } },
+    { id: "mono", name: "Monolith", set: { constellationNodeColor: "#a8a8a8", constellationLinkColor: "#8a8a8a", constellationHubColor: "#d1d1d1", constellationBgTop: "#090909", constellationBgBottom: "#050505" } },
+  ],
     inputIds: [
       "constellationDensity",
       "constellationLinkDist",
@@ -213,6 +226,8 @@
       "constellationHubColor"
     ],
     controlsHtml: {
+      setup:
+        '<label class="field"><span class="field-label">Palette</span><select id="constellationPreset"></select></label>',
       form:
         '<div class="group-label">Field</div>' +
         '<label class="field range"><span class="field-label">Node density</span>' +
@@ -234,7 +249,6 @@
         '<input id="constellationLinkOpacity" type="range" min="0" max="1" step="0.01"></label>',
       color:
         '<div class="group-label">Constellation colors</div>' +
-        '<label class="field"><span class="field-label">Preset</span><select id="constellationPreset"></select></label>' +
         '<label class="field color"><span class="field-label">Nodes</span>' +
         '<input id="constellationNodeColor" type="color"></label>' +
         '<label class="field color"><span class="field-label">Links</span>' +

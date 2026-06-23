@@ -153,9 +153,17 @@ registerStyle({
     { id: "dusk", name: "Dusk", set: { flowWarm: "#d18a5a", flowCool: "#5aa6d1", flowBgTop: "#03050a", flowBgBottom: "#02040a" } },
     { id: "graphene", name: "Graphene", set: { flowWarm: "#7fd7b2", flowCool: "#3f7d8c", flowBgTop: "#02040a", flowBgBottom: "#04070d" } },
     { id: "aurora", name: "Aurora", set: { flowWarm: "#c9bbff", flowCool: "#5a6f9a", flowBgTop: "#05070d", flowBgBottom: "#0b1019" } },
+    { id: "ember", name: "Ember", set: { flowWarm: "#dc896a", flowCool: "#70c2c2", flowBgTop: "#080c06", flowBgBottom: "#040603" } },
     { id: "amber", name: "Amber", set: { flowWarm: "#d7b84c", flowCool: "#7c6a4a", flowBgTop: "#090705", flowBgBottom: "#130f08" } },
+    { id: "gold", name: "Gold", set: { flowWarm: "#dac16c", flowCool: "#6688cc", flowBgTop: "#060c07", flowBgBottom: "#030604" } },
+    { id: "lime", name: "Lime", set: { flowWarm: "#a0d175", flowCool: "#926ec4", flowBgTop: "#060c0c", flowBgBottom: "#030606" } },
+    { id: "rose", name: "Rose", set: { flowWarm: "#d1759d", flowCool: "#6e71c4", flowBgTop: "#0b060c", flowBgBottom: "#060306" } },
     { id: "crimson", name: "Crimson", set: { flowWarm: "#c46a64", flowCool: "#6b4a4a", flowBgTop: "#080504", flowBgBottom: "#130b09" } },
-    { id: "ice", name: "Ice", set: { flowWarm: "#d8e7f4", flowCool: "#4c566a", flowBgTop: "#060809", flowBgBottom: "#0c1014" } }
+    { id: "magenta", name: "Magenta", set: { flowWarm: "#d175bf", flowCool: "#66bbcc", flowBgTop: "#07060c", flowBgBottom: "#030306" } },
+    { id: "copper", name: "Copper", set: { flowWarm: "#d19775", flowCool: "#66a2cc", flowBgTop: "#060c06", flowBgBottom: "#030603" } },
+    { id: "emerald", name: "Emerald", set: { flowWarm: "#75d1a3", flowCool: "#8797ab", flowBgTop: "#060c0c", flowBgBottom: "#030606" } },
+    { id: "ice", name: "Ice", set: { flowWarm: "#d8e7f4", flowCool: "#4c566a", flowBgTop: "#060809", flowBgBottom: "#0c1014" } },
+    { id: "mono", name: "Monolith", set: { flowWarm: "#cfd6da", flowCool: "#6b7378", flowBgTop: "#050608", flowBgBottom: "#020304" } },
   ],
   inputIds: [
     "flowStreams",
@@ -172,6 +180,7 @@ registerStyle({
     "flowCool"
   ],
   controlsHtml: {
+    setup: '<label class="field"><span class="field-label">Palette</span><select id="flowPreset"></select></label>',
     form: `
       <div class="group-label">Flow field</div>
       <label class="field range"><span class="field-label">Stream count</span><input id="flowStreams" type="range" min="60" max="900" step="10"></label>
@@ -185,7 +194,6 @@ registerStyle({
     `,
     color: `
       <div class="group-label">Flow colors</div>
-      <label class="field"><span class="field-label">Preset</span><select id="flowPreset"></select></label>
       <label class="field color"><span class="field-label">Warm tint</span><input id="flowWarm" type="color"></label>
       <label class="field color"><span class="field-label">Cool tint</span><input id="flowCool" type="color"></label>
       <label class="field color"><span class="field-label">Background top</span><input id="flowBgTop" type="color"></label>
