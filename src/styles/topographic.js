@@ -9,6 +9,25 @@
 "use strict";
 
 function generateTopographicSvg(p) {
+  // Topographic hosts three "forms": its own contour map (default) plus Sonar
+  // (radial interference) and Truchet (woven labyrinth), which reuse its palette,
+  // sensor and composition. The Form select in the Form panel switches between them.
+  const form = p.topographicForm || "contour";
+  if (form === "sonar" && typeof generateSonarSvg === "function") {
+    return generateSonarSvg({
+      ...p,
+      sonarColor: p.topographicColorInner, sonarAccent: p.topographicAccent,
+      sonarBgTop: p.topographicBgTop || "#05070a", sonarBgBottom: p.topographicBgBottom || "#0d1318",
+    });
+  }
+  if (form === "truchet" && typeof generateTruchetSvg === "function") {
+    return generateTruchetSvg({
+      ...p,
+      truchetColor: p.topographicColorInner, truchetAccent: p.topographicAccent,
+      truchetBgTop: p.topographicBgTop || "#05070a", truchetBgBottom: p.topographicBgBottom || "#0d1318",
+    });
+  }
+
   const W = Number(p.width);
   const H = Number(p.height);
   const unit = Math.min(W, H);
@@ -151,6 +170,7 @@ registerStyle({
     topographicColorInner: "#9ad4c2",
     topographicColorOuter: "#6d7882",
     topographicPreset: "graphene-default",
+    topographicForm: "contour",
   },
   colorIds: ["topographicColorInner", "topographicColorOuter", "topographicAccent"],
   presets: projectPalettes((p) => ({ topographicColorInner: p.accent2, topographicColorOuter: p.lineColor, topographicAccent: p.accent })),
@@ -164,6 +184,7 @@ registerStyle({
     "topographicAccent",
     "topographicColorInner",
     "topographicColorOuter",
+    "topographicForm",
   ],
   controlsHtml: {
     setup:
@@ -171,6 +192,10 @@ registerStyle({
       '<div class="group-label">Display</div>' +
       '<div class="toggle-group"><label class="chip-toggle"><input id="topographicAccentOn" type="checkbox"><span>Accent<br />lines</span></label></div>',
     form:
+      '<div class="group-label">Form</div>' +
+      '<label class="field"><span class="field-label">Form</span><select id="topographicForm">' +
+      '<option value="contour">Contours</option><option value="sonar">Sonar</option><option value="truchet">Truchet</option>' +
+      '</select></label>' +
       '<div class="group-label">Contours</div>' +
       '<label class="field range"><span class="field-label">Levels</span>' +
       '<input id="topographicLevels" type="range" min="6" max="60" step="1"></label>' +
