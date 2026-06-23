@@ -1,0 +1,31 @@
+{
+  "name": "GrapheneOS Wallpaper Studio",
+  "short_name": "Wallpapers",
+  "description": "Generate geometric GrapheneOS-style wallpapers and export them to WebP/PNG — fully offline, in your browser.",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#05070a",
+  "theme_color": "#05070a",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["utilities", "personalization", "graphics"],
+  "prefer_related_applications": false,
+  "icons": [
+    { "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "screenshots": [
+    {
+      "src": "./screenshots/app.png",
+      "sizes": "414x896",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Wallpaper Studio — live preview with the control panel"
+    }
+  ]
+}

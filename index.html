@@ -4,8 +4,21 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="color-scheme" content="dark">
+  <meta name="description" content="Generate geometric GrapheneOS-style wallpapers and export them to WebP/PNG — fully offline, in your browser.">
   <title>GrapheneOS Wallpaper Studio</title>
   <link rel="stylesheet" href="./src/style.css">
+
+  <!-- PWA: installable, offline-capable. Relative paths so it works under the
+       GitHub Pages project subpath (and file://). -->
+  <link rel="manifest" href="./manifest.webmanifest">
+  <meta name="theme-color" content="#05070a">
+  <link rel="icon" type="image/svg+xml" href="./icon.svg">
+  <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+  <link rel="apple-touch-icon" href="./icon-180.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Wallpapers">
 </head>
 <body>
   <main id="app" class="app-shell">
@@ -351,5 +364,15 @@
   <script src="./src/styles/flow.js"></script>
   <script src="./src/styles/circuit.js"></script>
   <script src="./src/app.js"></script>
+
+  <!-- Register the service worker for offline use + installability. Secure-context
+       only, so it no-ops harmlessly on file://. Never blocks first paint. -->
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker.register("./sw.js").catch(function () {});
+      });
+    }
+  </script>
 </body>
 </html>
