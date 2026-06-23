@@ -209,6 +209,12 @@
     { id: "ice", name: "Ice", set: { constellationNodeColor: "#95b0bb", constellationLinkColor: "#828d91", constellationHubColor: "#cad4d8", constellationBgTop: "#08090a", constellationBgBottom: "#040505" } },
     { id: "slate", name: "Slate", set: { constellationNodeColor: "#9ea7b3", constellationLinkColor: "#85898e", constellationHubColor: "#cdd1d5", constellationBgTop: "#08090a", constellationBgBottom: "#040505" } },
     { id: "mono", name: "Monolith", set: { constellationNodeColor: "#a8a8a8", constellationLinkColor: "#8a8a8a", constellationHubColor: "#d1d1d1", constellationBgTop: "#090909", constellationBgBottom: "#050505" } },
+    { id: "oxidized-copper", name: "Oxidized Copper", set: { constellationNodeColor: "#4fb5a0", constellationLinkColor: "#7c7668", constellationHubColor: "#d89f6a", constellationBgTop: "#070604", constellationBgBottom: "#030302" } },
+    { id: "ember-ice", name: "Ember & Ice", set: { constellationNodeColor: "#6fd0e0", constellationLinkColor: "#8a7d76", constellationHubColor: "#e89a6a", constellationBgTop: "#06080c", constellationBgBottom: "#020306" } },
+    { id: "sodium-steel", name: "Sodium & Steel", set: { constellationNodeColor: "#8fb6cf", constellationLinkColor: "#8c8270", constellationHubColor: "#f0c074", constellationBgTop: "#07090c", constellationBgBottom: "#030405" } },
+    { id: "magenta-lime", name: "Magenta & Lime", set: { constellationNodeColor: "#c77ad0", constellationLinkColor: "#8a8a78", constellationHubColor: "#c2e08a", constellationBgTop: "#0a060c", constellationBgBottom: "#050304" } },
+    { id: "gold-azure", name: "Gold & Azure", set: { constellationNodeColor: "#5aa6e0", constellationLinkColor: "#8c8470", constellationHubColor: "#e6c87a", constellationBgTop: "#05080d", constellationBgBottom: "#020407" } },
+    { id: "verdigris", name: "Verdigris", set: { constellationNodeColor: "#57c4a6", constellationLinkColor: "#8a7a55", constellationHubColor: "#e0b074", constellationBgTop: "#060806", constellationBgBottom: "#020403" } },
   ],
     inputIds: [
       "constellationDensity",

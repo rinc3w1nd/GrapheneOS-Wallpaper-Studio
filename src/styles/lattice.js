@@ -261,18 +261,25 @@ function generateLatticeSvg(p) {
     [3, 1, 0], [4, 1, 0], [2, 2, 0], [3, 2, 0]
   ];
 
-  const accentMap = new Map([
-    ["-4,2,0", 1], ["-2,2,0", 3], ["0,1,0", 4], ["2,-1,0", 2],
-    ["3,-2,0", 1], ["3,1,0", 2], ["1,2,0", 4], ["-5,2,0", 3],
-    ["2,2,0", 1], ["-1,0,0", 2]
-  ]);
-
+  // Box layout is seed-driven: the base cluster plus a few seed-grown adjacent
+  // cells, each with a seeded elevation and accent, so reseeding rearranges the
+  // boxes themselves — not just the scaffold lines and node dots.
+  const extra = [];
+  for (let i = 0; i < 16; i += 1) {
+    const base = baseCluster[Math.floor(rnd() * baseCluster.length)];
+    extra.push([base[0] + (Math.floor(rnd() * 3) - 1), base[1] + (Math.floor(rnd() * 3) - 1), 0]);
+  }
+  const cluster = baseCluster.concat(extra);
+  const placed = new Set();
   parts.push('<g id="main-structure">');
-  baseCluster.forEach((cell) => {
-    if (rnd() > p.structureDensity && !accentMap.has(cell.join(","))) return;
-    const key = cell.join(",");
-    const elevated = ((cell[0] + cell[1]) % 5 === 0) ? 1 : 0;
-    const faceMode = accentMap.get(key) || 0;
+  cluster.forEach((cell) => {
+    const key = cell[0] + "," + cell[1];
+    if (placed.has(key)) return;            // dedup overlapping columns
+    placed.add(key);
+    const isAccent = rnd() < 0.22;
+    if (!isAccent && rnd() > p.structureDensity) return;
+    const elevated = rnd() < 0.24 ? (rnd() < 0.5 ? 1 : 2) : 0;
+    const faceMode = isAccent ? 1 + Math.floor(rnd() * 4) : 0;
     const strong = faceMode > 0 || rnd() < 0.28;
     parts.push(cube(cell[0], cell[1], elevated, faceMode, strong, p, rnd));
   });

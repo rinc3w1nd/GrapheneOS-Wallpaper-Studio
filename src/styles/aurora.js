@@ -20,7 +20,8 @@ function generateAuroraSvg(p) {
   const warp = Math.max(0, Math.min(0.9, num(p.auroraWarp, 0.34)));
   const warpScale = Math.max(0.4, Math.min(8, num(p.auroraWarpScale, 2.2)));
   const widthFrac = Math.max(0.04, Math.min(0.6, num(p.auroraWidth, 0.18)));
-  const glow = Math.max(0, Math.min(1, num(p.auroraGlow, 0.6)));
+  const glow = Math.max(0, Math.min(1, num(p.auroraGlow, 0.6)));               // cloud density / bloom
+  const whispDensity = Math.max(0, Math.min(1, num(p.auroraWhispDensity, 0.6))); // whisp count / opacity
   const baseOpacity = Math.max(0.1, Math.min(1, num(p.auroraOpacity, 0.6)));
   const segments = 44;
 
@@ -159,7 +160,7 @@ function generateAuroraSvg(p) {
   parts.push(`<image x="0" y="0" width="${W}" height="${H}" preserveAspectRatio="none" href="${gasHref}"/>`);
 
   // energetic whisps, screen-blended + lightly blurred, over the gas
-  const whispN = Math.max(6, Math.min(Math.floor(640 / bands), Math.round(12 + glow * 22)));
+  const whispN = Math.max(4, Math.min(Math.floor(720 / bands), Math.round(6 + whispDensity * 34)));
   parts.push(`<g id="aurora-whisps" filter="url(#auroraWhisp)" style="mix-blend-mode:screen">`);
   for (let b = 0; b < bands; b += 1) {
     const band = bandDefs[b];
@@ -172,7 +173,7 @@ function generateAuroraSvg(p) {
       const sw = bright
         ? Math.max(1.6, unit * 0.004 * (0.7 + rand()))
         : Math.max(0.8, unit * 0.0015 * (0.6 + rand() * 1.8));
-      const op = band.op * (bright ? 0.32 + rand() * 0.3 : 0.1 + rand() * 0.16) * (0.7 + 0.6 * glow);
+      const op = band.op * (bright ? 0.32 + rand() * 0.3 : 0.1 + rand() * 0.16) * (0.7 + 0.6 * whispDensity);
       const col = bandColor(clamp01(band.hue + (rand() - 0.5) * 0.34));
       const d = strandPath(band, laneOffset, phase2, startY, endY, bright ? 1.7 : 1.3);
       parts.push(`<path d="${d}" fill="none" stroke="${col}" stroke-opacity="${op.toFixed(3)}" stroke-width="${sw.toFixed(2)}" stroke-linecap="round"/>`);
@@ -201,6 +202,7 @@ registerStyle({
     auroraWarpScale: 2.2,
     auroraWidth: 0.18,
     auroraGlow: 0.6,
+    auroraWhispDensity: 0.6,
     auroraOpacity: 0.6,
     auroraLow: "#1fd03d",
     auroraAccent1: "#31f0e0",
@@ -233,6 +235,7 @@ registerStyle({
     "auroraWarpScale",
     "auroraWidth",
     "auroraGlow",
+    "auroraWhispDensity",
     "auroraOpacity",
     "auroraLow",
     "auroraAccent1",
@@ -250,7 +253,8 @@ registerStyle({
       <label class="field range"><span class="field-label">Curl amount</span><input id="auroraWarp" type="range" min="0" max="0.8" step="0.01"></label>
       <label class="field range"><span class="field-label">Cloud scale</span><input id="auroraWarpScale" type="range" min="0.5" max="6" step="0.1"></label>
       <label class="field range"><span class="field-label">Whisp spread</span><input id="auroraWidth" type="range" min="0.05" max="0.45" step="0.01"></label>
-      <label class="field range"><span class="field-label">Bloom / density</span><input id="auroraGlow" type="range" min="0" max="1" step="0.05"></label>
+      <label class="field range"><span class="field-label">Cloud bloom</span><input id="auroraGlow" type="range" min="0" max="1" step="0.05"></label>
+      <label class="field range"><span class="field-label">Whisp density</span><input id="auroraWhispDensity" type="range" min="0" max="1" step="0.05"></label>
       <label class="field range"><span class="field-label">Opacity</span><input id="auroraOpacity" type="range" min="0.1" max="1" step="0.01"></label>
     `,
     color: `
