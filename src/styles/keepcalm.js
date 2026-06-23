@@ -35,7 +35,7 @@ function generateKeepCalmSvg(p) {
   const showWord = p.kcWordmark !== false;
 
   // ---- colours ----
-  const poster = p.kcPoster || "#a51d18";          // iconic poster surface
+  const poster = p.kcPoster || "#5c0700";          // iconic poster surface (deep oxblood red)
   const posterDk = mix(poster, "#000000", 0.42);
   const ink = p.kcInk || "#f3efe7";                // crown + wordmark
   const termBg = p.kcTermBg || "#03060a";
@@ -221,7 +221,7 @@ registerStyle({
     kcTearY: 50,
     kcGlitch: 0.6,
     kcWordmark: true,
-    kcPoster: "#a51d18",
+    kcPoster: "#5c0700",
     kcInk: "#f3efe7",
     kcTermBg: "#03060a",
     kcTermAccent: "#9ad4c2",
