@@ -423,9 +423,11 @@ function setupStyleToggle() {
     btn.addEventListener("click", () => {
       params = readParamsFromInputs();
       params.style = btn.dataset.style;
-      applyStyle(params.style);
-      render();
-      if (modal && modal.open) modal.close();   // picking a style dismisses the picker
+      applyStyle(params.style);                  // cheap DOM: active state, group show/hide, header label
+      if (modal && modal.open) modal.close();    // dismiss immediately so the tap feels acknowledged
+      // Defer the heavy per-pixel generate (aurora/fractal) so the closed modal
+      // and highlighted button paint first; debounce also coalesces rapid taps.
+      renderSoon();
     });
   });
 }

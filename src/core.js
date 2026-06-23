@@ -584,18 +584,6 @@ function clamp01(n) {
   return Math.max(0, Math.min(1, n));
 }
 
-// Encode a canvas as a compact data URI for inlining as an <image>. Per-pixel
-// field styles (fractal, aurora) produce noisy continuous-tone rasters that
-// balloon as lossless PNG; WebP/JPEG shrink the inlined string 8-26x with no
-// perceptible change. Mirrors the export-side encodeRaster() WebP->JPEG
-// fallback (WebKit/Safari has no canvas WebP encoder). Deterministic per
-// browser for identical pixels, same as toDataURL("image/png").
-function rasterDataUrl(canvas, quality = 0.9) {
-  const webp = canvas.toDataURL("image/webp", quality);
-  if (webp.startsWith("data:image/webp")) return webp;
-  return canvas.toDataURL("image/jpeg", quality); // Safari fallback (opaque pixels, no alpha needed)
-}
-
 function hexToRgb(hex) {
   const s = hex.replace("#", "").trim();
   const full = s.length === 3 ? s.split("").map((c) => c + c).join("") : s;
