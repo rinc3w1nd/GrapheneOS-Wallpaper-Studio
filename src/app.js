@@ -374,6 +374,58 @@ function syncFingerprintVisibility() {
   document.body.classList.toggle("fingerprint-off", !enabled);
 }
 
+// ── Tap-to-preview: open the current wallpaper full-screen in a <dialog> overlay
+// (not the Fullscreen API, which iOS Safari refuses on non-video elements; a
+// dialog works on every engine and under file:// / installed PWA).
+function ensurePreviewModal() {
+  let modal = document.querySelector("#preview-modal");
+  if (modal) return modal;
+  modal = document.createElement("dialog");
+  modal.id = "preview-modal";
+  modal.innerHTML =
+    '<div class="preview-modal-body" aria-label="Full-screen wallpaper preview"></div>' +
+    '<button type="button" class="preview-modal-close" aria-label="Close full-screen preview">✕</button>';
+  document.body.appendChild(modal);
+  // Tap anywhere (art, backdrop, or the ✕) dismisses, like a photo viewer.
+  modal.addEventListener("click", () => { if (modal.open) modal.close(); });
+  return modal;
+}
+
+function openPreviewFullscreen() {
+  if (!currentSvg) return;
+  const modal = ensurePreviewModal();
+  // The SVG carries a viewBox + default preserveAspectRatio, so it self-
+  // letterboxes to fit any screen with no distortion.
+  modal.querySelector(".preview-modal-body").innerHTML = currentSvg;
+  if (typeof modal.showModal === "function") modal.showModal();
+  else modal.setAttribute("open", "");
+}
+
+function setupPreviewFullscreen() {
+  if (!preview) return;
+  preview.setAttribute("role", "button");
+  preview.setAttribute("tabindex", "0");
+  preview.setAttribute("aria-label", "Tap to preview full screen");
+  preview.addEventListener("click", openPreviewFullscreen);
+  preview.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      openPreviewFullscreen();
+    }
+  });
+  // Discoverable affordance: a small expand glyph in the preview corner.
+  if (previewShell && !previewShell.querySelector(".preview-expand")) {
+    const hint = document.createElement("button");
+    hint.type = "button";
+    hint.className = "preview-expand";
+    hint.setAttribute("aria-label", "Full screen preview");
+    hint.innerHTML =
+      '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M16 3h3a2 2 0 0 1 2 2v3"/><path d="M8 21H5a2 2 0 0 1-2-2v-3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>';
+    hint.addEventListener("click", (event) => { event.stopPropagation(); openPreviewFullscreen(); });
+    previewShell.appendChild(hint);
+  }
+}
+
 
 function syncControlReadouts() {
   syncValueChips();
@@ -585,6 +637,7 @@ function initApp() {
   setupTabs();
   setupStyleToggle();
   setupToggleLabels();
+  setupPreviewFullscreen();
   params = { ...effectiveDefaults() };
   params.seed = randomSeed();   // fresh figure on each load/reload
   setInputsFromParams(params);
