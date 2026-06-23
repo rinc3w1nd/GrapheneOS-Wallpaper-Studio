@@ -161,6 +161,15 @@ test.describe("controls UI", () => {
     await expect(page.locator("#device")).toHaveValue("pixel-9");
   });
 
+  test("device selection applies the per-device fingerprint height", async ({ page }) => {
+    await page.locator("#device").selectOption("pixel-8-pro");
+    await expect(page.locator("#fingerprintYPct")).toHaveValue("73.2"); // measured
+    await page.locator("#device").selectOption("pixel-9-pro-xl");
+    await expect(page.locator("#fingerprintYPct")).toHaveValue("72.5");
+    await page.locator("#device").selectOption("pixel-7"); // unmeasured → 72.5 fallback
+    await expect(page.locator("#fingerprintYPct")).toHaveValue("72.5");
+  });
+
   test("a slider drives a re-render", async ({ page }) => {
     const before = await previewSvgHtml(page);
     await page.locator('.tab[data-tab="form"]').click();

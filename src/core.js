@@ -5,23 +5,23 @@
 "use strict";
 
 const DEVICE_PRESETS = [
-  { id: "pixel-10a", label: "Pixel 10a", codename: "stallion", width: 1080, height: 2424, category: "phone", notes: "Practical A-series preset until replaced with confirmed official display value." },
+  { id: "pixel-10a", label: "Pixel 10a", codename: "stallion", width: 1080, height: 2424, category: "phone" },
   { id: "pixel-10", label: "Pixel 10", codename: "frankel", width: 1080, height: 2424, category: "phone" },
   { id: "pixel-10-pro", label: "Pixel 10 Pro", codename: "blazer", width: 1280, height: 2856, category: "phone" },
-  { id: "pixel-10-pro-xl", label: "Pixel 10 Pro XL", codename: "mustang", width: 1344, height: 2992, category: "phone" },
+  { id: "pixel-10-pro-xl", label: "Pixel 10 Pro XL", codename: "mustang", width: 1344, height: 2992, category: "phone", fpYPct: 72.5 },
   { id: "pixel-10-pro-fold-cover", label: "Pixel 10 Pro Fold cover", codename: "rango", width: 1080, height: 2364, category: "fold-outer" },
   { id: "pixel-10-pro-fold-inner", label: "Pixel 10 Pro Fold inner", codename: "rango", width: 2076, height: 2152, category: "fold-inner" },
 
   { id: "pixel-9a", label: "Pixel 9a", codename: "tegu", width: 1080, height: 2424, category: "phone" },
   { id: "pixel-9", label: "Pixel 9", codename: "tokay", width: 1080, height: 2424, category: "phone" },
   { id: "pixel-9-pro", label: "Pixel 9 Pro", codename: "caiman", width: 1280, height: 2856, category: "phone" },
-  { id: "pixel-9-pro-xl", label: "Pixel 9 Pro XL", codename: "komodo", width: 1344, height: 2992, category: "phone" },
+  { id: "pixel-9-pro-xl", label: "Pixel 9 Pro XL", codename: "komodo", width: 1344, height: 2992, category: "phone", fpYPct: 72.5 },
   { id: "pixel-9-pro-fold-cover", label: "Pixel 9 Pro Fold cover", codename: "comet", width: 1080, height: 2424, category: "fold-outer" },
   { id: "pixel-9-pro-fold-inner", label: "Pixel 9 Pro Fold inner", codename: "comet", width: 2076, height: 2152, category: "fold-inner" },
 
   { id: "pixel-8a", label: "Pixel 8a", codename: "akita", width: 1080, height: 2400, category: "phone" },
   { id: "pixel-8", label: "Pixel 8", codename: "shiba", width: 1080, height: 2400, category: "phone" },
-  { id: "pixel-8-pro", label: "Pixel 8 Pro", codename: "husky", width: 1344, height: 2992, category: "phone" },
+  { id: "pixel-8-pro", label: "Pixel 8 Pro", codename: "husky", width: 1344, height: 2992, category: "phone", fpYPct: 73.2 },
 
   { id: "pixel-fold-cover", label: "Pixel Fold cover", codename: "felix", width: 1080, height: 2092, category: "fold-outer" },
   { id: "pixel-fold-inner", label: "Pixel Fold inner", codename: "felix", width: 1840, height: 2208, category: "fold-inner" },
@@ -535,6 +535,9 @@ function paramsForDevice(deviceId, current) {
     deviceId,
     width: d.width,
     height: d.height,
+    // Per-device fingerprint-sensor height (% down screen); unmeasured devices
+    // fall back to the 72.5 default. FP sensors are horizontally centred (X=50).
+    fingerprintYPct: d.fpYPct ?? 72.5,
     originXPct: isWide ? 50 : 46,
     originYPct: isWide ? 64 : 66,
     unitX: Math.round((isWide ? 132 : 106) * scale),
