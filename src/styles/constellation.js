@@ -180,7 +180,7 @@
       constellationFalloff: 0.65,
       constellationMaxLinks: 3,
       constellationNodeOpacity: 0.85,
-      constellationLinkOpacity: 0.6,
+      constellationLinkOpacity: 0.8,
       constellationHubEmphasis: 0.8,
       constellationBgTop: "#05070a",
       constellationBgBottom: "#0d1318",
